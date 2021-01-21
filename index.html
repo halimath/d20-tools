@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Dice Roller &ndash; D20 Tools</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        rel="stylesheet">        
+
+    <style>
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand">D20 Tools</span>
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link active" href=".">Dice Roller</a></li>
+                <li class="nav-item"><a class="nav-link" href="grid.html">Game Grid</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col mt-4 text-center invisible" id="result-wrapper">
+                <p class="display-1" id="result">18</p>
+                <p class="lead">Result of rolling a D<span id="die">20</span></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-1 s-invisible"></div>
+            <div class="col-sm-1 s-invisible"></div>
+            <div class="col col-sm-1 mt-2 text-center">
+                <button class="btn btn-secondary btn-large" data-die-btn="3">D3</button>
+            </div>
+            <div class="col col-sm-1 mt-2 text-center">
+                <button class="btn btn-secondary btn-large" data-die-btn="4">D4</button>
+            </div>
+            <div class="col col-sm-1 mt-2 text-center">
+                <button class="btn btn-secondary btn-large" data-die-btn="6">D6</button>
+            </div>
+            <div class="col col-sm-1 mt-2 text-center">
+                <button class="btn btn-secondary btn-large" data-die-btn="8">D8</button>
+            </div>
+            <div class="col col-sm-1 mt-2 text-center">
+                <button class="btn btn-secondary btn-large" data-die-btn="10">D10</button>
+            </div>
+            <div class="col col-sm-1 mt-2 text-center">
+                <button class="btn btn-secondary btn-large" data-die-btn="12">D12</button>
+            </div>
+            <div class="col col-sm-1 mt-2 text-center">
+                <button class="btn btn-primary btn-large" data-die-btn="20">D20</button>
+            </div>
+            <div class="col col-sm-1 mt-2 text-center">
+                <button class="btn btn-secondary btn-large" data-die-btn="100">D100</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const resultWrapper = document.querySelector("#result-wrapper");
+            const result = document.querySelector("#result");
+            const die = document.querySelector("#die");
+
+            const clickBtn = maxValue => {
+                resultWrapper.classList.remove("invisible");
+                result.innerText = Math.floor(Math.random() * maxValue) + 1;
+                die.innerText = maxValue;
+            }
+
+            document.querySelectorAll("[data-die-btn]").forEach(btn => {
+                const maxValue = parseInt(btn.getAttribute("data-die-btn"));
+                btn.addEventListener("click", clickBtn.bind(null, maxValue));
+            });
+        });
+    </script>
+</body>
+
+</html>
