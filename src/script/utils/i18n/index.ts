@@ -11,19 +11,25 @@ const Messages: {[key:string]: MessagesMap} = {
 
 const DefaultLanguage = "en"
 
-export function mpl(key: string, amount: number): string {
+export function mpl(key: string, amount: number, ...args: Array<any>): string {
     if (amount === 1) {
         return m(`${key}.1`)
     }
 
-    return m(`${key}.n`).replace(/%d/g, `${amount}`)
+    return m(`${key}.n`, ...args).replace(/%d/g, `${amount}`)
 }
 
-export function m(key: string): string {
+export function m(key: string, ...args: Array<any>): string {
     const messages = Messages[determineLanguage() as Lang]
     const defaultMessages = Messages[DefaultLanguage]
 
-    return messages[key] ?? defaultMessages[key] ?? `Undefined key: ${key}`
+    let msg = messages[key] ?? defaultMessages[key] ?? `Undefined key: ${key}`
+
+    for (let i = 0; i < args.length; i++) {
+        msg = msg.replace(`{{${i}}}`, args[i])
+    }
+
+    return msg
 }
 
 function determineLanguage (): string {

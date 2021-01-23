@@ -38,6 +38,18 @@ $ npm start
 to launch the webpack dev server, then open [localhost:9999](http://localhost:9999) in
 your favorite browser.
 
+### Generating the icons
+
+The icon is maintained as `icon.svg`. To generate a PNG version, we use `inkscape` with
+the following command:
+
+```
+$ inkscape icon.svg -w 48 --export-filename public/icon.png
+$ inkscape icon.svg -w 32 --export-filename public/favicon.png
+```
+
+Make sure to commit the generated files to git when changing the SVG.
+
 ## License
 
 This project is licensed under the Apache License V2.

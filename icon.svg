@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="22" height="26">
+    <style>
+        .outlines {
+            stroke: black;
+            stroke-width: 1;
+            stroke-opacity: 1;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .fill {
+            fill: white;
+        }
+    </style>
+
+    <g transform="translate(-9 -3)">
+        <path d="M 10 10 l 10 -6 l 10 6 l 0 12 l -10 6 l -10 -6 l 0 -12 l 10 -6" class="outlines fill" />
+
+        <path d="M 10 10 l 10 -2 l 10 2 m -10 -2 l 0 -4" class="outlines" />
+
+        <path d="M 10 10 l 4 10 l 12 0 l 4 -10" class="outlines" />
+
+        <path d="M 14 20 l 6 -12 l 6 12" class="outlines" />
+
+        <path d="M 14 20 l -4 2" class="outlines" />
+        <path d="M 14 20 l 6 8" class="outlines" />
+
+        <path d="M 26 20 l 4 2" class="outlines" />
+        <path d="M 26 20 l -6 8" class="outlines" />
+    </g>
+</svg>

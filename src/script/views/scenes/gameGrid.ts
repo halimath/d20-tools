@@ -1,4 +1,5 @@
 import * as wecco from "@wecco/core"
+import { m } from "src/script/utils/i18n"
 import { Message, ShowGameGrid } from "../../controller"
 import { GameGrid } from "../../models"
 import { appShell } from "../components/appShell"
@@ -26,14 +27,14 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
         <div class="container game-grid">
             <div class="row mt-4">
                 <div class="col input-group">
-                    <span class="input-group-text">Cols</span>
+                    <span class="input-group-text">${m("gameGrid.cols")}</span>
                     <input type="number" min="2" max="30" class="form-control me-2" value=${model.cols} @change=${(e: InputEvent) => {
                         const value = (e.target as HTMLInputElement).value
                         updateGridSize(parseInt(value), model.rows)
                     }}>
                 </div>
                 <div class="col input-group">
-                    <span class="input-group-text">Rows</span>
+                    <span class="input-group-text">${m("gameGrid.rows")}</span>
                     <input type="number" min="2" max="30" class="form-control me-2" value=${model.rows} @change=${(e: InputEvent) => {
                         const value = (e.target as HTMLInputElement).value
                         updateGridSize(model.cols, parseInt(value))
