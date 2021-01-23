@@ -1,0 +1,6 @@
+node_modules
+src
+LICENSE
+*.json
+README.md
+webpack.config.js

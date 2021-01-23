@@ -1,0 +1,30 @@
+{
+    "pool.hl": "Pool",
+    "pool.usage.t": "Tippe einen der kleinen Würfel an, um ihn dem Pool hinzuzufügen. Tippe einen der Würfel aus dem Pool an, um ihn zu entfernen.",
+    "pool.empty.t": "Dein Würfelpool ist leer.",
+    "pool.emptyPool.t": "Pool leeren",
+    "pool.roll.t": "Würfel rollen",
+
+    "result.hl": "Ergebnis",
+
+    "result.blank.t": "Kein Symbol",
+    "result.success.t.1": "1 Erfolg",
+    "result.success.t.n": "%d Erfolge",
+    "result.advantage.t.1": "1 Vorteil",
+    "result.advantage.t.n": "%d Vorteile",
+    "result.triumph.t.1": "1 Triumpf",
+    "result.triumph.t.n": "%d Triumpfe",
+    "result.failure.t.1": "1 Fehlschlag",
+    "result.failure.t.n": "%d Fehlschläge",
+    "result.threat.t.1": "1 Bedrohung",
+    "result.threat.t.n": "%d Bedrohungen",
+    "result.despair.t.1": "1 Verzweifelung",
+    "result.despair.t.n": "%d Verzweifelungen",
+    "result.lightside.t.1": "1 Helle Seite",
+    "result.lightside.t.n": "%d Helle Seiten",
+    "result.darkside.t.1": "1 Dunkle Seite",
+    "result.darkside.t.n": "%d Dunkle Seiten",
+
+    "result.copied.t": "In die Zwischenablage kopiert"
+
+}

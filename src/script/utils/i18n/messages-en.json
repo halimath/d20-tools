@@ -1,0 +1,50 @@
+{
+    "brandLogo.label": "Mixingnotes",
+    "brandLogo.href": "https://mixingnotes.wilanthaou.de",
+    
+    "loading": "Loading data...",
+
+    "breadcrumbs.projectList": "Project List",
+
+    "projectList": "Project List",
+    "projectList.empty": "No projects found.",
+    "projectList.addProject": "Add Project",
+    "projectList.numberOfSongs.1": "One Song",
+    "projectList.numberOfSongs.n": "%d Songs",
+
+    "project.listOfSongs": "Songs of this Project",
+    "project.songCard.numberOfNotes.1": "One Note",
+    "project.songCard.numberOfNotes.n": "%d Notes",
+    "project.addSong": "Add Song",
+    "project.edit": "Edit Project",
+    "project.delete": "Delete Project",
+    "project.delete.confirm": "Are you sure you want to delete project %s?",
+
+    "editProject": "Edit Project",
+    "editProject.save": "Save Project",
+    "editProject.cancel": "Cancel",
+    "editProject.name": "Project's name",
+    "editProject.tags": "Project's tags",
+    
+    "editSong": "Edit Song",
+    "editSong.save": "Save Song",
+    "editSong.cancel": "Cancel",
+    "editSong.title": "Song's title",
+    "editSong.tags": "Song's tags",
+
+    "song.addNote": "Add Note",
+    "song.edit": "Edit Song",
+    "song.audioFile": "Audio File",
+    "song.notes": "Notes",
+    "song.attachAudioFile": "Attach Audio File",
+
+    "mainMenu.logout": "Logout",
+    "mainMenu.about": "About Mixingnotes",
+
+    "about.title": "Mixingnotes",
+    "about.version": "Mixingnotes v%s.",
+    "about.copyright": "Copyright (c) 2017-2020 Alexander Metzner & Sebastian Metzner Rickards. All rights reserved.",
+
+    "modal.close": "Close",
+    "modal.cancel": "Cancel"
+}

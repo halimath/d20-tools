@@ -1,0 +1,16 @@
+{
+    "name": "D20 Tools",
+    "short_name": "D20 Tools",
+    "theme_color": "#fff",
+    "background_color": "#212529",
+    "display": "standalone",
+    "start_url": ".",
+    "description": "Helper Tools for D20-based role playing games",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/icon.png",
+            "sizes": "1024x1024"
+        }
+    ]
+}
