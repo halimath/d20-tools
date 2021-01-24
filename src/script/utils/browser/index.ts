@@ -1,14 +1,14 @@
 
 export class Browser {
-    static get urlHash(): string | null {
+    static get urlHash(): string {
         if (!document.location.hash) {
-            return null
+            return ""
         }
 
         return document.location.hash.substr(1)
     }
 
-    static set urlHash(hash: string | null) {
+    static set urlHash(hash: string) {
         let url = document.location.pathname
         if (hash) {
             url += "#" + hash

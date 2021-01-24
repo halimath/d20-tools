@@ -1,4 +1,5 @@
 import * as wecco from "@wecco/core"
+import { GameGrid } from "src/script/models"
 import { m } from "src/script/utils/i18n"
 import { Message, ShowDiceRoller, ShowGameGrid } from "../../controller"
 
@@ -13,7 +14,7 @@ export function appShell(context: wecco.AppContext<Message>, main: wecco.Element
             </span>
             <ul class="navbar-nav me-auto flex-grow-1">
                 <li class="nav-item"><a class="nav-link" @click=${() => context.emit(new ShowDiceRoller())}>${m("nav.diceRoller")}</a></li>
-                <li class="nav-item"><a class="nav-link" @click=${() => context.emit(new ShowGameGrid())}>${m("nav.gameGrid")}</a></li>
+                <li class="nav-item"><a class="nav-link" @click=${() => context.emit(new ShowGameGrid(new GameGrid()))}>${m("nav.gameGrid")}</a></li>
             </ul>
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="https://github.com/halimath/d20-tools">${m("nav.source")}</a></li>

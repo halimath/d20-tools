@@ -1,3 +1,5 @@
+#app
+    background-color: white
 
 .dice-roller    
     .btn
@@ -21,20 +23,56 @@
             font-weight: bold
 
 .game-grid
+    $token-colors: ("grey": #aaa, "green": #02551d, "blue": #001f75, "red": #900018, "orange": #c54f00, "purple": #750075, "yellow": #b8a500, "black": #222, "brown": #5d2a00)
+
+    option.color-selector
+        display: inline-block
+        width: 4em
+        height: 2em
+        border-radius: 5px
+
+        // @each $token-color, $value in $token-colors
+        //     &.#{$token-color}
+        //         color: $value
+
+    select.color-selector
+        @each $token-color, $value in $token-colors
+            &.#{$token-color}
+                background-color: $value
+                color: lighten($value, 80%)
+
     svg
         width: 100%        
 
-        text
-            font-family: sans-serif
-            font-size: 20px
+        .legend
+            text
+                font-family: sans-serif
+                font-size: 30px
+                font-weight: bold
+                fill: black
+                text-anchor: middle
+                dominant-baseline: middle
+            circle
+                fill: white
+                fill-opacity: 0.8
 
-        rect
+        .canvas
             fill: white
         
-
-        line
+        .grid-line
             stroke: black
-            stroke-width: 1        
+            stroke-width: 1    
+            
+        .token
+            stroke-width: 1
+            stroke-linecap: round
 
+            @each $token-color, $value in $token-colors
+                &.#{$token-color}
+                    stroke: $value
+                    fill: lighten($value, 15%)
 
-
+            &.dashed
+                @each $token-color, $value in $token-colors
+                    &.#{$token-color}                        
+                        stroke: lighten($value, 15%)
