@@ -6,38 +6,48 @@ import { appShell } from "../components/appShell"
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"
 
+function svg(literals: TemplateStringsArray, ...placeholders: string[]): wecco.ElementUpdate {
+    let s = ""
+    for (let i = 0; i < literals.length; i++) {
+        s += literals[i]
+        if (i < placeholders.length) {
+            s += placeholders[i]
+        }
+    }
+
+    return (host: wecco.UpdateTarget, insertBefore?: Node) => {
+        const el = document.createElementNS(SVGNamespaceURI, "svg")
+        el.innerHTML = s
+        while (el.childNodes.length > 0) {
+            host.insertBefore(el.removeChild(el.childNodes[0]), insertBefore ?? null)
+        }
+    }
+}
+
 export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {
-    let svgElement: SVGElement
+    const updateSvgTransform = (svg: SVGElement) => {
+        const windowHeight = window.innerHeight
+        svg.style.height = `${windowHeight - svg.getBoundingClientRect().top - 5}px`
+       
+        const width = svg.getBoundingClientRect().width
+        const height = svg.getBoundingClientRect().height
+   
+        const gridSize = Math.min(width / model.cols, height / model.rows)
+    
+        const offsetX = (width - gridSize * model.cols) / 2
+        const offsetY = (height - gridSize * model.rows) / 2
+    
+        svg.querySelector("g")?.setAttribute("transform", `translate(${offsetX} ${offsetY}), scale(${gridSize / 10} ${gridSize / 10})`)
+    }
+
     const mountSvg = (svg: SVGElement) => {
         window.addEventListener("resize", () => {
-            if (!svgElement.isConnected) {
+            if (!svg.isConnected) {
                 return
             }
-            mountSvg(svgElement)            
+            updateSvgTransform(svg)
         })
 
-        document.addEventListener("keypress", (e: KeyboardEvent) => {
-            if (e.key === "+") {
-                context.emit(new SelectToken(new Token("cross", model.selectedToken.color)))
-                return
-            }
-            if (e.key === "/") {
-                context.emit(new SelectToken(new Token("dashes", model.selectedToken.color)))
-                return
-            }
-            if (e.key === "*") {
-                context.emit(new SelectToken(new Token("circle", model.selectedToken.color)))
-                return
-            }
-
-            const index = e.key.charCodeAt(0) - "1".charCodeAt(0)
-            if (index >= 0 && index < TokenColors.length) {
-                context.emit(new SelectToken(new Token(model.selectedToken.symbol, TokenColors[index])))
-            }
-        })
-
-        svgElement = svg
-        updateGameGrid(model, svgElement)
         svg.addEventListener("click", (e: MouseEvent) => {
             const bcr = svg.getBoundingClientRect()
             const width = bcr.width
@@ -64,10 +74,49 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
                 context.emit(new PlaceToken(targetCol, targetRow))
             }
         })
+
+        updateSvgTransform(svg)
     }
 
     const notifyGridSizeChanged = (cols: number, rows: number) => {
         context.emit(new ShowGameGrid(new GameGrid(cols, rows)))
+    }
+
+    const gridPath = []
+
+    for (let col = 1; col < model.cols; col++) {
+        gridPath.push(`M ${(col * 10)} 0 l 0 ${model.rows * 10}`)
+    }
+    for (let row = 1; row < model.rows; row++) {
+        gridPath.push(`M 0 ${(row * 10)} l ${model.cols * 10} 0`)
+    }
+
+    const svgContent = []
+
+    // Paint tokens first to allow painting the grid and coordinates over the tokens
+    for (let col = 0; col < model.cols; col++) {
+        for (let row = 0; row < model.rows; row++) {
+            const token = model.tokenAt(col, row)
+            if (typeof token !== "undefined") {
+                const e = createTokenElement(token)
+                e.setAttribute("transform", `translate(${(col * 10)} ${(row * 10)})`)
+                svgContent.push(e)
+            }
+        }
+    }
+
+    svgContent.push(svg`<path d="${gridPath.join(" ")}" class="grid-line"/>`)
+
+    for (let i = 1; i < model.cols + 1; i++) {
+        const l = createLegendElement(i.toString())
+        l.setAttribute("transform", `translate(${i * 10 - 5} 2)`)
+        svgContent.push(l)
+    }
+
+    for (let i = 1; i < model.rows + 1; i++) {
+        const l = createLegendElement(String.fromCharCode("A".charCodeAt(0) + (i - 1)))
+        l.setAttribute("transform", `translate(2 ${i * 10 - 5})`)
+        svgContent.push(l)
     }
 
     const body = wecco.html`
@@ -122,6 +171,9 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
             <div class="row mt-2">
                 <div class="col">
                     <svg xmlns="http://www.w3.org/2000/svg" @mount=${mountSvg}>
+                        <g>
+                            ${svgContent}
+                        </g>
                     </svg>
                 </div>
             </div>        
@@ -131,85 +183,13 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
     return appShell(context, body)
 }
 
-function updateGameGrid (model: GameGrid, svg: SVGElement) {
-    const windowHeight = window.innerHeight
-    svg.style.height = `${windowHeight - svg.getBoundingClientRect().top - 5}px`
-
-    while (svg.childNodes.length > 0) {
-        svg.removeChild(svg.childNodes[0])
-    }
-
-    const width = svg.getBoundingClientRect().width
-    const height = svg.getBoundingClientRect().height
-
-    const rect = document.createElementNS(SVGNamespaceURI, "rect")
-    rect.setAttribute("x", "0")
-    rect.setAttribute("y", "0")
-    rect.setAttribute("width", `${width}`)
-    rect.setAttribute("height", `${height}`)
-    rect.classList.add("canvas")
-    svg.appendChild(rect)
-
-    const cols = model.cols
-    const rows = model.rows
-
-    const gridSize = Math.min(width / cols, height / rows)
-
-    const offsetX = (width - gridSize * cols) / 2
-    const offsetY = (height - gridSize * rows) / 2
-
-    // Paint tokens first to allow painting the grid and coordinates over the tokens
-    for (let col = 0; col < cols; col++) {
-        for (let row = 0; row < rows; row++) {
-            const token = model.tokenAt(col, row)
-            if (typeof token !== "undefined") {
-                const e = createTokenElement(token)
-                e.setAttribute("transform", `translate(${offsetX + col*gridSize} ${offsetY + row*gridSize}) scale(${gridSize/10} ${gridSize/10})`)
-                svg.appendChild(e)
-            }
-        }
-    }
-
-    for (let i = 1; i < cols; i++) {
-        const line = document.createElementNS(SVGNamespaceURI, "line")
-        line.setAttribute("x1", `${offsetX + i * gridSize}`)
-        line.setAttribute("y1", `${offsetY}`)
-        line.setAttribute("x2", `${offsetX + i * gridSize}`)
-        line.setAttribute("y2", `${height - offsetY}`)
-        line.classList.add("grid-line")
-        svg.appendChild(line)
-    }
-
-    for (let i = 1; i < cols + 1; i++) {
-        const l = createLlegendElement(i.toString())
-        l.setAttribute("transform", `translate(${offsetX + (i-1) * gridSize + gridSize / 2} ${offsetY + 30})`)
-        svg.appendChild(l)
-    }
-
-    for (let i = 1; i < rows; i++) {
-        const line = document.createElementNS(SVGNamespaceURI, "line")
-        line.setAttribute("x1", `${offsetX}`)
-        line.setAttribute("y1", `${offsetY + i * gridSize}`)
-        line.setAttribute("x2", `${width - offsetX}`)
-        line.setAttribute("y2", `${offsetY + i * gridSize}`)
-        line.classList.add("grid-line")
-        svg.appendChild(line)
-    }
-
-    for (let i = 1; i < rows + 1; i++) {
-        const l = createLlegendElement(String.fromCharCode("A".charCodeAt(0) + (i - 1)))
-        l.setAttribute("transform", `translate(${offsetX + 30} ${offsetY + (i - 1) * gridSize + gridSize/2})`)
-        svg.appendChild(l)
-    }    
-}
-
-function createLlegendElement(label: string): SVGElement {
+function createLegendElement(label: string): SVGElement {
     const g = document.createElementNS(SVGNamespaceURI, "g")
 
     const circle = document.createElementNS(SVGNamespaceURI, "circle")
     circle.setAttribute("cx", "0")
     circle.setAttribute("cy", "0")
-    circle.setAttribute("r", "20")
+    circle.setAttribute("r", "1.5")
     g.appendChild(circle)
 
     const text = document.createElementNS(SVGNamespaceURI, "text")
@@ -240,5 +220,6 @@ function createTokenElement (token: Token): SVGElement {
     e.classList.add("token")
     e.classList.add(token.symbol)
     e.classList.add(token.color)
+
     return e
 }
