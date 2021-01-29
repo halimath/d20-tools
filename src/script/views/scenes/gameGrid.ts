@@ -54,8 +54,6 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
             const targetCol = Math.floor((e.clientX - bcr.left - offsetX) / gridSize)
             const targetRow = Math.floor((e.clientY - bcr.top - offsetY) / gridSize)
 
-            console.log(targetCol, targetRow)
-
             if (targetCol >= model.cols || targetRow >= model.rows) {
                 return
             }
@@ -96,7 +94,7 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
                         const selectedSymbol = (e.target as HTMLSelectElement).selectedOptions[0]?.getAttribute("data-symbol") as TokenSymbol ?? "dashes"
                         context.emit(new SelectToken(new Token(selectedSymbol, model.selectedToken.color)))
                     }}>
-                        ${TokenSymbols.map((s, idx) => wecco.html`
+                        ${TokenSymbols.map(s => wecco.html`
                             <option ?selected=${s === model.selectedToken.symbol} class="symbol-selector ${s}" data-symbol=${s}>${m("gameGrid.symbol." + s)}</option>
                         `)}                    
                     </select>
@@ -107,7 +105,7 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
                         const selectedColor = (e.target as HTMLSelectElement).selectedOptions[0]?.getAttribute("data-color") as TokenColor ?? "grey"
                         context.emit(new SelectToken(new Token(model.selectedToken.symbol, selectedColor)))
                     }}>
-                        ${TokenColors.map((c, idx) => wecco.html`
+                        ${TokenColors.map(c => wecco.html`
                             <option ?selected=${c === model.selectedToken.color} class="color-selector ${c}" data-color=${c}>${m("gameGrid.color." + c)}</option>
                         `)}                    
                     </select>
@@ -123,7 +121,8 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
         <div class="container-fluid game-grid">
             <div class="row mt-2">
                 <div class="col">
-                    <svg xmlns="http://www.w3.org/2000/svg" @mount=${mountSvg}></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" @mount=${mountSvg}>
+                    </svg>
                 </div>
             </div>        
         </div>

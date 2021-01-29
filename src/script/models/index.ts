@@ -41,7 +41,7 @@ const tokenColorUrlCharMapping = new Map<TokenColor, string>()
     .set("orange", "o")
     .set("purple", "p")
     .set("yellow", "y")
-    .set("black", "b")
+    .set("black", "k")
     .set("brown", "w")
 
 export class Token {
