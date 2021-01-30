@@ -96,17 +96,25 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
 }
 
 function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {
-    function updateSvgTransform (svg: SVGElement) {
-        const windowHeight = window.innerHeight
-        svg.style.height = `${windowHeight - svg.getBoundingClientRect().top - 5}px`
-       
-        const width = svg.getBoundingClientRect().width
-        const height = svg.getBoundingClientRect().height
+    function calculateGridSizeAndOffsets (svg: SVGElement): [number, [number, number]] {
+        const bcr = svg.getBoundingClientRect()
+
+        const width = bcr.width
+        const height = bcr.height
    
         const gridSize = Math.min(width / model.cols, height / model.rows)
     
         const offsetX = (width - gridSize * model.cols) / 2
         const offsetY = (height - gridSize * model.rows) / 2
+
+        return [gridSize, [offsetX, offsetY]]
+    }
+
+    function updateSvgTransform (svg: SVGElement) {
+        const windowHeight = window.innerHeight
+        svg.style.height = `${windowHeight - svg.getBoundingClientRect().top - 5}px`
+       
+        const [gridSize, [offsetX, offsetY]] = calculateGridSizeAndOffsets(svg)
     
         svg.querySelector("g")?.setAttribute("transform", `translate(${offsetX} ${offsetY}), scale(${gridSize / 10} ${gridSize / 10})`)
     }
@@ -121,13 +129,7 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
 
         svg.addEventListener("click", (e: MouseEvent) => {
             const bcr = svg.getBoundingClientRect()
-            const width = bcr.width
-            const height = bcr.height
-       
-            const gridSize = Math.min(width / model.cols, height / model.rows)
-        
-            const offsetX = (width - gridSize * model.cols) / 2
-            const offsetY = (height - gridSize * model.rows) / 2
+            const [gridSize, [offsetX, offsetY]] = calculateGridSizeAndOffsets(svg)
 
             const targetCol = Math.floor((e.clientX - bcr.left - offsetX) / gridSize)
             const targetRow = Math.floor((e.clientY - bcr.top - offsetY) / gridSize)
