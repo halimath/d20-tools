@@ -21,10 +21,5 @@
     "gameGrid.color.purple": "Lila",
     "gameGrid.color.yellow": "Gelb",
     "gameGrid.color.black": "Schwarz",
-    "gameGrid.color.brown": "Braun",
-
-    "gameGrid.symbol.cross":  "x x x x x x x",
-    "gameGrid.symbol.circle": "o o o o o o o",
-    "gameGrid.symbol.dashes": "/ / / / / / /"
-
+    "gameGrid.color.brown": "Braun"
 }

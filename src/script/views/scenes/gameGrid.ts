@@ -25,7 +25,68 @@ function svg(literals: TemplateStringsArray, ...placeholders: string[]): wecco.E
 }
 
 export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {
-    const updateSvgTransform = (svg: SVGElement) => {
+    function notifyGridSizeChanged(cols: number, rows: number) {
+        context.emit(new ShowGameGrid(new GameGrid(cols, rows)))
+    }
+
+    const body = wecco.html`
+        <div class="container game-grid">
+            <div class="row mt-4">
+                <div class="col input-group">
+                    <span class="input-group-text">${m("gameGrid.cols")}</span>
+                    <input type="number" min="2" max="30" class="form-control me-2" value=${model.cols} @change=${(e: InputEvent) => {
+                        const value = (e.target as HTMLInputElement).value
+                        notifyGridSizeChanged(parseInt(value), model.rows)
+                    }}>
+                </div>
+                
+                <div class="col input-group">
+                    <span class="input-group-text">${m("gameGrid.rows")}</span>
+                    <input type="number" min="2" max="30" class="form-control me-2" value=${model.rows} @change=${(e: InputEvent) => {
+                        const value = (e.target as HTMLInputElement).value
+                        notifyGridSizeChanged(model.cols, parseInt(value))
+                    }}>
+                </div>
+
+                <div class="col">
+                    <div class="btn-group">
+                        ${TokenSymbols.map(s => wecco.html`
+                            <button @click=${() => context.emit(new SelectToken(new Token(s, model.selectedToken.color)))} class="btn ${s === model.selectedToken.symbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">${m("gameGrid.symbol." + s)}</button>
+                        `)}
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="btn-group">
+                    ${
+                        TokenColors.map(c => wecco.html`
+                        <button @click=${() => context.emit(new SelectToken(new Token(model.selectedToken.symbol, c)))} class="btn btn-outline-secondary color-selector ${c} ${c === model.selectedToken.color ? "selected" : ""}">${m("gameGrid.color." + c)}</button>
+                        `)
+                    }
+                    </div>
+                </div>
+
+                <div class="col">
+                    <button class="btn btn-primary d-flex justify-content-center align-content-between" @click=${() => {
+                        document.body.requestFullscreen()
+                    }}><i class="material-icons mr-1">fullscreen</i></button>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid game-grid">
+            <div class="row mt-2">
+                <div class="col">
+                    ${gridContent(context, model)}
+                </div>
+            </div>        
+        </div>
+    `
+
+    return appShell(context, body)
+}
+
+function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {
+    function updateSvgTransform (svg: SVGElement) {
         const windowHeight = window.innerHeight
         svg.style.height = `${windowHeight - svg.getBoundingClientRect().top - 5}px`
        
@@ -40,7 +101,7 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
         svg.querySelector("g")?.setAttribute("transform", `translate(${offsetX} ${offsetY}), scale(${gridSize / 10} ${gridSize / 10})`)
     }
 
-    const mountSvg = (svg: SVGElement) => {
+    function mountSvg (svg: SVGElement) {
         window.addEventListener("resize", () => {
             if (!svg.isConnected) {
                 return
@@ -52,14 +113,11 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
             const bcr = svg.getBoundingClientRect()
             const width = bcr.width
             const height = bcr.height
-
-            const cols = model.cols
-            const rows = model.rows
+       
+            const gridSize = Math.min(width / model.cols, height / model.rows)
         
-            const gridSize = Math.min(width / cols, height / rows)
-        
-            const offsetX = (width - gridSize * cols) / 2
-            const offsetY = (height - gridSize * rows) / 2
+            const offsetX = (width - gridSize * model.cols) / 2
+            const offsetY = (height - gridSize * model.rows) / 2
 
             const targetCol = Math.floor((e.clientX - bcr.left - offsetX) / gridSize)
             const targetRow = Math.floor((e.clientY - bcr.top - offsetY) / gridSize)
@@ -76,10 +134,6 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
         })
 
         updateSvgTransform(svg)
-    }
-
-    const notifyGridSizeChanged = (cols: number, rows: number) => {
-        context.emit(new ShowGameGrid(new GameGrid(cols, rows)))
     }
 
     const gridPath = []
@@ -119,69 +173,15 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
         svgContent.push(l)
     }
 
-    const body = wecco.html`
-        <div class="container game-grid">
-            <div class="row mt-4">
-                <div class="col input-group">
-                    <span class="input-group-text">${m("gameGrid.cols")}</span>
-                    <input type="number" min="2" max="30" class="form-control me-2" value=${model.cols} @change=${(e: InputEvent) => {
-                        const value = (e.target as HTMLInputElement).value
-                        notifyGridSizeChanged(parseInt(value), model.rows)
-                    }}>
-                </div>
-                
-                <div class="col input-group">
-                    <span class="input-group-text">${m("gameGrid.rows")}</span>
-                    <input type="number" min="2" max="30" class="form-control me-2" value=${model.rows} @change=${(e: InputEvent) => {
-                        const value = (e.target as HTMLInputElement).value
-                        notifyGridSizeChanged(model.cols, parseInt(value))
-                    }}>
-                </div>
-
-                <div class="col">
-                    <select class="form-select symbol-selector ${model.selectedToken.symbol}" @change=${(e: InputEvent) => {
-                        const selectedSymbol = (e.target as HTMLSelectElement).selectedOptions[0]?.getAttribute("data-symbol") as TokenSymbol ?? "dashes"
-                        context.emit(new SelectToken(new Token(selectedSymbol, model.selectedToken.color)))
-                    }}>
-                        ${TokenSymbols.map(s => wecco.html`
-                            <option ?selected=${s === model.selectedToken.symbol} class="symbol-selector ${s}" data-symbol=${s}>${m("gameGrid.symbol." + s)}</option>
-                        `)}                    
-                    </select>
-                </div>
-
-                <div class="col">
-                    <select class="form-select color-selector ${model.selectedToken.color}" @change=${(e: InputEvent) => {
-                        const selectedColor = (e.target as HTMLSelectElement).selectedOptions[0]?.getAttribute("data-color") as TokenColor ?? "grey"
-                        context.emit(new SelectToken(new Token(model.selectedToken.symbol, selectedColor)))
-                    }}>
-                        ${TokenColors.map(c => wecco.html`
-                            <option ?selected=${c === model.selectedToken.color} class="color-selector ${c}" data-color=${c}>${m("gameGrid.color." + c)}</option>
-                        `)}                    
-                    </select>
-                </div>
-
-                <div class="col">
-                    <button class="btn btn-primary d-flex justify-content-center align-content-between" @click=${() => {
-                        document.body.requestFullscreen()
-                    }}><i class="material-icons mr-1">fullscreen</i></button>
-                </div>
-            </div>
-        </div>
-        <div class="container-fluid game-grid">
-            <div class="row mt-2">
-                <div class="col">
-                    <svg xmlns="http://www.w3.org/2000/svg" @mount=${mountSvg}>
-                        <g>
-                            ${svgContent}
-                        </g>
-                    </svg>
-                </div>
-            </div>        
-        </div>
-    `
-
-    return appShell(context, body)
+    return wecco.html`
+    <svg xmlns="http://www.w3.org/2000/svg" @mount=${mountSvg}>
+        <g>
+            ${svgContent}
+        </g>
+    </svg>
+    ` 
 }
+
 
 function createLegendElement(label: string): SVGElement {
     const g = document.createElementNS(SVGNamespaceURI, "g")

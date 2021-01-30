@@ -23,7 +23,7 @@
     "gameGrid.color.black": "Black",
     "gameGrid.color.brown": "Brown",
 
-    "gameGrid.symbol.cross":  "x x x x x x x",
-    "gameGrid.symbol.circle": "o o o o o o o",
-    "gameGrid.symbol.dashes": "/ / / / / / /"
+    "gameGrid.symbol.cross":  "x",
+    "gameGrid.symbol.circle": "o",
+    "gameGrid.symbol.dashes": "///"
 }
