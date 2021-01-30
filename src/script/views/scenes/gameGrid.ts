@@ -1,7 +1,7 @@
 import * as wecco from "@wecco/core"
 import { m } from "src/script/utils/i18n"
 import { Message, PlaceToken, SelectToken, ShowGameGrid } from "../../controller"
-import { GameGrid, Token, TokenColors, TokenSymbols, TokenColor, TokenSymbol } from "../../models"
+import { GameGrid, Token, TokenColors, TokenSymbols, TokenColor, TokenSymbol, TokenSymbolUrlCharMapping, TokenColorUrlCharMapping } from "../../models"
 import { appShell } from "../components/appShell"
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"
@@ -51,7 +51,12 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
                 <div class="col">
                     <div class="btn-group">
                         ${TokenSymbols.map(s => wecco.html`
-                            <button @click=${() => context.emit(new SelectToken(new Token(s, model.selectedToken.color)))} class="btn ${s === model.selectedToken.symbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">${m("gameGrid.symbol." + s)}</button>
+                            <button 
+                                @click=${() => context.emit(new SelectToken(new Token(s, model.selectedToken.color)))} 
+                                accesskey=${TokenSymbolUrlCharMapping.get(s)}
+                                class="btn ${s === model.selectedToken.symbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
+                                ${m("gameGrid.symbol." + s)}
+                            </button>
                         `)}
                     </div>
                 </div>
@@ -60,7 +65,12 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
                     <div class="btn-group">
                     ${
                         TokenColors.map(c => wecco.html`
-                        <button @click=${() => context.emit(new SelectToken(new Token(model.selectedToken.symbol, c)))} class="btn btn-outline-secondary color-selector ${c} ${c === model.selectedToken.color ? "selected" : ""}">${m("gameGrid.color." + c)}</button>
+                        <button 
+                            @click=${() => context.emit(new SelectToken(new Token(model.selectedToken.symbol, c)))} 
+                            accesskey=${TokenColorUrlCharMapping.get(c)}
+                            class="btn btn-outline-secondary color-selector ${c} ${c === model.selectedToken.color ? "selected" : ""}">
+                            ${m("gameGrid.color." + c)}
+                        </button>
                         `)
                     }
                     </div>

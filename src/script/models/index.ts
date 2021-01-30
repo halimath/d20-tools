@@ -28,12 +28,12 @@ export type TokenSymbol = "circle" | "cross" | "dashes"
 
 export const TokenSymbols: Array<TokenSymbol> = ["circle", "cross", "dashes"]
 
-const tokenSymbolUrlCharMapping = new Map<TokenSymbol, string>()
+export const TokenSymbolUrlCharMapping = new Map<TokenSymbol, string>()
     .set("circle", "c")
     .set("cross", "x")
     .set("dashes", "d")
 
-const tokenColorUrlCharMapping = new Map<TokenColor, string>()
+export const TokenColorUrlCharMapping = new Map<TokenColor, string>()
     .set("grey", "e")
     .set("green", "g")
     .set("blue", "b")
@@ -56,14 +56,14 @@ export class Token {
         let symbol: TokenSymbol = "dashes"
         let color: TokenColor = "grey"
 
-        for (let s of tokenSymbolUrlCharMapping.keys()) {
-            if (symbolChar === tokenSymbolUrlCharMapping.get(s)) {
+        for (let s of TokenSymbolUrlCharMapping.keys()) {
+            if (symbolChar === TokenSymbolUrlCharMapping.get(s)) {
                 symbol = s
             }
         }
 
-        for (let c of tokenColorUrlCharMapping.keys()) {
-            if (colorChar === tokenColorUrlCharMapping.get(c)) {
+        for (let c of TokenColorUrlCharMapping.keys()) {
+            if (colorChar === TokenColorUrlCharMapping.get(c)) {
                 color = c
             }
         }
@@ -74,7 +74,7 @@ export class Token {
     constructor(public readonly symbol: TokenSymbol, public readonly color: TokenColor) { }
 
     toUrlHash(): string {
-        return (tokenSymbolUrlCharMapping.get(this.symbol) ?? "") + (tokenColorUrlCharMapping.get(this.color) ?? "")
+        return (TokenSymbolUrlCharMapping.get(this.symbol) ?? "") + (TokenColorUrlCharMapping.get(this.color) ?? "")
     }
 }
 
