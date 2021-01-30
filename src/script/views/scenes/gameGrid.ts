@@ -6,7 +6,7 @@ import { appShell } from "../components/appShell"
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"
 
-function svg(literals: TemplateStringsArray, ...placeholders: string[]): wecco.ElementUpdate {
+function svg(literals: TemplateStringsArray, ...placeholders: any[]): wecco.ElementUpdate {
     let s = ""
     for (let i = 0; i < literals.length; i++) {
         s += literals[i]
@@ -102,7 +102,7 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
         const width = bcr.width
         const height = bcr.height
    
-        const gridSize = Math.min(width / model.cols, height / model.rows)
+        const gridSize = Math.min(width / (model.cols + 1), height / (model.rows + 1))
     
         const offsetX = (width - gridSize * model.cols) / 2
         const offsetY = (height - gridSize * model.rows) / 2
@@ -134,7 +134,7 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
             const targetCol = Math.floor((e.clientX - bcr.left - offsetX) / gridSize)
             const targetRow = Math.floor((e.clientY - bcr.top - offsetY) / gridSize)
 
-            if (targetCol >= model.cols || targetRow >= model.rows) {
+            if (targetCol < 0 || targetCol >= model.cols || targetRow < 0 || targetRow >= model.rows) {
                 return
             }
 
@@ -175,14 +175,36 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
 
     for (let i = 1; i < model.cols + 1; i++) {
         const l = createLegendElement(i.toString())
-        l.setAttribute("transform", `translate(${i * 10 - 5} 2)`)
+        l.setAttribute("transform", `translate(${i * 10 - 5} -1)`)
         svgContent.push(l)
     }
 
     for (let i = 1; i < model.rows + 1; i++) {
         const l = createLegendElement(String.fromCharCode("A".charCodeAt(0) + (i - 1)))
-        l.setAttribute("transform", `translate(2 ${i * 10 - 5})`)
+        l.setAttribute("transform", `translate(-1 ${i * 10 - 5})`)
         svgContent.push(l)
+    }
+
+    svgContent.push(svg`
+        <path 
+            d="M 0 -4 l ${model.cols * 10} 0 M 0 -5 l 0 2"
+            class="ruler-line"/>        
+    `)
+
+    for (let c = 2; c <= model.cols; c += 2) {
+        svgContent.push(svg`<path d="M ${c * 10} -5 l 0 2" class="ruler-line"/>`)
+        svgContent.push(svg`<text x="${c * 10}" y="-2" class="ruler-text">${c * 1.5}m</text>`)
+    }
+
+svgContent.push(svg`
+        <path 
+            d="M -4 0 l 0 ${model.rows * 10} M -5 0 l 2 0"
+            class="ruler-line"/>        
+    `)
+
+    for (let r = 2; r <= model.rows; r += 2) {
+        svgContent.push(svg`<path d="M -5 ${r * 10} l 2 0" class="ruler-line"/>`)
+        svgContent.push(svg`<text x="-1.5" y="${r * 10}" class="ruler-text">${r * 1.5}m</text>`)
     }
 
     return wecco.html`
@@ -196,23 +218,14 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
 
 
 function createLegendElement(label: string): SVGElement {
-    const g = document.createElementNS(SVGNamespaceURI, "g")
-
-    const circle = document.createElementNS(SVGNamespaceURI, "circle")
-    circle.setAttribute("cx", "0")
-    circle.setAttribute("cy", "0")
-    circle.setAttribute("r", "1.5")
-    g.appendChild(circle)
-
     const text = document.createElementNS(SVGNamespaceURI, "text")
     text.setAttribute("x", "0")
     text.setAttribute("y", "0")
     text.appendChild(document.createTextNode(label))        
-    g.appendChild(text)
 
-    g.classList.add("legend")
+    text.classList.add("legend")
 
-    return g
+    return text
 }
 
 function createTokenElement (token: Token): SVGElement {
