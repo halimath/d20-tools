@@ -52,7 +52,7 @@ export class Token {
         }
 
         const [symbolChar, colorChar] = hash.split("")
-        
+
         let symbol: TokenSymbol = "dashes"
         let color: TokenColor = "grey"
 
@@ -75,7 +75,7 @@ export class Token {
 
     toUrlHash(): string {
         return (tokenSymbolUrlCharMapping.get(this.symbol) ?? "") + (tokenColorUrlCharMapping.get(this.color) ?? "")
-    }    
+    }
 }
 
 export class GameGrid {
@@ -83,21 +83,26 @@ export class GameGrid {
         const [_, colsString, rowsString, tokensString] = hash.split(":")
         const cols = parseInt(colsString)
         const rows = parseInt(rowsString)
-        const tokens: Array<Token | undefined> = Array.apply(null, {length: cols * rows})
+        const tokens: Array<Token | undefined> = Array.apply(null, { length: cols * rows })
 
         let insertIndex = 0
 
-        for (let i = 0; i < tokensString.length; i++) {            
+        for (let i = 0; i < tokensString.length; i++) {
             const c = tokensString.charAt(i)
             if (c === "-") {
                 const count = parseInt(tokensString.substr(i + 1))
                 insertIndex += count
                 i += count.toString().length
             } else {
-                tokens[insertIndex] = Token.fromUrlHash(tokensString.substr(i, 2))
-                insertIndex++
-                i++
+                const token = Token.fromUrlHash(tokensString.substr(i, 2))
+                const count = parseInt(tokensString.substr(i + 2))
+                i += count.toString().length + 1
+                for (let t = 0; t < count; t++) {
+                    tokens[insertIndex + t] = token                    
+                }
+                insertIndex += count
             }
+
             if (insertIndex >= tokens.length) {
                 break
             }
@@ -127,27 +132,33 @@ export class GameGrid {
     }
 
     toUrlHash(): string {
-        let tokensString = ""
-        let emptyCount = 0
+        let result = ""
+
+        let lastSymbol = ""
+        let count = 0
+
         for (let token of this.tokens) {
-            if (typeof token === "undefined") {
-                emptyCount++
-                continue
+            let symbol = "-"
+            if (typeof token !== "undefined") {
+                symbol = token.toUrlHash()
             }
-
-            if (emptyCount > 0) {
-                tokensString += `-${emptyCount}`
-                emptyCount = 0
+            if (lastSymbol === "") {
+                lastSymbol = symbol
+                count = 1
+            } else if (symbol === lastSymbol) {
+                count++
+            } else {
+                result += lastSymbol + count.toString()
+                lastSymbol = symbol
+                count = 1
             }
-
-            tokensString += token.toUrlHash()
         }
 
-        if (emptyCount > 0) {
-            tokensString += `-${emptyCount}`
+        if (count > 0) {
+            result += lastSymbol + count.toString()
         }
 
-        return `${UrlHashGameGrid}:${this.cols}:${this.rows}:${tokensString}`
+        return `${UrlHashGameGrid}:${this.cols}:${this.rows}:${result}`
     }
 }
 
