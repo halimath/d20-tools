@@ -41,9 +41,13 @@ export class PlaceToken {
     constructor(public readonly col: number, public readonly row: number, public readonly token?: Token) { }
 }
 
+export class ClearGrid {
+    readonly command = "clear-grid"
+}
+
 // --
 
-export type Message = Nop | ShowDiceRoller | ShowGameGrid | RollDie | PlaceToken | SelectToken
+export type Message = Nop | ShowDiceRoller | ShowGameGrid | RollDie | PlaceToken | SelectToken | ClearGrid
 
 export function update(model: Model, message: Message, context: wecco.AppContext<Message>): Model {
     switch (message.command) {
@@ -92,6 +96,13 @@ export function update(model: Model, message: Message, context: wecco.AppContext
                 return model
             }
             return new GameGrid(model.cols, model.rows, message.token, model.tokens)
+
+        case "clear-grid":
+            if (!(model instanceof GameGrid)) {
+                console.error(`inconsistency detected: ${model} is not an instance of GameGrid`)
+                return model
+            }
+            return new GameGrid(model.cols, model.rows)
     }
 }
 

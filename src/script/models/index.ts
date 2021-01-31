@@ -24,14 +24,16 @@ export type TokenColor = "grey" | "green" | "blue" | "red" | "orange" | "purple"
 
 export const TokenColors: Array<TokenColor> = ["grey", "green", "blue", "red", "orange", "purple", "yellow", "black", "brown"]
 
-export type TokenSymbol = "circle" | "cross" | "dashes"
+export type TokenSymbol = "circle" | "cross" | "square" | "diamond" | "lines"
 
-export const TokenSymbols: Array<TokenSymbol> = ["circle", "cross", "dashes"]
+export const TokenSymbols: Array<TokenSymbol> = ["circle", "cross", "square", "diamond", "lines"]
 
 export const TokenSymbolUrlCharMapping = new Map<TokenSymbol, string>()
     .set("circle", "c")
     .set("cross", "x")
-    .set("dashes", "d")
+    .set("lines", "l")
+    .set("square", "s")
+    .set("diamond", "d")
 
 export const TokenColorUrlCharMapping = new Map<TokenColor, string>()
     .set("grey", "e")
@@ -53,7 +55,7 @@ export class Token {
 
         const [symbolChar, colorChar] = hash.split("")
 
-        let symbol: TokenSymbol = "dashes"
+        let symbol: TokenSymbol = "lines"
         let color: TokenColor = "grey"
 
         for (let s of TokenSymbolUrlCharMapping.keys()) {
@@ -108,12 +110,12 @@ export class GameGrid {
             }
         }
 
-        return new GameGrid(cols, rows, new Token("dashes", "grey"), tokens)
+        return new GameGrid(cols, rows, new Token("lines", "grey"), tokens)
     }
 
     readonly tokens: Array<Token | undefined>
 
-    constructor(public readonly cols: number = 10, public readonly rows: number = 8, public readonly selectedToken: Token = new Token("dashes", "grey"), tokens?: Array<Token | undefined>) {
+    constructor(public readonly cols: number = 10, public readonly rows: number = 8, public readonly selectedToken: Token = new Token("lines", "grey"), tokens?: Array<Token | undefined>) {
         if (typeof tokens === "undefined") {
             this.tokens = Array.apply(null, { length: cols * rows })
         } else {

@@ -1,6 +1,6 @@
 import * as wecco from "@wecco/core"
 import { m } from "src/script/utils/i18n"
-import { Message, PlaceToken, SelectToken, ShowGameGrid } from "../../controller"
+import { ClearGrid, Message, PlaceToken, SelectToken, ShowGameGrid } from "../../controller"
 import { GameGrid, Token, TokenColors, TokenSymbols, TokenColor, TokenSymbol, TokenSymbolUrlCharMapping, TokenColorUrlCharMapping } from "../../models"
 import { appShell } from "../components/appShell"
 
@@ -77,9 +77,14 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
                 </div>
 
                 <div class="col">
-                    <button class="btn btn-primary d-flex justify-content-center align-content-between" @click=${() => {
-                        document.body.requestFullscreen()
-                    }}><i class="material-icons mr-1">fullscreen</i></button>
+                    <div class="btn-group">
+                        <button class="btn btn-primary d-flex justify-content-center align-content-between" @click=${() => {
+                            document.body.requestFullscreen()
+                        }}><i class="material-icons mr-1">fullscreen</i></button>
+                        <button class="btn btn-danger d-flex justify-content-center align-content-between" @click=${() => {
+                            context.emit(new ClearGrid())
+                        }}><i class="material-icons mr-1">delete</i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -235,9 +240,16 @@ function createTokenElement (token: Token): SVGElement {
         e.setAttribute("cx", "5")
         e.setAttribute("cy", "5")
         e.setAttribute("r", "4")
-    } else if (token.symbol == "cross") {
+    } else if (token.symbol === "cross") {
         e = document.createElementNS(SVGNamespaceURI, "path")
         e.setAttribute("d", "M 1 1 l 8 8 m -8 0 l 8 -8")
+    } else if (token.symbol === "square") {
+        e = document.createElementNS(SVGNamespaceURI, "path")
+        e.setAttribute("d", "M 1 1 l 8 0 l 0 8 l -8 0 l 0 -8")
+    } else if (token.symbol === "diamond") {
+        e = document.createElementNS(SVGNamespaceURI, "path")
+        e.setAttribute("d", "M 1 5 l 4 -4 l 4 4 l -4 4 l -4 -4")
+    
     } else {
         e = document.createElementNS(SVGNamespaceURI, "path")
         e.setAttribute("d", "M 1 3 L 3 1 M 1 5 L 5 1 M 1 7 L 7 1 M 1 9 L 9 1 M 3 9 L 9 3 M 5 9 L 9 5 M 7 9 L 9 7")

@@ -31,5 +31,7 @@
 
     "gameGrid.symbol.cross":  "x",
     "gameGrid.symbol.circle": "o",
-    "gameGrid.symbol.dashes": "///"
+    "gameGrid.symbol.lines": "///",
+    "gameGrid.symbol.square": "[]",
+    "gameGrid.symbol.diamond": "<>"
 }
