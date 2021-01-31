@@ -2,7 +2,13 @@
     "nav.title": "D20 Tools",
     "nav.diceRoller": "Dice Roller",
     "nav.gameGrid": "Game Grid",
-    "nav.source": "github",
+    "nav.source": "Fork me on Github",
+    "nav.about": "About",
+
+    "about.title": "D20 Tools",
+    "about.version": "Version {{0}}.",
+    "about.copyright": "Copyright &copy; 2021 Alexander Metzner. Published under the terms of the Apache License version 2.",
+    "about.close": "Close",
 
     "diceRoller.title": "Dice Roller",
     "diceRoller.intro": "Click a button to roll the respective die.",
