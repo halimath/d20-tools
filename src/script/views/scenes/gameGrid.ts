@@ -104,7 +104,7 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "diamond") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <path d="M 1 5 l 4 -4 l 4 4 l -4 4 l -4 -4" class="token grey"/>
+                <use href="#token-diamond" class="token grey"/>
             </svg>
         `
     }
@@ -112,7 +112,7 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "square") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <path d="M 1 1 l 8 0 l 0 8 l -8 0 l 0 -8" class="token grey"/>
+                <use href="#token-square" class="token grey"/>
             </svg>
         `
     }
@@ -120,7 +120,7 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "cross") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <path d="M 1 1 l 8 8 m -8 0 l 8 -8" class="token grey"/>
+                <use href="#token-cross" class="token grey"/>
             </svg>
         `
     }
@@ -128,7 +128,7 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "lines") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <path d="M 1 3 L 3 1 M 1 5 L 5 1 M 1 7 L 7 1 M 1 9 L 9 1 M 3 9 L 9 3 M 5 9 L 9 5 M 7 9 L 9 7" class="token grey"/>
+                <use href="#token-lines" class="token grey"/>
             </svg>
         `
     }
@@ -136,7 +136,7 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "circle") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <circle cx="5" cy="5" r="4" class="token grey"/>
+                <use href="#token-circle" class="token grey"/>
             </svg>
         `
     }
@@ -268,8 +268,6 @@ svgContent.push(svg`
 
 function createLegendElement(label: string): SVGElement {
     const text = document.createElementNS(SVGNamespaceURI, "text")
-    text.setAttribute("x", "0")
-    text.setAttribute("y", "0")
     text.appendChild(document.createTextNode(label))        
 
     text.classList.add("legend")
@@ -278,28 +276,11 @@ function createLegendElement(label: string): SVGElement {
 }
 
 function createTokenElement (token: Token): SVGElement {
-    let e: SVGElement
-    if (token.symbol === "circle") {
-        e = document.createElementNS(SVGNamespaceURI, "circle")
-        e.setAttribute("cx", "5")
-        e.setAttribute("cy", "5")
-        e.setAttribute("r", "4")
-    } else if (token.symbol === "cross") {
-        e = document.createElementNS(SVGNamespaceURI, "path")
-        e.setAttribute("d", "M 1 1 l 8 8 m -8 0 l 8 -8")
-    } else if (token.symbol === "square") {
-        e = document.createElementNS(SVGNamespaceURI, "path")
-        e.setAttribute("d", "M 1 1 l 8 0 l 0 8 l -8 0 l 0 -8")
-    } else if (token.symbol === "diamond") {
-        e = document.createElementNS(SVGNamespaceURI, "path")
-        e.setAttribute("d", "M 1 5 l 4 -4 l 4 4 l -4 4 l -4 -4")
-    
-    } else {
-        e = document.createElementNS(SVGNamespaceURI, "path")
-        e.setAttribute("d", "M 1 3 L 3 1 M 1 5 L 5 1 M 1 7 L 7 1 M 1 9 L 9 1 M 3 9 L 9 3 M 5 9 L 9 5 M 7 9 L 9 7")
-    }
+    const e = document.createElementNS(SVGNamespaceURI, "use")
+    e.setAttribute("width", "10")
+    e.setAttribute("height", "10")
+    e.setAttribute("href", `#token-${token.symbol}`)
     e.classList.add("token")
-    e.classList.add(token.symbol)
     e.classList.add(token.color)
 
     return e
