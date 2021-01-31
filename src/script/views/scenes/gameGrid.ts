@@ -55,7 +55,7 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
                                 @click=${() => context.emit(new SelectToken(new Token(s, model.selectedToken.color)))} 
                                 accesskey=${TokenSymbolUrlCharMapping.get(s)}
                                 class="btn ${s === model.selectedToken.symbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
-                                ${m("gameGrid.symbol." + s)}
+                                ${tokenSymbolButtonLabel(s)}
                             </button>
                         `)}
                     </div>
@@ -78,10 +78,10 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
 
                 <div class="col">
                     <div class="btn-group">
-                        <button class="btn btn-primary d-flex justify-content-center align-content-between" @click=${() => {
+                        <button class="btn btn-outline-primary d-flex justify-content-center align-content-between" @click=${() => {
                             document.body.requestFullscreen()
                         }}><i class="material-icons mr-1">fullscreen</i></button>
-                        <button class="btn btn-danger d-flex justify-content-center align-content-between" @click=${() => {
+                        <button class="btn btn-outline-danger d-flex justify-content-center align-content-between" @click=${() => {
                             context.emit(new ClearGrid())
                         }}><i class="material-icons mr-1">delete</i></button>
                     </div>
@@ -98,6 +98,50 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
     `
 
     return appShell(context, body)
+}
+
+function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
+    if (s === "diamond") {
+        return wecco.html`
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+                <path d="M 1 5 l 4 -4 l 4 4 l -4 4 l -4 -4" class="token grey"/>
+            </svg>
+        `
+    }
+
+    if (s === "square") {
+        return wecco.html`
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+                <path d="M 1 1 l 8 0 l 0 8 l -8 0 l 0 -8" class="token grey"/>
+            </svg>
+        `
+    }
+
+    if (s === "cross") {
+        return wecco.html`
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+                <path d="M 1 1 l 8 8 m -8 0 l 8 -8" class="token grey"/>
+            </svg>
+        `
+    }
+
+    if (s === "lines") {
+        return wecco.html`
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+                <path d="M 1 3 L 3 1 M 1 5 L 5 1 M 1 7 L 7 1 M 1 9 L 9 1 M 3 9 L 9 3 M 5 9 L 9 5 M 7 9 L 9 7" class="token grey"/>
+            </svg>
+        `
+    }
+
+    if (s === "circle") {
+        return wecco.html`
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+                <circle cx="5" cy="5" r="4" class="token grey"/>
+            </svg>
+        `
+    }
+
+    throw `Missing button definition for ${s}`
 }
 
 function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {

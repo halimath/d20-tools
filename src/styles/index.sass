@@ -25,6 +25,9 @@
 .game-grid
     $token-colors: ("grey": #aaa, "green": #02551d, "blue": #001f75, "red": #900018, "orange": #c54f00, "purple": #750075, "yellow": #b8a500, "black": #222, "brown": #5d2a00)
 
+    .btn.symbol-selector
+        width: 2.8rem
+
     .btn.color-selector
         @each $token-color, $value in $token-colors
             &.#{$token-color}
@@ -69,6 +72,7 @@
         .token
             stroke-width: 1
             stroke-linecap: round
+            stroke-linejoin: round
 
             @each $token-color, $value in $token-colors
                 &.#{$token-color}

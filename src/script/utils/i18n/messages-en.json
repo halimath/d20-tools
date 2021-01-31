@@ -27,11 +27,5 @@
     "gameGrid.color.purple": "Purple",
     "gameGrid.color.yellow": "Yellow",
     "gameGrid.color.black": "Black",
-    "gameGrid.color.brown": "Brown",
-
-    "gameGrid.symbol.cross":  "x",
-    "gameGrid.symbol.circle": "o",
-    "gameGrid.symbol.lines": "///",
-    "gameGrid.symbol.square": "[]",
-    "gameGrid.symbol.diamond": "<>"
+    "gameGrid.color.brown": "Brown"
 }
