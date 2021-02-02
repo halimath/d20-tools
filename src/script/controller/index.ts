@@ -1,7 +1,7 @@
 import * as wecco from "@wecco/core"
-import { DiceRoller, DieType, GameGrid, Model, UrlHashGameGrid, UrlHashDiceRoller, Token } from "../models"
-
+import { DiceRoller, DieType, GameGrid, Model, Token, UrlHashDiceRoller, UrlHashGameGrid } from "../models"
 import { Browser } from "../utils/browser"
+
 
 // Generic messages
 
@@ -75,7 +75,7 @@ export function update(model: Model, message: Message, context: wecco.AppContext
             Browser.urlHash = model.toUrlHash()
             return model
 
-        case "place-token":
+        case "place-token": {
             if (!(model instanceof GameGrid)) {
                 console.error(`inconsistency detected: ${model} is not an instance of GameGrid`)
                 return model
@@ -89,6 +89,7 @@ export function update(model: Model, message: Message, context: wecco.AppContext
             model = new GameGrid(model.cols, model.rows, selectedToken ?? model.selectedToken, model.tokens)
             Browser.urlHash = model.toUrlHash()
             return model
+        }
 
         case "select-token":
             if (!(model instanceof GameGrid)) {
@@ -106,7 +107,7 @@ export function update(model: Model, message: Message, context: wecco.AppContext
     }
 }
 
-export function executeRoute(context: wecco.AppContext<Message>, urlHash: string | null) {
+export function executeRoute(context: wecco.AppContext<Message>, urlHash: string | null): void {
     if (urlHash?.startsWith(UrlHashGameGrid)) {
         context.emit(new ShowGameGrid(GameGrid.fromUrlHash(urlHash)))
         return

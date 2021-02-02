@@ -1,0 +1,17 @@
+# Documentation can be found at https://eslint.org/docs/user-guide/configuring
+env:
+  browser: true # browser global variables
+  es2021: true # adds all ECMAScript 2021 globals and automatically sets the ecmaVersion parser option to 12
+  node: true # Node.js global variables and Node.js scoping
+extends:
+  - 'eslint:recommended'
+  - 'plugin:@typescript-eslint/recommended'
+parser: '@typescript-eslint/parser'
+parserOptions:
+  impliedStrict: true
+  sourceType: module
+plugins:
+  - '@typescript-eslint'
+root: true
+rules:
+  semi: 'off'

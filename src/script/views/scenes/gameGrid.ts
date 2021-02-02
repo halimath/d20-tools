@@ -1,12 +1,12 @@
 import * as wecco from "@wecco/core"
 import { m } from "src/script/utils/i18n"
 import { ClearGrid, Message, PlaceToken, SelectToken, ShowGameGrid } from "../../controller"
-import { GameGrid, Token, TokenColors, TokenSymbols, TokenColor, TokenSymbol, TokenSymbolUrlCharMapping, TokenColorUrlCharMapping } from "../../models"
+import { GameGrid, Token, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping } from "../../models"
 import { appShell } from "../components/appShell"
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"
 
-function svg(literals: TemplateStringsArray, ...placeholders: any[]): wecco.ElementUpdate {
+function svg(literals: TemplateStringsArray, ...placeholders: Array<any>): wecco.ElementUpdate {
     let s = ""
     for (let i = 0; i < literals.length; i++) {
         s += literals[i]

@@ -58,13 +58,13 @@ export class Token {
         let symbol: TokenSymbol = "lines"
         let color: TokenColor = "grey"
 
-        for (let s of TokenSymbolUrlCharMapping.keys()) {
+        for (const s of TokenSymbolUrlCharMapping.keys()) {
             if (symbolChar === TokenSymbolUrlCharMapping.get(s)) {
                 symbol = s
             }
         }
 
-        for (let c of TokenColorUrlCharMapping.keys()) {
+        for (const c of TokenColorUrlCharMapping.keys()) {
             if (colorChar === TokenColorUrlCharMapping.get(c)) {
                 color = c
             }
@@ -139,7 +139,7 @@ export class GameGrid {
         let lastSymbol = ""
         let count = 0
 
-        for (let token of this.tokens) {
+        for (const token of this.tokens) {
             let symbol = "-"
             if (typeof token !== "undefined") {
                 symbol = token.toUrlHash()

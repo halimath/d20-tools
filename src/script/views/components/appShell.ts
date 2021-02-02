@@ -1,23 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="./bootstrap.d.ts" />
+
 import * as wecco from "@wecco/core"
 import { GameGrid } from "src/script/models"
 import { m } from "src/script/utils/i18n"
 import { Message, ShowDiceRoller, ShowGameGrid } from "../../controller"
 import { version } from "../../../../package.json"
-
-declare namespace bootstrap {
-    interface ModalOptions {
-        backdrop?: boolean | "static"
-        keyboard?: boolean
-        focus?: boolean
-    }
-
-    class Modal {
-        constructor(el: Element | null, opts?: ModalOptions)
-        toggle(): void
-        show(): void
-        hide(): void
-    }
-}
 
 export function appShell(context: wecco.AppContext<Message>, main: wecco.ElementUpdate): wecco.ElementUpdate {
     return wecco.html`
