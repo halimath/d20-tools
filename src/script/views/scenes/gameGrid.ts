@@ -111,15 +111,15 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
 function wallSymbolButtonLabel(s: WallSymbol): wecco.ElementUpdate {
     if (s === "wall") {
         return wecco.html`
-            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8 8">
-                <path d="M 0 2 l 8 0 M 0 4 l 8 0 M 0 6 l 8 0 M 2 2 l 0 2 M 6 2 l 0 2 M 4 4 l 0 2" class="wall-symbol"/>
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+                <path d="M 1 1 l 8 0 M 1 3 l 8 0 M 1 5 l 8 0 M 1 7 l 8 0 M 3 3 l 0 2 M 7 3 l 0 2 M 5 5 l 0 2 M 5 1 l 0 2" class="wall-symbol"/>
             </svg>
         `
     }
 
     if (s === "door") {
         return wecco.html`
-            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8 8">
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
                 <path d="M 1 8 l 0 -8 l 6 0 l 0 8 l -6 0 m 6 0 l -4 -2 l 0 -6" class="wall-symbol"/>
             </svg>
         `
@@ -127,8 +127,8 @@ function wallSymbolButtonLabel(s: WallSymbol): wecco.ElementUpdate {
 
     if (s === "window") {
         return wecco.html`
-            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8 8">
-                <path d="M 0 0 l 0 8 l 8 0 l 0 -8 l -8 0 M 0 8 l 3 -2 l 0 -6 M 8 8 l -3 -2 l 0 -6" class="wall-symbol"/>
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+                <path d="M 1 1 l 0 8 l 8 0 l 0 -8 l -8 0 M 1 9 l 3 -2 l 0 -6 M 9 9 l -3 -2 l 0 -6" class="wall-symbol"/>
             </svg>
         `
     }
