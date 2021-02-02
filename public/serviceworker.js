@@ -1,4 +1,4 @@
-const CacheVersion = 2;
+const CacheVersion = 3;
 const CacheName = `d20-tools-cache-v${CacheVersion}`;
 
 self.addEventListener("install", e => {
