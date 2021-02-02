@@ -1,5 +1,5 @@
 import * as wecco from "@wecco/core"
-import { DiceRoller, DieType, GameGrid, Model, Token, UrlHashDiceRoller, UrlHashGameGrid } from "../models"
+import { DiceRoller, DieType, GameGrid, Model, Token, TokenColor, TokenSymbol, UrlHashDiceRoller, UrlHashGameGrid, Wall, WallPosition, WallSymbol } from "../models"
 import { Browser } from "../utils/browser"
 
 
@@ -32,7 +32,7 @@ export class RollDie {
 export class SelectToken {
     readonly command = "select-token"
 
-    constructor(public readonly token: Token) {}
+    constructor(public readonly color: TokenColor, public readonly tokenSymbol: TokenSymbol, public readonly wallSymbol: WallSymbol) {}
 }
 
 export class PlaceToken {
@@ -41,13 +41,19 @@ export class PlaceToken {
     constructor(public readonly col: number, public readonly row: number, public readonly token?: Token) { }
 }
 
+export class PlaceWall {
+    readonly command = "place-wall"
+
+    constructor(public readonly col: number, public readonly row: number, public readonly position: WallPosition, public readonly wall: Wall) {}
+}
+
 export class ClearGrid {
     readonly command = "clear-grid"
 }
 
 // --
 
-export type Message = Nop | ShowDiceRoller | ShowGameGrid | RollDie | PlaceToken | SelectToken | ClearGrid
+export type Message = Nop | ShowDiceRoller | ShowGameGrid | RollDie | PlaceToken | PlaceWall | SelectToken | ClearGrid
 
 export function update(model: Model, message: Message, context: wecco.AppContext<Message>): Model {
     switch (message.command) {
@@ -81,13 +87,38 @@ export function update(model: Model, message: Message, context: wecco.AppContext
                 return model
             }
 
-            let selectedToken: Token | undefined = model.selectedToken
-            if (typeof message.token === "undefined") {
-                selectedToken = model.tokenAt(message.col, message.row)
+            const t = model.tokenAt(message.col, message.row)
+            if (typeof t !== "undefined") {                
+                model = model
+                    .setTokenAt(message.col, message.row, undefined)
+                    .select(t.color, t.symbol, model.wallSymbol)
+            } else {
+                model = model.setTokenAt(message.col, message.row, message.token)
             }
-            model = model.setTokenAt(message.col, message.row, message.token)
-            model = new GameGrid(model.cols, model.rows, selectedToken ?? model.selectedToken, model.tokens)
+            
             Browser.urlHash = model.toUrlHash()
+            
+            return model
+        }
+
+        case "place-wall": {
+            if (!(model instanceof GameGrid)) {
+                console.error(`inconsistency detected: ${model} is not an instance of GameGrid`)
+                return model
+            }
+
+            const w = model.wallAt(message.col, message.row, message.position)
+            if (typeof w !== "undefined") {                
+                model = model
+                    .setWallAt(message.col, message.row, message.position, undefined)
+                    .select(w.color, model.tokenSymbol, w.symbol)
+            } else {
+                model = model
+                    .setWallAt(message.col, message.row, message.position, message.wall)
+            }
+            
+            Browser.urlHash = model.toUrlHash()
+            
             return model
         }
 
@@ -96,14 +127,14 @@ export function update(model: Model, message: Message, context: wecco.AppContext
                 console.error(`inconsistency detected: ${model} is not an instance of GameGrid`)
                 return model
             }
-            return new GameGrid(model.cols, model.rows, message.token, model.tokens)
+            return model.select(message.color, message.tokenSymbol, message.wallSymbol)
 
         case "clear-grid":
             if (!(model instanceof GameGrid)) {
                 console.error(`inconsistency detected: ${model} is not an instance of GameGrid`)
                 return model
             }
-            return new GameGrid(model.cols, model.rows)
+            return GameGrid.createInitial(model.cols, model.rows)
     }
 }
 

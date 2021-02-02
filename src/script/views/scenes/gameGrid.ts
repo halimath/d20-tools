@@ -1,7 +1,7 @@
 import * as wecco from "@wecco/core"
 import { m } from "src/script/utils/i18n"
-import { ClearGrid, Message, PlaceToken, SelectToken, ShowGameGrid } from "../../controller"
-import { GameGrid, Token, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping } from "../../models"
+import { ClearGrid, Message, PlaceToken, PlaceWall, SelectToken, ShowGameGrid } from "../../controller"
+import { GameGrid, Token, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, Wall, WallSymbols, WallSymbol } from "../../models"
 import { appShell } from "../components/appShell"
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"
@@ -26,11 +26,11 @@ function svg(literals: TemplateStringsArray, ...placeholders: Array<any>): wecco
 
 export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {
     function notifyGridSizeChanged(cols: number, rows: number) {
-        context.emit(new ShowGameGrid(new GameGrid(cols, rows)))
+        context.emit(new ShowGameGrid(GameGrid.createInitial(cols, rows)))
     }
 
     const body = wecco.html`
-        <div class="container game-grid">
+        <div class="container-fluid game-grid">
             <div class="row mt-4">
                 <div class="col input-group">
                     <span class="input-group-text">${m("gameGrid.cols")}</span>
@@ -48,35 +48,45 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
                     }}>
                 </div>
 
-                <div class="col">
-                    <div class="btn-group">
-                        ${TokenSymbols.map(s => wecco.html`
+                <div class="col flex-grow-5">
+                    <div class="btn-toolbar">
+                        <div class="btn-group">
+                            ${TokenSymbols.map(s => wecco.html`
+                                <button 
+                                    @click=${() => context.emit(new SelectToken(model.color, s, model.wallSymbol))} 
+                                    accesskey=${TokenSymbolUrlCharMapping.get(s)}
+                                    class="btn ${s === model.tokenSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
+                                    ${tokenSymbolButtonLabel(s)}
+                                </button>
+                            `)}
+                        </div>
+
+                        <div class="btn-group ms-2">
+                            ${WallSymbols.map(s => wecco.html`
+                                <button 
+                                    @click=${() => context.emit(new SelectToken(model.color, model.tokenSymbol, s))} 
+                                    class="btn ${s === model.wallSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
+                                    ${wallSymbolButtonLabel(s)}
+                                </button>
+                            `)}
+                        </div>
+
+                        <div class="btn-group ms-2">
+                        ${
+                            TokenColors.map(c => wecco.html`
                             <button 
-                                @click=${() => context.emit(new SelectToken(new Token(s, model.selectedToken.color)))} 
-                                accesskey=${TokenSymbolUrlCharMapping.get(s)}
-                                class="btn ${s === model.selectedToken.symbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
-                                ${tokenSymbolButtonLabel(s)}
+                                @click=${() => context.emit(new SelectToken(c, model.tokenSymbol, model.wallSymbol))} 
+                                accesskey=${TokenColorUrlCharMapping.get(c)}
+                                class="btn btn-outline-secondary color-selector ${c} ${c === model.color ? "selected" : ""}">
+                                ${m("gameGrid.color." + c)}
                             </button>
-                        `)}
+                            `)
+                        }
+                        </div>
                     </div>
                 </div>
 
-                <div class="col">
-                    <div class="btn-group">
-                    ${
-                        TokenColors.map(c => wecco.html`
-                        <button 
-                            @click=${() => context.emit(new SelectToken(new Token(model.selectedToken.symbol, c)))} 
-                            accesskey=${TokenColorUrlCharMapping.get(c)}
-                            class="btn btn-outline-secondary color-selector ${c} ${c === model.selectedToken.color ? "selected" : ""}">
-                            ${m("gameGrid.color." + c)}
-                        </button>
-                        `)
-                    }
-                    </div>
-                </div>
-
-                <div class="col">
+                <div class="col right-align">
                     <div class="btn-group">
                         <button class="btn btn-outline-primary d-flex justify-content-center align-content-between" @click=${() => {
                             document.body.requestFullscreen()
@@ -87,8 +97,6 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="container-fluid game-grid">
             <div class="row mt-2">
                 <div class="col">
                     ${gridContent(context, model)}
@@ -100,11 +108,39 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
     return appShell(context, body)
 }
 
+function wallSymbolButtonLabel(s: WallSymbol): wecco.ElementUpdate {
+    if (s === "wall") {
+        return wecco.html`
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8 8">
+                <path d="M 0 2 l 8 0 M 0 4 l 8 0 M 0 6 l 8 0 M 2 2 l 0 2 M 6 2 l 0 2 M 4 4 l 0 2" class="wall-symbol"/>
+            </svg>
+        `
+    }
+
+    if (s === "door") {
+        return wecco.html`
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8 8">
+                <path d="M 1 8 l 0 -8 l 6 0 l 0 8 l -6 0 m 6 0 l -4 -2 l 0 -6" class="wall-symbol"/>
+            </svg>
+        `
+    }
+
+    if (s === "window") {
+        return wecco.html`
+            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8 8">
+                <path d="M 0 0 l 0 8 l 8 0 l 0 -8 l -8 0 M 0 8 l 3 -2 l 0 -6 M 8 8 l -3 -2 l 0 -6" class="wall-symbol"/>
+            </svg>
+        `
+    }
+
+    return s
+}
+
 function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "diamond") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-diamond" class="token grey"/>
+                <use href="#token-diamond" class="token wall-symbol"/>
             </svg>
         `
     }
@@ -112,7 +148,7 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "square") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-square" class="token grey"/>
+                <use href="#token-square" class="token wall-symbol"/>
             </svg>
         `
     }
@@ -120,7 +156,7 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "cross") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-cross" class="token grey"/>
+                <use href="#token-cross" class="token wall-symbol"/>
             </svg>
         `
     }
@@ -128,7 +164,7 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "lines") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-lines" class="token grey"/>
+                <use href="#token-lines" class="token wall-symbol"/>
             </svg>
         `
     }
@@ -136,13 +172,15 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
     if (s === "circle") {
         return wecco.html`
             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-circle" class="token grey"/>
+                <use href="#token-circle" class="token wall-symbol"/>
             </svg>
         `
     }
 
     throw `Missing button definition for ${s}`
 }
+
+const WallSnapSize = 0.2
 
 function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {
     function calculateGridSizeAndOffsets (svg: SVGElement): [number, [number, number]] {
@@ -180,34 +218,48 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
             const bcr = svg.getBoundingClientRect()
             const [gridSize, [offsetX, offsetY]] = calculateGridSizeAndOffsets(svg)
 
-            const targetCol = Math.floor((e.clientX - bcr.left - offsetX) / gridSize)
-            const targetRow = Math.floor((e.clientY - bcr.top - offsetY) / gridSize)
+            const relativeX = e.clientX - bcr.left - offsetX
+            const relativeY = e.clientY - bcr.top - offsetY
+
+            const targetCol = Math.floor(relativeX / gridSize)
+            const targetRow = Math.floor(relativeY / gridSize)
 
             if (targetCol < 0 || targetCol >= model.cols || targetRow < 0 || targetRow >= model.rows) {
                 return
             }
 
-            if (typeof model.tokenAt(targetCol, targetRow) === "undefined") {
-                context.emit(new PlaceToken(targetCol, targetRow, model.selectedToken))
-            } else {
-                context.emit(new PlaceToken(targetCol, targetRow))
+            const distanceX = relativeX / gridSize - targetCol
+            const distanceY = relativeY / gridSize - targetRow
+
+            if (distanceX < WallSnapSize) {
+                context.emit(new PlaceWall(targetCol, targetRow, "left", new Wall(model.wallSymbol, model.color)))
+                return
             }
+            
+            if (distanceX > 1 - WallSnapSize) {
+                context.emit(new PlaceWall(targetCol + 1, targetRow, "left", new Wall(model.wallSymbol, model.color)))
+                return
+            }
+
+            if (distanceY < WallSnapSize) {
+                context.emit(new PlaceWall(targetCol, targetRow, "top", new Wall(model.wallSymbol, model.color)))
+                return
+            }
+            
+            if (distanceY > 1 - WallSnapSize) {
+                context.emit(new PlaceWall(targetCol, targetRow + 1, "top", new Wall(model.wallSymbol, model.color)))
+                return
+            }
+
+            context.emit(new PlaceToken(targetCol, targetRow, new Token(model.tokenSymbol, model.color)))
         })
 
         updateSvgTransform(svg)
     }
 
-    const gridPath = []
-
-    for (let col = 1; col < model.cols; col++) {
-        gridPath.push(`M ${(col * 10)} 0 l 0 ${model.rows * 10}`)
-    }
-    for (let row = 1; row < model.rows; row++) {
-        gridPath.push(`M 0 ${(row * 10)} l ${model.cols * 10} 0`)
-    }
-
     const svgContent = []
 
+    // Tokens
     // Paint tokens first to allow painting the grid and coordinates over the tokens
     for (let col = 0; col < model.cols; col++) {
         for (let row = 0; row < model.rows; row++) {
@@ -220,8 +272,19 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
         }
     }
 
+    // Grid
+    const gridPath = []
+
+    for (let col = 1; col < model.cols; col++) {
+        gridPath.push(`M ${(col * 10)} 0 l 0 ${model.rows * 10}`)
+    }
+    for (let row = 1; row < model.rows; row++) {
+        gridPath.push(`M 0 ${(row * 10)} l ${model.cols * 10} 0`)
+    }
+
     svgContent.push(svg`<path d="${gridPath.join(" ")}" class="grid-line"/>`)
 
+    // Legends
     for (let i = 1; i < model.cols + 1; i++) {
         const l = createLegendElement(i.toString())
         l.setAttribute("transform", `translate(${i * 10 - 5} -1)`)
@@ -234,6 +297,7 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
         svgContent.push(l)
     }
 
+    // Ruler
     svgContent.push(svg`
         <path 
             d="M 0 -4 l ${model.cols * 10} 0 M 0 -5 l 0 2"
@@ -245,7 +309,7 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
         svgContent.push(svg`<text x="${c * 10}" y="-2" class="ruler-text">${c * 1.5}m</text>`)
     }
 
-svgContent.push(svg`
+    svgContent.push(svg`
         <path 
             d="M -4 0 l 0 ${model.rows * 10} M -5 0 l 2 0"
             class="ruler-line"/>        
@@ -254,6 +318,20 @@ svgContent.push(svg`
     for (let r = 2; r <= model.rows; r += 2) {
         svgContent.push(svg`<path d="M -5 ${r * 10} l 2 0" class="ruler-line"/>`)
         svgContent.push(svg`<text x="-1.5" y="${r * 10}" class="ruler-text">${r * 1.5}m</text>`)
+    }
+
+    // Walls
+    for (let col = 0; col < model.cols; col++) {
+        for (let row = 0; row < model.rows; row++) {
+            const leftWall = model.wallAt(col, row, "left")
+            if (typeof leftWall !== "undefined") {
+                svgContent.push(renderWall(leftWall, `translate(${col * 10} ${row * 10}) rotate(90)`))
+            }
+            const topWall = model.wallAt(col, row, "top")
+            if (typeof topWall !== "undefined") {
+                svgContent.push(renderWall(topWall, `translate(${col * 10} ${row * 10})`))
+            }
+        }
     }
 
     return wecco.html`
@@ -265,6 +343,21 @@ svgContent.push(svg`
     ` 
 }
 
+function renderWall(wall: Wall, transform: string): wecco.ElementUpdate {
+    let path: string 
+    switch (wall.symbol) {
+        case "door":
+            path = "M 0 0 L 2 0 M 10 0 l -2 0"
+            break
+        case "wall":
+            path = "M 0 0 L 10 0"
+            break
+        case "window":
+            path = "M 0 0 l 1 0 m 2 0 l 1 0 m 2 0 l 1 0 m 2 0 l 1 0"
+            break
+    }
+    return svg`<path d="${path}" class="wall ${wall.color}" transform="${transform}"/>`
+}
 
 function createLegendElement(label: string): SVGElement {
     const text = document.createElementNS(SVGNamespaceURI, "text")

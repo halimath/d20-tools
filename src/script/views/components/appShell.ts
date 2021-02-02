@@ -18,8 +18,7 @@ export function appShell(context: wecco.AppContext<Message>, main: wecco.Element
                 <ul class="navbar-nav me-auto flex-grow-1">
                     <li class="nav-item"><a class="nav-link" @click=${()=> context.emit(new
                             ShowDiceRoller())}>${m("nav.diceRoller")}</a></li>
-                    <li class="nav-item"><a class="nav-link" @click=${()=> context.emit(new ShowGameGrid(new
-                            GameGrid()))}>${m("nav.gameGrid")}</a></li>
+                    <li class="nav-item"><a class="nav-link" @click=${()=> context.emit(new ShowGameGrid(GameGrid.createInitial()))}>${m("nav.gameGrid")}</a></li>
                 </ul>
                 <ul class="navbar-nav me-auto">                    
                     <li class="nav-item"><a class="nav-link" @click=${()=> new bootstrap.Modal(document.querySelector(".modal"),
