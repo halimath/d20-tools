@@ -2,9 +2,12 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin")
 
 module.exports = {
     mode: "development",
-    entry: "./src/script/index.ts",
+    entry: {
+        diceroller: "./src/diceroller/index.ts",
+        grid: "./src/grid/index.ts",
+    },
     output: {
-        filename: "script.js"
+        filename: "[name].js"
     },
     module: {
         rules: [
@@ -29,6 +32,9 @@ module.exports = {
     },
     devServer: {
         contentBase: "./public",
+        staticOptions: {
+            extensions: ["html"],
+        },
         host: "0.0.0.0",
         compress: true,
         port: 9999,

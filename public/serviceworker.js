@@ -1,4 +1,4 @@
-const CacheVersion = 4;
+const CacheVersion = 5;
 const CacheName = `d20-tools-cache-v${CacheVersion}`;
 
 self.addEventListener("install", e => {
@@ -6,10 +6,12 @@ self.addEventListener("install", e => {
         .then(cache => {
             return cache.addAll([
                 "/index.html",
+                "/grid.html",
                 "/manifest.json",
                 "/icon.png",
                 "/serviceworker.js",
-                "/script.js",
+                "/diceroller.js",
+                "/grid.js",
             ]);
         })
     );

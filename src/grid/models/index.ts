@@ -1,25 +1,4 @@
 
-export type DieType = 3 | 4 | 6 | 8 | 10 | 12 | 20 | 100
-
-export const UrlHashDiceRoller = "diceroller"
-
-export class DiceRoller {
-    constructor(public readonly availableDice: Array<DieType>, public readonly roll?: DieRoll) { }
-
-    rollDie(die: DieType): DiceRoller {
-        const result = Math.floor(Math.random() * die) + 1
-        return new DiceRoller(this.availableDice, new DieRoll(die, result))
-    }
-}
-
-export class DieRoll {
-    constructor(public readonly dieType: DieType, public readonly result: number) { }
-}
-
-// --
-
-export const UrlHashGameGrid = "gamegrid"
-
 export type TokenColor = "grey" | "green" | "blue" | "red" | "orange" | "purple" | "yellow" | "black" | "brown"
 
 export const TokenColors: Array<TokenColor> = ["grey", "green", "blue", "red", "orange", "purple", "yellow", "black", "brown"]
@@ -129,7 +108,7 @@ export class Wall {
 
 export class GameGrid {
     static fromUrlHash(hash: string): GameGrid {
-        const [sizeString, tokensString, wallsString] = hash.substr(UrlHashGameGrid.length + 1).split("/")
+        const [sizeString, tokensString, wallsString] = hash.split("/")
         if (!sizeString) {
             return GameGrid.createInitial()
         }
@@ -240,7 +219,7 @@ export class GameGrid {
     }
 
     toUrlHash(): string {
-        return `${UrlHashGameGrid}/${this.cols}:${this.rows}/${this.urlHashTokens()}/${this.urlHashWalls()}`
+        return `${this.cols}:${this.rows}/${this.urlHashTokens()}/${this.urlHashWalls()}`
     }
 
     private urlHashWalls(): string {
@@ -306,4 +285,4 @@ export class GameGrid {
 
 // --
 
-export type Model = DiceRoller | GameGrid
+export type Model = GameGrid

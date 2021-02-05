@@ -1,10 +1,10 @@
 import * as wecco from "@wecco/core"
-import { m } from "src/script/utils/i18n"
-import { Message, RollDie } from "../../controller"
-import { DiceRoller } from "../../models"
-import { appShell } from "../components/appShell"
+import { appShell } from "src/common/components/appShell"
+import { m } from "src/common/i18n"
+import { Message } from "../controller"
+import { Model } from "../models"
 
-export function diceRoller(context: wecco.AppContext<Message>, model: DiceRoller): wecco.ElementUpdate {
+export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {
     const body = wecco.html`
         <div class="container mt-4 dice-roller">
             <div class="row">
@@ -22,7 +22,7 @@ export function diceRoller(context: wecco.AppContext<Message>, model: DiceRoller
                             ${model.availableDice.map(die => wecco.html`
                             <div class="col mt-2 text-center">
                                 <button class="btn btn-dark d${die}" @click=${()=> context.emit(new
-                                    RollDie(die))}>${m("diceRoller.btn", die)}</button>
+                                    Message(die))}>${m("diceRoller.btn", die)}</button>
                             </div>
                             `)}
                         </div>
@@ -32,5 +32,5 @@ export function diceRoller(context: wecco.AppContext<Message>, model: DiceRoller
         </div>
     `
 
-    return appShell(context, body)
+    return appShell(body)
 }

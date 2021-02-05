@@ -1,0 +1,32 @@
+{
+    "nav.title": "D20 Tools",
+    "nav.diceRoller": "Würfel",
+    "nav.gameGrid": "Raster",
+    "nav.source": "Github",
+    "nav.about": "Über D20 Tools",
+
+    "about.title": "D20 Tools",
+    "about.version": "Version {{0}}.",
+    "about.copyright": "Copyright &copy; 2021 Alexander Metzner. Published under the terms of the Apache License version 2.",
+    "about.close": "Close",
+
+
+    "diceRoller.title": "Würfel",
+    "diceRoller.intro": "Klicke einen der unten stehenden Knöpfe, um den entsprechenden Würfel zu werfen.",
+    "diceRoller.btn": "W{{0}}",
+    "diceRoller.result.value": "{{0}}",
+    "diceRoller.result.die": "Du hast einen W{{0}} geworfen.",
+
+    "gameGrid.cols": "Spalten",
+    "gameGrid.rows": "Zeilen",
+
+    "gameGrid.color.grey": "Grau",
+    "gameGrid.color.green": "Grün",
+    "gameGrid.color.blue": "Blau",
+    "gameGrid.color.red": "Rot",
+    "gameGrid.color.orange": "Orange",
+    "gameGrid.color.purple": "Lila",
+    "gameGrid.color.yellow": "Gelb",
+    "gameGrid.color.black": "Schwarz",
+    "gameGrid.color.brown": "Braun"
+}

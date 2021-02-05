@@ -1,0 +1,121 @@
+#app
+    background-color: white
+
+.flex-grow-5
+    flex-grow: 5
+
+.dice-roller    
+    .btn
+        &.d3,
+        &.d4,
+        &.d6,
+        &.d8,
+        &.d10,
+        &.d12,
+        &.d20,
+        &.d100
+            font-size: 1.5rem
+
+        &.d20
+            background-color: #1d76ba
+            border-color: #1d76ba
+
+    .roll
+        .result
+            font-size: 6rem
+            font-weight: bold
+
+.game-grid
+    $token-colors: ("grey": #aaa, "green": #02551d, "blue": #001f75, "red": #900018, "orange": #c54f00, "purple": #750075, "yellow": #b8a500, "black": #222, "brown": #5d2a00)
+
+    .btn.symbol-selector
+        width: 2.8rem
+
+    .btn.color-selector
+        @each $token-color, $value in $token-colors
+            &.#{$token-color}
+                color: lighten($value, 10%)
+                &:hover
+                    background-color: lighten($value, 10%)
+                    color: lighten($value, 80%)
+                &.selected
+                    background-color: $value
+                    color: lighten($value, 80%)
+
+    .btn-outline-secondary
+        svg
+            .wall-symbol
+                stroke: black
+                fill: none
+                stroke-width: 0.8
+                stroke-linejoin: round
+                stroke-linecap: round
+        &:hover
+            svg
+                .wall-symbol
+                    stroke: white
+                    fill: none
+    .btn-secondary
+        svg
+            .wall-symbol
+                stroke: white
+                fill: none
+
+    svg
+        width: 100%        
+
+        .legend
+            font-family: sans-serif
+            font-size: 2px
+            font-weight: bold
+            fill: #888
+            text-anchor: middle
+            dominant-baseline: middle
+
+        .ruler-text
+            font-family: sans-serif
+            font-size: 1.5px
+            fill: #aaa
+            text-anchor: middle
+            dominant-baseline: middle
+
+
+        .canvas
+            fill: white
+        
+        .grid-line
+            stroke: black
+            stroke-width: 0.1    
+        
+        .ruler-line
+            stroke: #aaa
+            stroke-width: 0.1    
+            
+        .token
+            stroke-width: 1
+            stroke-linecap: round
+            stroke-linejoin: round
+
+            @each $token-color, $value in $token-colors
+                &.#{$token-color}
+                    stroke: $value
+                    fill: lighten($value, 15%)
+
+            &.dashed
+                @each $token-color, $value in $token-colors
+                    &.#{$token-color}                        
+                        stroke: lighten($value, 15%)
+
+        .wall
+            stroke-width: 1.5
+            stroke-linecap: round
+            stroke-linejoin: round
+
+            @each $token-color, $value in $token-colors
+                &.#{$token-color}
+                    stroke: $value
+
+        .wall-symbol
+            stroke-width: .4
+            fill: none
+                        

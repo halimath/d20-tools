@@ -1,8 +1,8 @@
 import * as wecco from "@wecco/core"
-import { m } from "src/script/utils/i18n"
-import { ClearGrid, Message, PlaceToken, PlaceWall, SelectToken, ShowGameGrid } from "../../controller"
-import { GameGrid, Token, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, Wall, WallSymbols, WallSymbol } from "../../models"
-import { appShell } from "../components/appShell"
+import { appShell } from "../../common/components/appShell"
+import { m } from "../../common/i18n"
+import { GameGrid, Token, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, Wall, WallSymbol, WallSymbols } from "../models"
+import { ChangeGrid, ClearGrid, Message, PlaceToken, PlaceWall, SelectToken } from "../controller"
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"
 
@@ -24,11 +24,10 @@ function svg(literals: TemplateStringsArray, ...placeholders: Array<any>): wecco
     }
 }
 
-export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {
+export function root(model: GameGrid, context: wecco.AppContext<Message>): wecco.ElementUpdate {
     function notifyGridSizeChanged(cols: number, rows: number) {
-        context.emit(new ShowGameGrid(GameGrid.createInitial(cols, rows)))
+        context.emit(new ChangeGrid(cols, rows))
     }
-
     const body = wecco.html`
         <div class="container-fluid game-grid">
             <div class="row mt-4">
@@ -105,7 +104,7 @@ export function gameGrid(context: wecco.AppContext<Message>, model: GameGrid): w
         </div>
     `
 
-    return appShell(context, body)
+    return appShell(body)
 }
 
 function wallSymbolButtonLabel(s: WallSymbol): wecco.ElementUpdate {
