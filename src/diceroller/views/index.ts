@@ -6,7 +6,7 @@ import { Model } from "../models"
 
 export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {
     const body = wecco.html`
-        <div class="container mt-4 dice-roller">
+        <div class="container mt-4">
             <div class="row">
                 <div class="col">
                     <div class="card">                        

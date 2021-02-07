@@ -1,23 +1,23 @@
 import * as wecco from "@wecco/core"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
-import { GameGrid, Token, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, Wall, WallSymbol, WallSymbols } from "../models"
 import { ChangeGrid, ClearGrid, Message, PlaceToken, PlaceWall, SelectToken } from "../controller"
+import { GameGrid, Token, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, Wall, WallSymbol, WallSymbols } from "../models"
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"
 
 function svg(literals: TemplateStringsArray, ...placeholders: Array<any>): wecco.ElementUpdate {
-    let s = ""
+    let src = ""
     for (let i = 0; i < literals.length; i++) {
-        s += literals[i]
+        src += literals[i]
         if (i < placeholders.length) {
-            s += placeholders[i]
+            src += placeholders[i]
         }
     }
 
     return (host: wecco.UpdateTarget, insertBefore?: Node) => {
         const el = document.createElementNS(SVGNamespaceURI, "svg")
-        el.innerHTML = s
+        el.innerHTML = src
         while (el.childNodes.length > 0) {
             host.insertBefore(el.removeChild(el.childNodes[0]), insertBefore ?? null)
         }
@@ -29,7 +29,7 @@ export function root(model: GameGrid, context: wecco.AppContext<Message>): wecco
         context.emit(new ChangeGrid(cols, rows))
     }
     const body = wecco.html`
-        <div class="container-fluid game-grid">
+        <div class="container-fluid">
             <div class="row mt-4">
                 <div class="col input-group">
                     <span class="input-group-text">${m("gameGrid.cols")}</span>
@@ -90,6 +90,7 @@ export function root(model: GameGrid, context: wecco.AppContext<Message>): wecco
                         <button class="btn btn-outline-primary d-flex justify-content-center align-content-between" @click=${() => {
                             document.body.requestFullscreen()
                         }}><i class="material-icons mr-1">fullscreen</i></button>
+                        <button class="btn btn-outline-primary d-flex justify-content-center align-content-between" @click=${downloadGridAsPNG}><i class="material-icons mr-1">download_for_offline</i></button>
                         <button class="btn btn-outline-danger d-flex justify-content-center align-content-between" @click=${() => {
                             context.emit(new ClearGrid())
                         }}><i class="material-icons mr-1">delete</i></button>
@@ -334,7 +335,7 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
     }
 
     return wecco.html`
-    <svg xmlns="http://www.w3.org/2000/svg" @mount=${mountSvg}>
+    <svg xmlns="http://www.w3.org/2000/svg" id="game-grid" @mount=${mountSvg}>
         <g>
             ${svgContent}
         </g>
@@ -376,4 +377,37 @@ function createTokenElement (token: Token): SVGElement {
     e.classList.add(token.color)
 
     return e
+}
+
+function downloadGridAsPNG(): void {
+    const defs = document.querySelector("#svg-defs")?.innerHTML ?? ""
+    const svg = document.querySelector("#game-grid")
+    let src = svg?.outerHTML ?? ""
+    const styles = document.querySelector("style")?.innerText ?? ""
+
+    src = src.replace(/^\s*(<svg[^>]*?>)(.*)$/mi, `$1<style>${styles}</style><defs>${defs}</defs>$2`)
+
+    const blob = new Blob([src], { type: "image/svg+xml;charset=utf-8"})
+    const dataUrl = URL.createObjectURL(blob)
+
+    const canvas = document.createElement("canvas")
+    canvas.width = svg?.getBoundingClientRect().width ?? 0
+    canvas.height = svg?.getBoundingClientRect().height ?? 0
+    const ctx = canvas.getContext("2d")
+
+    const img = new Image()
+    img.onload = function () {
+        ctx?.drawImage(img, 0, 0)
+        URL.revokeObjectURL(dataUrl)
+        const pngUrl = canvas.toDataURL()
+        console.log(pngUrl)
+        const el = document.createElement("a");
+        el.setAttribute("href", pngUrl)
+        el.setAttribute("download", "gamegrid.png")
+        el.style.display = "none"
+        document.body.appendChild(el)
+        el.click()
+        document.body.removeChild(el)
+    }
+    img.src = dataUrl
 }
