@@ -2,7 +2,7 @@
     "nav.title": "D20 Tools",
     "nav.diceRoller": "Würfel",
     "nav.gameGrid": "Raster",
-    "nav.combat": "Kampfrunden",
+    "nav.foes": "Gegner",
     "nav.source": "Github",
     "nav.about": "Über D20 Tools",
 
@@ -29,5 +29,17 @@
     "gameGrid.color.purple": "Lila",
     "gameGrid.color.yellow": "Gelb",
     "gameGrid.color.black": "Schwarz",
-    "gameGrid.color.brown": "Braun"
+    "gameGrid.color.brown": "Braun",
+
+    "foes.characters": "Charaktere",
+    "foes.kinds": "Arten",
+    "foes.speed": "Geschwindigkeit",
+    "foes.ac": "RK",
+    "foes.hp": "TP",
+    "foes.createCharacter": "Charakter hinzufügen",
+    "foes.createCharacter.label": "Bezeichnung",
+    "foes.createCharacter.kind": "Art",
+    "foes.kindEditor.attack": "Angriff",
+    "foes.kindEditor.modifier": "Mod.",
+    "foes.kindEditor.damage": "Schaden"
 }

@@ -16,7 +16,7 @@ export function appShell(main: wecco.ElementUpdate): wecco.ElementUpdate {
                 <ul class="navbar-nav me-auto flex-grow-1">
                     <li class="nav-item"><a class="nav-link" href="/">${m("nav.diceRoller")}</a></li>
                     <li class="nav-item"><a class="nav-link" href="/grid">${m("nav.gameGrid")}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/combat">${m("nav.combatManager")}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/foes">${m("nav.foes")}</a></li>
                 </ul>
                 <ul class="navbar-nav me-auto">                    
                     <li class="nav-item"><a class="nav-link" @click=${()=> new bootstrap.Modal(document.querySelector(".modal"),

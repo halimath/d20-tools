@@ -1,0 +1,222 @@
+import { range } from "../../common/tools"
+
+export type DieType = 2 | 3 | 4 | 6 | 8 | 10 | 12 | 20 | 100
+
+export const DieTypes: Array<DieType> = [2, 3, 4, 6, 8, 10, 12, 20, 100]
+
+export class DieRoll {
+    constructor (public readonly dieType: DieType, public readonly amount = 1) {}
+
+    roll(): number {
+        return [...range(this.amount)].reduce(p => p + Math.floor(Math.random() * this.dieType) + 1, 0)
+    }
+
+    toString(): string {
+        return `${this.amount}d${this.dieType}`
+    }
+}
+
+export class RollResult {
+    constructor (public readonly dieResult: number, public readonly modifier: number) {}
+
+    get value(): number {
+        return this.dieResult + this.modifier
+    }
+}
+
+export class Roll {
+    static parse(expr: string): Roll {
+        expr = expr.replace(/\s*/g, "")
+        const matches = /^(\d+)[dw](\d+)([+-]\d+)?$/.exec(expr)
+        if (!matches) {
+            throw `invalid expression: ${expr}`
+        }
+
+        const amount = parseInt(matches[1])
+        const die = parseInt(matches[2]) as DieType
+        const modifier = parseInt(matches[3] ?? "0")        
+
+        if (DieTypes.indexOf(die) < 0) {
+            throw `invalid expression: ${expr}`
+        }
+
+        return Roll.create(amount, die, modifier)
+    }
+
+    static create(dieAmount: number, dieType: DieType, modifier = 0): Roll {
+        return new Roll(new DieRoll(dieType, dieAmount), modifier)
+    }
+
+    constructor(public readonly die: DieRoll | undefined, public readonly modifier: number = 0) { }
+
+    roll(): RollResult {
+        if (typeof this.die === "undefined") {
+            return new RollResult(0, this.modifier)
+        }
+
+        return new RollResult(this.die.roll(), this.modifier)
+    }
+
+    toString(): string {
+        if (typeof this.die === "undefined") {
+            return this.modifier.toString()
+        }
+
+        const s = this.die.toString()
+
+        if (this.modifier === 0) {
+            return s
+        }
+
+        if (this.modifier < 0) {
+            return s + this.modifier
+        }
+
+        return `${s}+${this.modifier}`
+    }
+}
+
+export class HitDamage {
+    constructor (public readonly label: string, public readonly result: RollResult) {}
+}
+
+export class Hit {
+    constructor (public readonly ac: RollResult, public readonly damage: Array<HitDamage>) {}
+}
+
+export class Damage {
+    constructor (public readonly label: string, public readonly damage: Roll) {}
+
+    roll(): HitDamage {
+        return new HitDamage(this.label, this.damage.roll())
+    }
+}
+
+export class Attack {
+    public readonly roll: Roll
+    public readonly damage: Array<Damage>
+
+    constructor(public readonly label: string, public readonly mod: number, ...damage: Array<Damage>) { 
+        this.roll = new Roll(new DieRoll(20), this.mod)
+        this.damage = damage
+    }
+
+    execute(): Hit {
+        return new Hit(this.roll.roll(), this.damage.map(d => d.roll()))
+    }
+}
+
+export interface KindOptions {
+    ac: number
+    speed: number
+    reflex: Roll
+    will: Roll
+    fortitude: Roll
+    hitDie: Roll
+    tags?: Array<string>
+    attacks?: Array<Attack>
+}
+
+export class Kind {
+    public readonly speed: number 
+    public readonly ac: number
+    public readonly hitDie: Roll
+    public readonly reflex: Roll
+    public readonly will: Roll
+    public readonly fortitude: Roll
+    public readonly tags: Array<string>
+    public readonly attacks: Array<Attack>
+
+    constructor (    
+        public readonly label: string,
+        options: KindOptions,
+        ...attacks: Array<Attack>
+    ) {
+        this.speed = options.speed
+        this.ac = options.ac
+        this.hitDie = options.hitDie
+        this.reflex = options.reflex
+        this.will = options.will
+        this.fortitude = options.fortitude
+        this.tags = options.tags ?? []
+        this.attacks = (options.attacks ?? []).concat(attacks)
+    }
+}
+
+export class Character {
+    static create (label: string, kind: Kind): Character {
+        const hitpoints = kind.hitDie.roll().value
+        return new Character(label, kind, hitpoints, hitpoints, kind.attacks.map(a => [a, undefined]))
+    }   
+
+    constructor(
+        public readonly label: string, 
+        public readonly kind: Kind, 
+        public readonly hitpoints: number, 
+        public readonly currentHitpoints: number,
+        public readonly attacks: Array<[Attack, Hit | undefined]>,
+    ) {}
+
+    get isDead(): boolean {
+        return this.currentHitpoints <= 0
+    }
+
+    performAttack(attack: Attack): Character {
+        const idx = this.attacks.findIndex(a => a[0] === attack)
+        if (idx < 0) {
+            throw `invalid attack: ${this} ${attack}`
+        }
+        let attacks = this.attacks.slice(0, idx)
+        attacks.push([attack, attack.execute()])
+        attacks = attacks.concat(this.attacks.slice(idx + 1))
+
+        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints, attacks)
+    }
+
+    updateCurrentHitPoints (delta: number): Character {
+        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints + delta, this.attacks)
+    }
+}
+
+export type Tab = "characters" | "kinds"
+
+export class Model {
+    constructor(        
+        public readonly kinds: Array<Kind>,
+        public readonly characters: Array<Character>,
+        public readonly tab: Tab = "characters",
+    ) {}
+
+    createCharacter(label: string, kind: Kind): Model {
+        const characters = this.characters.slice()
+        characters.push(Character.create(label, kind))
+        
+        return new Model(this.kinds, characters)
+    }
+
+    performAttach(character: Character, attack: Attack): Model {
+        const idx = this.characters.findIndex(c => c === character)
+        if (idx < 0) {
+            throw `invalid character: ${character}`
+        }
+
+        let characters = this.characters.slice(0, idx)
+        characters.push(character.performAttack(attack))
+        characters = characters.concat(this.characters.slice(idx + 1))
+
+        return new Model(this.kinds, characters, this.tab)
+    }
+    
+    updateCurrentHitPoints(character: Character, delta: number): Model {
+        const idx = this.characters.findIndex(c => c === character)
+        if (idx < 0) {
+            throw `invalid character: ${character}`
+        }
+
+        let characters = this.characters.slice(0, idx)
+        characters.push(character.updateCurrentHitPoints(delta))
+        characters = characters.concat(this.characters.slice(idx + 1))
+
+        return new Model(this.kinds, characters, this.tab)
+    }
+}
