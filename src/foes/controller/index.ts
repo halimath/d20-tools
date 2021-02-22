@@ -1,5 +1,5 @@
 import { Browser } from "src/common/browser"
-import { Attack, Character, Kind, Model, Tab } from "../models"
+import { Attack, Character, Kind, Model, SavingThrow, Tab } from "../models"
 
 export class Nop {
     readonly command = "nop"
@@ -29,13 +29,19 @@ export class PerformAttack {
     constructor(public readonly character: Character, public readonly attack: Attack) { }
 }
 
+export class RollSavingThrow {
+    readonly command = "roll-saving-throw"
+
+    constructor(public readonly character: Character, public readonly savingThrow: SavingThrow) { }
+}
+
 export class UpdateCurrentHitPoints {
     readonly command = "update-current-hitpoints"
 
     constructor(public readonly character: Character, public readonly delta: number) { }
 }
 
-export type Message = Nop | SelectTab | CreateCharacter | RemoveCharacter | PerformAttack | UpdateCurrentHitPoints
+export type Message = Nop | SelectTab | CreateCharacter | RemoveCharacter | PerformAttack | RollSavingThrow | UpdateCurrentHitPoints
 
 export function update(model: Model, message: Message): Model {
     const m = applyUpdate(model, message)
@@ -59,6 +65,9 @@ function applyUpdate(model: Model, message: Message): Model {
 
         case "perform-attack":
             return model.performAttach(message.character, message.attack)
+
+        case "roll-saving-throw":
+            return model.rollSavingThrow(message.character, message.savingThrow)
 
         case "update-current-hitpoints":
             return model.updateCurrentHitPoints(message.character, message.delta)

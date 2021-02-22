@@ -106,16 +106,14 @@ export class Attack {
     }
 }
 
-export interface SavingThrows {
-    will: number
-    reflex: number
-    fortitude: number
-}
+export type SavingThrow = "will" | "reflex" | "fortitude"
+
+export type SavingThrows<T> = Record<SavingThrow, T>
 
 export interface KindOptions {
     ac: number
     speed: number
-    savingThrows: SavingThrows
+    savingThrows: SavingThrows<number>
     hitDie: Roll
     tags?: Array<string>
     attacks?: Array<Attack>
@@ -125,8 +123,7 @@ export class Kind {
     public readonly speed: number 
     public readonly ac: number
     public readonly hitDie: Roll
-    public readonly savingThrows: SavingThrows
-    public readonly fortitude: Roll
+    public readonly savingThrows: SavingThrows<number>
     public readonly tags: Array<string>
     public readonly attacks: Array<Attack>
 
@@ -152,8 +149,13 @@ export class Character {
     static create (label: string, kind: Kind): Character {
         const hitpoints = kind.hitDie.roll().value
 
-        return new Character(label, kind, hitpoints, hitpoints, kind.attacks.map(a => [a, undefined]))
-    }   
+        return new Character(label, kind, hitpoints, hitpoints, kind.attacks.map(a => [a, undefined]), 
+            Object.keys(kind.savingThrows).reduce((obj: any, st: any) => {
+                obj[st] = undefined
+                return obj
+            }, {}) as unknown as Record<SavingThrow, RollResult | undefined>
+        )
+    }    
 
     constructor(
         public readonly label: string, 
@@ -161,10 +163,18 @@ export class Character {
         public readonly hitpoints: number, 
         public readonly currentHitpoints: number,
         public readonly attacks: Array<[Attack, Hit | undefined]>,
-    ) {}
+        public readonly savingThrows: SavingThrows<RollResult | undefined>,
+    ) { }
     
     get isDead(): boolean {
         return this.currentHitpoints <= 0
+    }
+
+    rollSavingThrow(savingThrow: SavingThrow): Character {
+        const savingThrows = Object.assign({}, this.savingThrows)
+        savingThrows[savingThrow] = Roll.create(1, 20, this.kind.savingThrows[savingThrow]).roll()
+
+        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints, this.attacks, savingThrows)
     }
 
     performAttack(attack: Attack): Character {
@@ -176,11 +186,11 @@ export class Character {
         attacks.push([attack, attack.execute()])
         attacks = attacks.concat(this.attacks.slice(idx + 1))
 
-        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints, attacks)
+        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints, attacks, this.savingThrows)
     }
     
     updateCurrentHitPoints (delta: number): Character {
-        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints + delta, this.attacks)
+        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints + delta, this.attacks, this.savingThrows)
     }
 
     toUrlHash(): string {
@@ -215,7 +225,13 @@ export class Model {
                         return null
                     }
 
-                    return new Character(label, kind, hitpoints, currentHitpoints, kind.attacks.map(a => [a, undefined]))
+                    return new Character(label, kind, hitpoints, currentHitpoints, kind.attacks.map(a => [a, undefined]),
+                    Object.keys(kind.savingThrows).reduce((obj: any, st: any) => {
+                        obj[st] = undefined
+                        return obj
+                    }, {}) as unknown as Record<SavingThrow, RollResult | undefined>
+                )
+        
                 })
                 .filter(c => c !== null) as Array<Character>
         )
@@ -229,7 +245,7 @@ export class Model {
 
     toUrlHash(): string {
         return encodeURIComponent(this.characters.map(c => c.toUrlHash()).join("&"))
-    }
+    }    
 
     createCharacter(label: string, kind: Kind): Model {
         const characters = this.characters.slice()
@@ -247,6 +263,20 @@ export class Model {
         characters.splice(idx, 1)
         
         return new Model(this.kinds, characters, this.tab)
+    }
+
+    rollSavingThrow(character: Character, savingThrow: SavingThrow): Model {
+        const idx = this.characters.findIndex(c => c === character)
+        if (idx < 0) {
+            throw `invalid character: ${character}`
+        }
+
+        let characters = this.characters.slice(0, idx)
+        characters.push(character.rollSavingThrow(savingThrow))
+        characters = characters.concat(this.characters.slice(idx + 1))
+
+        return new Model(this.kinds, characters, this.tab)
+
     }
 
     performAttach(character: Character, attack: Attack): Model {

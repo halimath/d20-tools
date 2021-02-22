@@ -1,8 +1,8 @@
 import * as wecco from "@wecco/core"
 import { appShell } from "src/common/components/appShell"
 import { m } from "src/common/i18n"
-import { CreateCharacter, Message, PerformAttack, RemoveCharacter, SelectTab, UpdateCurrentHitPoints} from "../controller"
-import { Attack, Model, Character, Hit, Kind } from "../models"
+import { CreateCharacter, Message, PerformAttack, RemoveCharacter, RollSavingThrow, SelectTab, UpdateCurrentHitPoints} from "../controller"
+import { Attack, Model, Character, Hit, Kind, SavingThrow } from "../models"
 import { kindEditor } from "./components/kindeditor"
 
 export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {
@@ -123,15 +123,12 @@ function character (context: wecco.AppContext<Message>, character: Character): w
                 </div>
 
                 <div class="mt-2 d-flex align-items-center justify-content-center">
+                    ${Object.keys(character.kind.savingThrows).map((savingThrow: SavingThrow) => wecco.html`
                     <div class="col text-center">
-                        <button class="btn btn-light">${m("foes.savingthrow.will")}: ${modifier(character.kind.savingThrows.will)}</button>
+                        <button class="btn btn-light" @click=${() => context.emit(new RollSavingThrow(character, savingThrow))}>${m(`foes.savingthrow.${savingThrow}`)}: ${modifier(character.kind.savingThrows[savingThrow])}</button>
+                        ${character.savingThrows[savingThrow] ? `<span class="badge bg-secondary">${character.savingThrows[savingThrow]?.value}` : ""}
                     </div>
-                    <div class="col text-center">
-                        <button class="btn btn-light">${m("foes.savingthrow.reflex")}: ${modifier(character.kind.savingThrows.reflex)}</button>
-                    </div>
-                    <div class="col text-center">
-                        <button class="btn btn-light">${m("foes.savingthrow.fortitude")}: ${modifier(character.kind.savingThrows.fortitude)}</button>
-                    </div>
+                    `)}
                 </div>
                 
                 <div class="row mt-2">
