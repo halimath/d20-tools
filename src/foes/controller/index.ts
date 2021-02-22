@@ -1,3 +1,4 @@
+import { Browser } from "src/common/browser"
 import { Attack, Character, Kind, Model, Tab } from "../models"
 
 export class Nop {
@@ -16,6 +17,12 @@ export class CreateCharacter {
     constructor (public readonly label: string, public readonly kind: Kind) {}
 }
 
+export class RemoveCharacter {
+    readonly command = "remove-character"
+
+    constructor (public readonly character: Character) {}
+}
+
 export class PerformAttack {
     readonly command = "perform-attack"
 
@@ -28,9 +35,15 @@ export class UpdateCurrentHitPoints {
     constructor(public readonly character: Character, public readonly delta: number) { }
 }
 
-export type Message = Nop | SelectTab | CreateCharacter | PerformAttack | UpdateCurrentHitPoints
+export type Message = Nop | SelectTab | CreateCharacter | RemoveCharacter | PerformAttack | UpdateCurrentHitPoints
 
 export function update(model: Model, message: Message): Model {
+    const m = applyUpdate(model, message)
+    Browser.urlHash = m.toUrlHash()
+    return m
+}
+
+function applyUpdate(model: Model, message: Message): Model {
     switch (message.command) {
         case "nop":
             return model
@@ -40,6 +53,9 @@ export function update(model: Model, message: Message): Model {
 
         case "create-character":
             return model.createCharacter(message.label, message.kind)
+
+        case "remove-character":
+            return model.removeCharacter(message.character)
 
         case "perform-attack":
             return model.performAttach(message.character, message.attack)

@@ -106,12 +106,16 @@ export class Attack {
     }
 }
 
+export interface SavingThrows {
+    will: number
+    reflex: number
+    fortitude: number
+}
+
 export interface KindOptions {
     ac: number
     speed: number
-    reflex: Roll
-    will: Roll
-    fortitude: Roll
+    savingThrows: SavingThrows
     hitDie: Roll
     tags?: Array<string>
     attacks?: Array<Attack>
@@ -121,8 +125,7 @@ export class Kind {
     public readonly speed: number 
     public readonly ac: number
     public readonly hitDie: Roll
-    public readonly reflex: Roll
-    public readonly will: Roll
+    public readonly savingThrows: SavingThrows
     public readonly fortitude: Roll
     public readonly tags: Array<string>
     public readonly attacks: Array<Attack>
@@ -135,9 +138,11 @@ export class Kind {
         this.speed = options.speed
         this.ac = options.ac
         this.hitDie = options.hitDie
-        this.reflex = options.reflex
-        this.will = options.will
-        this.fortitude = options.fortitude
+        this.savingThrows = {
+            will: options.savingThrows.will,
+            reflex: options.savingThrows.reflex,
+            fortitude: options.savingThrows.fortitude,
+        }
         this.tags = options.tags ?? []
         this.attacks = (options.attacks ?? []).concat(attacks)
     }
@@ -146,6 +151,7 @@ export class Kind {
 export class Character {
     static create (label: string, kind: Kind): Character {
         const hitpoints = kind.hitDie.roll().value
+
         return new Character(label, kind, hitpoints, hitpoints, kind.attacks.map(a => [a, undefined]))
     }   
 
@@ -156,7 +162,7 @@ export class Character {
         public readonly currentHitpoints: number,
         public readonly attacks: Array<[Attack, Hit | undefined]>,
     ) {}
-
+    
     get isDead(): boolean {
         return this.currentHitpoints <= 0
     }
@@ -172,26 +178,75 @@ export class Character {
 
         return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints, attacks)
     }
-
+    
     updateCurrentHitPoints (delta: number): Character {
         return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints + delta, this.attacks)
+    }
+
+    toUrlHash(): string {
+        return [this.label, this.kind.label, this.hitpoints, this.currentHitpoints].join(";")
     }
 }
 
 export type Tab = "characters" | "kinds"
 
 export class Model {
+    static fromUrlHash(urlHash: string, kinds: Array<Kind>): Model {
+        return new Model(kinds, 
+            decodeURIComponent(urlHash).split("&")
+                .map(characterHash => {
+                    const [label, kindLabel, hitpointsStr, currentHitpointsStr] = characterHash.split(";")
+                    if (kindLabel === "") {
+                        return null
+                    }
+                    
+                    const hitpoints = parseInt(hitpointsStr)
+                    if (isNaN(hitpoints)) {
+                        return null
+                    }
+
+                    const currentHitpoints = parseInt(currentHitpointsStr)
+                    if (isNaN(currentHitpoints)) {
+                        return null
+                    }
+
+                    const kind = kinds.find(k => k.label === kindLabel)
+                    if (!kind) {
+                        return null
+                    }
+
+                    return new Character(label, kind, hitpoints, currentHitpoints, kind.attacks.map(a => [a, undefined]))
+                })
+                .filter(c => c !== null) as Array<Character>
+        )
+    }
+
     constructor(        
         public readonly kinds: Array<Kind>,
         public readonly characters: Array<Character>,
         public readonly tab: Tab = "characters",
     ) {}
 
+    toUrlHash(): string {
+        return encodeURIComponent(this.characters.map(c => c.toUrlHash()).join("&"))
+    }
+
     createCharacter(label: string, kind: Kind): Model {
         const characters = this.characters.slice()
         characters.push(Character.create(label, kind))
         
         return new Model(this.kinds, characters)
+    }
+
+    removeCharacter(character: Character): Model {
+        const idx = this.characters.findIndex(c => c === character)
+        if (idx < 0) {
+            throw `invalid character: ${character}`
+        }
+        const characters = this.characters.slice()
+        characters.splice(idx, 1)
+        
+        return new Model(this.kinds, characters, this.tab)
     }
 
     performAttach(character: Character, attack: Attack): Model {

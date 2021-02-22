@@ -1,7 +1,7 @@
 import * as wecco from "@wecco/core"
 import { appShell } from "src/common/components/appShell"
 import { m } from "src/common/i18n"
-import { CreateCharacter, Message, PerformAttack, SelectTab, UpdateCurrentHitPoints} from "../controller"
+import { CreateCharacter, Message, PerformAttack, RemoveCharacter, SelectTab, UpdateCurrentHitPoints} from "../controller"
 import { Attack, Model, Character, Hit, Kind } from "../models"
 import { kindEditor } from "./components/kindeditor"
 
@@ -96,20 +96,20 @@ function character (context: wecco.AppContext<Message>, character: Character): w
     return wecco.html`
         <div class="card character shadow ${character.isDead ? "dead": ""}">
             <div class="card-body">
-                <button class="btn btn-flat float-end"><i class="material-icons">close</i></button>
+                <button class="btn btn-flat float-end" @click=${() => context.emit(new RemoveCharacter(character))}><i class="material-icons">close</i></button>
                 
                 <h5 class="card-title">${character.label}</h5>
                 <h6>${character.kind.label}</h6>
                 
                 <div class="card-text">
-                    ${character.kind.tags.map(t => `<span class="me-1 badge bg-dark">${t}</span>`)}
+                    ${character.kind.tags.map(t => `<span class="me-1 badge bg-secondary">${t}</span>`)}
                 </div>
                 
                 <div class="mt-2 d-flex align-items-center justify-content-center">
-                    <div class="ac">${character.kind.ac}</div>
-                    <div class="hp">${character.currentHitpoints}</div>
-                    <div class="speed">${character.kind.speed}</div>
-                </div>
+                    <div class="attribute ac">${character.kind.ac}</div>
+                    <div class="attribute hp">${character.currentHitpoints}</div>
+                    <div class="attribute speed">${character.kind.speed}</div>
+                </div>                
 
                 <div class="mt-2 d-flex align-items-center justify-content-center">
                     ${m("foes.hp")}:
@@ -120,6 +120,18 @@ function character (context: wecco.AppContext<Message>, character: Character): w
                         <button class="btn btn-sm btn-outline-success" @click=${() => context.emit(new UpdateCurrentHitPoints(character, 1))}>+1</button>
                         <button class="btn btn-sm btn-outline-success" @click=${() => context.emit(new UpdateCurrentHitPoints(character, 5))}>+5</button>
                     </div>                                
+                </div>
+
+                <div class="mt-2 d-flex align-items-center justify-content-center">
+                    <div class="col text-center">
+                        <button class="btn btn-light">${m("foes.savingthrow.will")}: ${modifier(character.kind.savingThrows.will)}</button>
+                    </div>
+                    <div class="col text-center">
+                        <button class="btn btn-light">${m("foes.savingthrow.reflex")}: ${modifier(character.kind.savingThrows.reflex)}</button>
+                    </div>
+                    <div class="col text-center">
+                        <button class="btn btn-light">${m("foes.savingthrow.fortitude")}: ${modifier(character.kind.savingThrows.fortitude)}</button>
+                    </div>
                 </div>
                 
                 <div class="row mt-2">
@@ -139,7 +151,7 @@ function hit(hit: Hit | undefined): wecco.ElementUpdate {
         return ""
     }
 
-    let acBg = "bg-secondary"
+    let acBg = ""
     if (hit.ac.dieResult === 1) {
         acBg = "bg-danger"
     } else if (hit.ac.dieResult === 20) {
@@ -148,8 +160,8 @@ function hit(hit: Hit | undefined): wecco.ElementUpdate {
 
     return wecco.html`
         <br>
-        <span class="badge ${acBg}">${m("foes.ac")} ${hit.ac.value}</span>
-        ${hit.damage.map(d => wecco.html`<span class="badge bg-danger">${d.label ? `${d.label}: ${d.result.value}` : d.result.value}</span>`)}
+        <span class="badge ac ${acBg}">${m("foes.ac")} ${hit.ac.value}</span>
+        ${hit.damage.map(d => wecco.html`<span class="badge hp me-1">${d.label ? `${d.label}: ${d.result.value}` : d.result.value}</span>`)}
     `
 }
 

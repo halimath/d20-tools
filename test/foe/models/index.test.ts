@@ -1,9 +1,8 @@
 import { expect } from "chai"
 
-import { DieRoll, Roll } from "../../../src/foes/models"
+import { Character, DieRoll, Kind, Model, Roll } from "../../../src/foes/models"
 
 describe("models", () => {
-
     describe("DieRoll", () => {
         describe("toString", () => {
             it("1d20", () => {
@@ -69,7 +68,7 @@ describe("models", () => {
             it("1d20+4", () => {
                 const r = new Roll(new DieRoll(20), 4)
                 for (let i = 0; i < 1000; i++) {
-                    const result = r.roll()
+                    const result = r.roll().value
                     expect(result).to.gte(5)
                     expect(result).to.lte(24)
                 }
@@ -78,10 +77,41 @@ describe("models", () => {
             it("2d12-3", () => {
                 const r = new Roll(new DieRoll(12, 2), -3)
                 for (let i = 0; i < 1000; i++) {
-                    const result = r.roll()
+                    const result = r.roll().value
                     expect(result).to.gte(-1)
                     expect(result).to.lte(21)
                 }
+            })
+        })
+    })
+
+    describe("Model", () => {
+        const kind = new Kind("k1", {
+            ac: 0,
+            hitDie: Roll.parse("1d10"),
+            savingThrows: {
+                fortitude: 0,
+                reflex: 0,
+                will: 0,
+            },
+            speed: 0,
+        })
+
+        const model = new Model([kind], [
+            new Character("c1", kind, 8, 7, []),
+            new Character("c2", kind, 9, 1, []),
+        ])
+
+
+        describe("toUrlHash", () => {
+            it("should generate url hash", () => {
+                expect(model.toUrlHash()).to.eq(encodeURIComponent("c1;k1;8;7&c2;k1;9;1"))
+            })
+        })
+
+        describe("fromUrlString", () => {
+            it("should reconstruct model", () => {
+                expect(Model.fromUrlHash(encodeURIComponent("c1;k1;8;7&c2;k1;9;1"), [ kind ])).to.deep.eq(model)
             })
         })
     })
