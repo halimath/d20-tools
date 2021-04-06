@@ -28,6 +28,7 @@ export function root(model: GameGrid, context: wecco.AppContext<Message>): wecco
     function notifyGridSizeChanged(cols: number, rows: number) {
         context.emit(new ChangeGrid(cols, rows))
     }
+
     const body = wecco.html`
         <div class="container-fluid">
             <div class="row mt-4">
@@ -183,6 +184,8 @@ function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
 const WallSnapSize = 0.2
 
 function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {
+    let svgElement: SVGElement
+
     function calculateGridSizeAndOffsets (svg: SVGElement): [number, [number, number]] {
         const bcr = svg.getBoundingClientRect()
 
@@ -206,55 +209,57 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
         svg.querySelector("g")?.setAttribute("transform", `translate(${offsetX} ${offsetY}), scale(${gridSize / 10} ${gridSize / 10})`)
     }
 
-    function mountSvg (svg: SVGElement) {
+    function updateSvg (e: SVGElement) {
+        svgElement = e
+
         window.addEventListener("resize", () => {
-            if (!svg.isConnected) {
+            if (!svgElement.isConnected) {
                 return
             }
-            updateSvgTransform(svg)
+            updateSvgTransform(svgElement)
         })
 
-        svg.addEventListener("click", (e: MouseEvent) => {
-            const bcr = svg.getBoundingClientRect()
-            const [gridSize, [offsetX, offsetY]] = calculateGridSizeAndOffsets(svg)
+        updateSvgTransform(svgElement)
+    }
 
-            const relativeX = e.clientX - bcr.left - offsetX
-            const relativeY = e.clientY - bcr.top - offsetY
+    function onSvgClick (e: MouseEvent) {
+        const bcr = svgElement.getBoundingClientRect()
+        const [gridSize, [offsetX, offsetY]] = calculateGridSizeAndOffsets(svgElement)
 
-            const targetCol = Math.floor(relativeX / gridSize)
-            const targetRow = Math.floor(relativeY / gridSize)
+        const relativeX = e.clientX - bcr.left - offsetX
+        const relativeY = e.clientY - bcr.top - offsetY
 
-            if (targetCol < 0 || targetCol >= model.cols || targetRow < 0 || targetRow >= model.rows) {
-                return
-            }
+        const targetCol = Math.floor(relativeX / gridSize)
+        const targetRow = Math.floor(relativeY / gridSize)
 
-            const distanceX = relativeX / gridSize - targetCol
-            const distanceY = relativeY / gridSize - targetRow
+        if (targetCol < 0 || targetCol >= model.cols || targetRow < 0 || targetRow >= model.rows) {
+            return
+        }
 
-            if (distanceX < WallSnapSize) {
-                context.emit(new PlaceWall(targetCol, targetRow, "left", new Wall(model.wallSymbol, model.color)))
-                return
-            }
-            
-            if (distanceX > 1 - WallSnapSize) {
-                context.emit(new PlaceWall(targetCol + 1, targetRow, "left", new Wall(model.wallSymbol, model.color)))
-                return
-            }
+        const distanceX = relativeX / gridSize - targetCol
+        const distanceY = relativeY / gridSize - targetRow
 
-            if (distanceY < WallSnapSize) {
-                context.emit(new PlaceWall(targetCol, targetRow, "top", new Wall(model.wallSymbol, model.color)))
-                return
-            }
-            
-            if (distanceY > 1 - WallSnapSize) {
-                context.emit(new PlaceWall(targetCol, targetRow + 1, "top", new Wall(model.wallSymbol, model.color)))
-                return
-            }
+        if (distanceX < WallSnapSize) {
+            context.emit(new PlaceWall(targetCol, targetRow, "left", new Wall(model.wallSymbol, model.color)))
+            return
+        }
+        
+        if (distanceX > 1 - WallSnapSize) {
+            context.emit(new PlaceWall(targetCol + 1, targetRow, "left", new Wall(model.wallSymbol, model.color)))
+            return
+        }
 
-            context.emit(new PlaceToken(targetCol, targetRow, new Token(model.tokenSymbol, model.color)))
-        })
+        if (distanceY < WallSnapSize) {
+            context.emit(new PlaceWall(targetCol, targetRow, "top", new Wall(model.wallSymbol, model.color)))
+            return
+        }
+        
+        if (distanceY > 1 - WallSnapSize) {
+            context.emit(new PlaceWall(targetCol, targetRow + 1, "top", new Wall(model.wallSymbol, model.color)))
+            return
+        }
 
-        updateSvgTransform(svg)
+        context.emit(new PlaceToken(targetCol, targetRow, new Token(model.tokenSymbol, model.color)))
     }
 
     const svgContent = []
@@ -335,7 +340,7 @@ function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco
     }
 
     return wecco.html`
-    <svg xmlns="http://www.w3.org/2000/svg" id="game-grid" @mount=${mountSvg}>
+    <svg xmlns="http://www.w3.org/2000/svg" id="game-grid" @update=${(e: Event) => setTimeout(() => updateSvg(e.target as SVGElement), 1)} @click=${onSvgClick}>
         <g>
             ${svgContent}
         </g>

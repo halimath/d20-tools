@@ -63,7 +63,7 @@ function createCharacterDialog(context: wecco.AppContext<Message>, kinds: Array<
     }
 
     return wecco.html`    
-        <div class="modal" id="create-character-dialog" tabindex="-1" @mount=${(e: HTMLElement) => {dialog = e}}>
+        <div class="modal" id="create-character-dialog" tabindex="-1" @update=${(e: Event) => {dialog = e.target as HTMLElement}}>
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -98,7 +98,7 @@ function character (context: wecco.AppContext<Message>, character: Character): w
             <div class="card-body">
                 <button class="btn btn-flat float-end" @click=${() => context.emit(new RemoveCharacter(character))}><i class="material-icons">close</i></button>
                 
-                <h5 class="card-title">${character.label}</h5>
+                <h5 class="card-title">${character.label} <small>[${character.ini.value}; ${character.ini.modifier}]</small></h5>
                 <h6>${character.kind.label}</h6>
                 
                 <div class="card-text">
@@ -126,7 +126,7 @@ function character (context: wecco.AppContext<Message>, character: Character): w
                     ${Object.keys(character.kind.savingThrows).map((savingThrow: SavingThrow) => wecco.html`
                     <div class="col text-center">
                         <button class="btn btn-light" @click=${() => context.emit(new RollSavingThrow(character, savingThrow))}>${m(`foes.savingthrow.${savingThrow}`)}: ${modifier(character.kind.savingThrows[savingThrow])}</button>
-                        ${character.savingThrows[savingThrow] ? `<span class="badge bg-secondary">${character.savingThrows[savingThrow]?.value}` : ""}
+                        ${character.savingThrows[savingThrow] ? wecco.html`<span class="badge bg-secondary">${character.savingThrows[savingThrow]?.value}` : ""}
                     </div>
                     `)}
                 </div>
