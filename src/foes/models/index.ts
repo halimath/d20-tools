@@ -112,6 +112,7 @@ export type SavingThrows<T> = Record<SavingThrow, T>
 
 export interface KindOptions {
     ac: number
+    ini: number
     speed: number
     savingThrows: SavingThrows<number>
     hitDie: Roll
@@ -122,6 +123,7 @@ export interface KindOptions {
 export class Kind {
     public readonly speed: number 
     public readonly ac: number
+    public readonly ini: number
     public readonly hitDie: Roll
     public readonly savingThrows: SavingThrows<number>
     public readonly tags: Array<string>
@@ -133,6 +135,7 @@ export class Kind {
         ...attacks: Array<Attack>
     ) {
         this.speed = options.speed
+        this.ini = options.ini
         this.ac = options.ac
         this.hitDie = options.hitDie
         this.savingThrows = {
@@ -143,13 +146,18 @@ export class Kind {
         this.tags = options.tags ?? []
         this.attacks = (options.attacks ?? []).concat(attacks)
     }
+
+    rollIni(): RollResult {
+        return new Roll(new DieRoll(20), this.ini).roll()
+    }
 }
 
 export class Character {
     static create (label: string, kind: Kind): Character {
         const hitpoints = kind.hitDie.roll().value
+        const ini = kind.rollIni()
 
-        return new Character(label, kind, hitpoints, hitpoints, kind.attacks.map(a => [a, undefined]), 
+        return new Character(label, kind, ini, hitpoints, hitpoints, kind.attacks.map(a => [a, undefined]), 
             Object.keys(kind.savingThrows).reduce((obj: any, st: any) => {
                 obj[st] = undefined
                 return obj
@@ -160,6 +168,7 @@ export class Character {
     constructor(
         public readonly label: string, 
         public readonly kind: Kind, 
+        public readonly ini: RollResult,
         public readonly hitpoints: number, 
         public readonly currentHitpoints: number,
         public readonly attacks: Array<[Attack, Hit | undefined]>,
@@ -174,7 +183,7 @@ export class Character {
         const savingThrows = Object.assign({}, this.savingThrows)
         savingThrows[savingThrow] = Roll.create(1, 20, this.kind.savingThrows[savingThrow]).roll()
 
-        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints, this.attacks, savingThrows)
+        return new Character(this.label, this.kind, this.ini, this.hitpoints, this.currentHitpoints, this.attacks, savingThrows)
     }
 
     performAttack(attack: Attack): Character {
@@ -186,11 +195,11 @@ export class Character {
         attacks.push([attack, attack.execute()])
         attacks = attacks.concat(this.attacks.slice(idx + 1))
 
-        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints, attacks, this.savingThrows)
+        return new Character(this.label, this.kind, this.ini, this.hitpoints, this.currentHitpoints, attacks, this.savingThrows)
     }
     
     updateCurrentHitPoints (delta: number): Character {
-        return new Character(this.label, this.kind, this.hitpoints, this.currentHitpoints + delta, this.attacks, this.savingThrows)
+        return new Character(this.label, this.kind, this.ini, this.hitpoints, this.currentHitpoints + delta, this.attacks, this.savingThrows)
     }
 
     toUrlHash(): string {
@@ -209,23 +218,26 @@ export class Model {
                     if (kindLabel === "") {
                         return null
                     }
-                    
-                    const hitpoints = parseInt(hitpointsStr)
-                    if (isNaN(hitpoints)) {
-                        return null
-                    }
-
-                    const currentHitpoints = parseInt(currentHitpointsStr)
-                    if (isNaN(currentHitpoints)) {
-                        return null
-                    }
 
                     const kind = kinds.find(k => k.label === kindLabel)
                     if (!kind) {
                         return null
+                    }                    
+                    
+                    let hitpoints = parseInt(hitpointsStr)
+                    if (isNaN(hitpoints)) {
+                        hitpoints = kind.hitDie.roll().value
                     }
 
-                    return new Character(label, kind, hitpoints, currentHitpoints, kind.attacks.map(a => [a, undefined]),
+                    let currentHitpoints = parseInt(currentHitpointsStr)
+                    if (isNaN(currentHitpoints)) {
+                        currentHitpoints = hitpoints
+                    }
+
+                    // TODO: Parse from url
+                    const ini: RollResult = kind.rollIni()
+
+                    return new Character(label, kind, ini, hitpoints, currentHitpoints, kind.attacks.map(a => [a, undefined]),
                     Object.keys(kind.savingThrows).reduce((obj: any, st: any) => {
                         obj[st] = undefined
                         return obj
@@ -276,7 +288,6 @@ export class Model {
         characters = characters.concat(this.characters.slice(idx + 1))
 
         return new Model(this.kinds, characters, this.tab)
-
     }
 
     performAttach(character: Character, attack: Attack): Model {

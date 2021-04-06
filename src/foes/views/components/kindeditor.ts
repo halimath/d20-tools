@@ -28,18 +28,24 @@ function view(model: Model, context: wecco.RenderContext): wecco.ElementUpdate {
                     <div class="card-text">
                         ${model.kind.tags.map(t => `<span class="me-1 badge bg-dark">${t}</span>`)}
                     </div>
-                    <div class="card-text">
-                        <dl class="row">
-                            <dt class="col-6">Speed:</dt>
-                            <dd class="col-6">${model.kind.speed}</dd>
-
-                            <dt class="col-6">AC:</dt>
-                            <dd class="col-6">${model.kind.ac}</dd>
-
-                            <dt class="col-6">HP</dt>
-                            <dd class="col-6">${model.kind.hitDie}</dd>                        
-                        </dl>
-                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Speed</th>
+                                <th>Ini</th>
+                                <th>AC</th>
+                                <th>HP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>${model.kind.speed}</td>
+                                <td>${modifier(model.kind.ini)}</td>
+                                <td>${model.kind.ac}</td>
+                                <td>${model.kind.hitDie}</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                     <table class="table">
                         <thead>
