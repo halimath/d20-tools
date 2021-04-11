@@ -1,7 +1,10 @@
 {
+    "close": "Close",
+
     "nav.title": "D20 Tools",
     "nav.diceRoller": "Dice Roller",
     "nav.gameGrid": "Game Grid",
+    "nav.foes": "Foes",
     "nav.source": "Fork me on Github",
     "nav.about": "About",
 
@@ -27,5 +30,22 @@
     "gameGrid.color.purple": "Purple",
     "gameGrid.color.yellow": "Yellow",
     "gameGrid.color.black": "Black",
-    "gameGrid.color.brown": "Brown"
+    "gameGrid.color.brown": "Brown",
+
+    "foes.characters": "Characters",
+    "foes.kinds": "Kinds",
+    "foes.speed": "Speed",
+    "foes.fields.1": "1 field",
+    "foes.fields.n": "%d fields",
+    "foes.ac": "AC",
+    "foes.hp": "HP",
+    "foes.savingthrow.will": "Will",
+    "foes.savingthrow.reflex": "Ref",
+    "foes.savingthrow.fortitude": "Fort",
+    "foes.createCharacter": "Create Character",
+    "foes.createCharacter.label": "Label",
+    "foes.createCharacter.kind": "Kind",
+    "foes.kindEditor.attack": "Attack",
+    "foes.kindEditor.modifier": "Mod.",
+    "foes.kindEditor.damage": "Damage"
 }

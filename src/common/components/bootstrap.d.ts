@@ -6,6 +6,7 @@ declare namespace bootstrap {
     }
 
     class Modal {
+        static getInstance(el: Element): Modal
         constructor(el: Element | null, opts?: ModalOptions)
         toggle(): void
         show(): void
