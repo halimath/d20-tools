@@ -26,7 +26,7 @@ function view(model: Model, context: wecco.RenderContext): wecco.ElementUpdate {
                     </div>
                     <h5 class="card-title">${model.kind.label}</h5>
                     <div class="card-text">
-                        ${model.kind.tags.map(t => `<span class="me-1 badge bg-dark">${t}</span>`)}
+                        ${model.kind.tags.map(t => wecco.html`<span class="me-1 badge bg-dark">${t}</span>`)}
                     </div>
                     <table class="table">
                         <thead>
