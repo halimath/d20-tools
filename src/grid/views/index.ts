@@ -388,9 +388,14 @@ function downloadGridAsPNG(): void {
     const defs = document.querySelector("#svg-defs")?.innerHTML ?? ""
     const svg = document.querySelector("#game-grid")
     let src = svg?.outerHTML ?? ""
-    const styles = document.querySelector("style")?.innerText ?? ""
+    let styleRules = ""
 
-    src = src.replace(/^\s*(<svg[^>]*?>)(.*)$/mi, `$1<style>${styles}</style><defs>${defs}</defs>$2`)
+    const styleSheet = Array.from(document.styleSheets).find(s => s?.href?.endsWith("grid.css"))
+    if (styleSheet) {
+        styleRules = Array.from(styleSheet.cssRules).map(r => r.cssText).join("\n")
+    }
+
+    src = src.replace(/^\s*(<svg[^>]*?>)(.*)$/mi, `$1<style>${styleRules}</style><defs>${defs}</defs>$2`)
 
     const blob = new Blob([src], { type: "image/svg+xml;charset=utf-8"})
     const dataUrl = URL.createObjectURL(blob)
