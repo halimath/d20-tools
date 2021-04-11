@@ -390,7 +390,7 @@ function downloadGridAsPNG(): void {
     let src = svg?.outerHTML ?? ""
     let styleRules = ""
 
-    const styleSheet = Array.from(document.styleSheets).find(s => s?.href?.endsWith("grid.css"))
+    const styleSheet = Array.from(document.styleSheets).find(s => s?.href?.match(/^.*grid.*$/))
     if (styleSheet) {
         styleRules = Array.from(styleSheet.cssRules).map(r => r.cssText).join("\n")
     }
@@ -410,7 +410,6 @@ function downloadGridAsPNG(): void {
         ctx?.drawImage(img, 0, 0)
         URL.revokeObjectURL(dataUrl)
         const pngUrl = canvas.toDataURL()
-        console.log(pngUrl)
         const el = document.createElement("a");
         el.setAttribute("href", pngUrl)
         el.setAttribute("download", "gamegrid.png")
