@@ -1,7 +1,7 @@
 import * as wecco from "@wecco/core"
-import { appShell } from "src/common/components/appShell"
-import { m } from "src/common/i18n"
+import { appShell } from "../../common/components/appShell"
 import { Message } from "../controller"
+import { m } from "../i18n"
 import { Model } from "../models"
 
 export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {

@@ -1,0 +1,7 @@
+{
+    "diceRoller.title": "Dice Roller",
+    "diceRoller.intro": "Click a button to roll the respective die.",
+    "diceRoller.btn": "D{{0}}",
+    "diceRoller.result.value": "{{0}}",
+    "diceRoller.result.die": "Result of rolling a D{{0}}."
+}

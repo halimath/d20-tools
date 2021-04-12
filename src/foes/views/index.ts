@@ -1,47 +1,49 @@
 import * as wecco from "@wecco/core"
-import { appShell } from "src/common/components/appShell"
-import { m } from "src/common/i18n"
-import { CreateCharacter, Message, PerformAttack, RemoveCharacter, RollSavingThrow, SelectTab, UpdateCurrentHitPoints} from "../controller"
-import { Attack, Model, Character, Hit, Kind, SavingThrow } from "../models"
+import { appShell } from "../../common/components/appShell"
+import { CreateCharacter, Message, PerformAttack, RemoveCharacter, RollSavingThrow, SelectTab, UpdateCurrentHitPoints } from "../controller"
+import { m } from "../i18n"
+import { Attack, Character, Hit, Kind, Model, SavingThrow } from "../models"
 import { kindEditor } from "./components/kindeditor"
 
 export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {
     let content: wecco.ElementUpdate = ""
     
     if (model.tab === "characters") {
-        content = wecco.html`
-            ${model.characters.map(c => wecco.html`<div class="col-sm-12 col-md-6 col-lg-4 mt-2">${character(context, c)}</div>`)}
-
-            <div class="col-sm-12 col-md-6 col-lg-4 mt-2 character add d-flex align-items-center justify-content-center position-relative">
-                <button class="btn btn-large btn-flat stretched-link" @click=${() => new bootstrap.Modal(document.querySelector("#create-character-dialog")).show()}><i class="material-icons">add</i></button>
-            </div>
-        `
+        content = model.characters.map(c => wecco.html`<div class="col-sm-12 col-md-6 col-lg-4 mt-2">${character(context, c)}</div>`)        
     } else {
-        content = wecco.html`            
-            ${model.kinds.map(k => wecco.html`<div class="col-sm-12 col-md-6 col-lg-4">
+        content = model.kinds.map(k => wecco.html`<div class="col-sm-12 col-md-6 col-lg-4">
                 ${kindEditor({
                     kind: k,
                     inEdit: false,
                     onChange: k => console.log(k),
                     onDelete: () => console.log("delete", k),
                 })}
-                </div>`
-            )}
-                
-            <div class="col-sm-12 col-md-6 col-lg-4 card character h-100 add d-flex align-items-center justify-content-center">
-                <a class="btn btn-large btn-flat stretched-link" @click=${() => console.log("add")}><i class="material-icons">add</i></a>
-            </div>
-        `
+                </div>`)
     }
 
-    const body = wecco.html`        
-        <div class="container">
-            <div class="row mt-2">
-                <nav class="nav">
-                    <a class="nav-link ${model.tab === "characters" ? "active" : ""}" @click=${() => context.emit(new SelectTab("characters"))}>${m("foes.characters")}</a>
-                    <a class="nav-link ${model.tab === "kinds" ? "active" : ""}" @click=${() => context.emit(new SelectTab("kinds"))}>${m("foes.kinds")}</a>
-                </nav>
+    const body = wecco.html`
+        <div class="topnav">        
+            <div class="container">
+                <div class="row mt-2">
+                    <div class="col-8">
+                        <nav class="nav">
+                            <a class="nav-link ${model.tab === "characters" ? "active" : ""}" @click=${() => context.emit(new SelectTab("characters"))}>${m("foes.characters")}</a>
+                            <a class="nav-link ${model.tab === "kinds" ? "active" : ""}" @click=${() => context.emit(new SelectTab("kinds"))}>${m("foes.kinds")}</a>
+                        </nav>
+                    </div>
+                    <div class="col text-end">
+                        <button class="btn btn-large btn-primary" @click=${() => {
+                            if (model.tab === "characters") {
+                                new bootstrap.Modal(document.querySelector("#create-character-dialog")).show()
+                            } else {
+                                // TODO: Implement add kind
+                            }
+                        }}><i class="material-icons">add</i></button>            
+                    </div>
+                </div>
             </div>
+        </div>
+        <div class="container">
             <div class="row mt-2">
                 ${content}
             </div>
@@ -94,15 +96,23 @@ function createCharacterDialog(context: wecco.AppContext<Message>, kinds: Array<
 
 function character (context: wecco.AppContext<Message>, character: Character): wecco.ElementUpdate {
     return wecco.html`
-        <div class="card character shadow ${character.isDead ? "dead": ""}">
-            <div class="card-body">
-                <button class="btn btn-flat float-end" @click=${() => context.emit(new RemoveCharacter(character))}><i class="material-icons">close</i></button>
-                
-                <h5 class="card-title">${character.label} <small>[${character.ini.value}; ${character.ini.modifier}]</small></h5>
-                <h6>${character.kind.label}</h6>
+        <div class="mt-2 card character shadow ${character.isDead ? "dead": ""}">
+            <div class="card-body">                
+                <div class="row">
+                    <div class="col">
+                        <strong>Ini.:</strong>${character.ini.value} (${character.ini.modifier})
+                    </div>
+                    <div class="col-6">
+                        <h5 class="card-title">${character.label}</h5>
+                        <h6>${character.kind.label}</h6>
+                    </div>
+                    <div class="col text-end">
+                        <button class="btn btn-flat float-end" @click=${() => context.emit(new RemoveCharacter(character))}><i class="material-icons">close</i></button>
+                    </div>
+                </div>
                 
                 <div class="card-text">
-                    ${character.kind.tags.map(t => `<span class="me-1 badge bg-secondary">${t}</span>`)}
+                    ${character.kind.tags.map(t => wecco.html`<span class="me-1 badge bg-secondary">${t}</span>`)}
                 </div>
                 
                 <div class="mt-2 d-flex align-items-center justify-content-center">

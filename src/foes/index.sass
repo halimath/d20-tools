@@ -2,6 +2,19 @@ $color-ac: #4242ad
 $color-hp: #b93030
 $color-speed: #337430
 
+.topnav
+    position: sticky
+    top: 0
+    background-color: rgba(255,255,255,0.95)
+    box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 5%), inset 0 -1px 0 rgb(0 0 0 / 15%)
+    z-index: 1024
+    display: flex
+    align-items: center
+    justify-items: stretch
+    padding-top: .5rem!important
+    padding-bottom: .5rem!important
+
+
 .badge
     &.ac
         background-color: $color-ac
@@ -68,8 +81,3 @@ $color-speed: #337430
             border: 0.8rem solid darken($color-hp, 30%)
             border-radius: 2.2rem
 
-
-    &.add
-        border: 0.2rem dashed var(--bs-gray)
-        .btn-flat
-            color: var(--bs-gray)

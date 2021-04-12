@@ -2,8 +2,8 @@
 /// <reference path="./bootstrap.d.ts" />
 
 import * as wecco from "@wecco/core"
-import { m } from "../i18n"
 import { version } from "../../../package.json"
+import { m } from "./i18n"
 
 export function appShell(main: wecco.ElementUpdate): wecco.ElementUpdate {
     return wecco.html`
@@ -26,7 +26,9 @@ export function appShell(main: wecco.ElementUpdate): wecco.ElementUpdate {
             </div>
         </nav>
         
-        ${main}
+        <main>
+            ${main}
+        </main>
         
         <div class="modal fade" id="about-modal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">

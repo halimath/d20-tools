@@ -2,7 +2,7 @@ import * as wecco from "@wecco/core"
 import { Browser } from "src/common/browser"
 import { update } from "./controller"
 import "./index.sass"
-import { Attack, Character, Damage, DieRoll, Model, Roll, Kind } from "./models"
+import { Attack, Damage, Kind, Model, Roll } from "./models"
 import { root } from "./views"
 
 document.addEventListener("DOMContentLoaded", async () => {

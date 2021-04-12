@@ -1,6 +1,6 @@
 import * as wecco from "@wecco/core"
-import { m } from "src/common/i18n"
-import { Attack, Kind } from "src/foes/models"
+import { m } from "../../i18n"
+import { Attack, Kind } from "../../models"
 
 export interface Model {
     kind: Kind,
@@ -18,7 +18,7 @@ export const kindEditor = wecco.define("d20-kindeditor", (model: Model, context:
 
 function view(model: Model, context: wecco.RenderContext): wecco.ElementUpdate {
     return wecco.html`        
-            <div class="card kind shadow">
+            <div class="card kind shadow mt-2">
                 <div class="card-body">
                     <div class="float-end">
                         <button class="btn btn-flat" @click=${() => { model.inEdit = true; context.requestUpdate()}}><i class="material-icons">edit</i></button>
