@@ -1,6 +1,9 @@
 {
     "foes.characters": "Characters",
+    "foes.pc": "Player Character",
+    "foes.npc": "Non-player Character",
     "foes.kinds": "Kinds",
+    "foes.ini": "Initiative",
     "foes.speed": "Speed",
     "foes.fields.1": "1 field",
     "foes.fields.n": "%d fields",

@@ -1,3 +1,5 @@
+@import "../common/index.sass"
+
 $color-ac: #4242ad
 $color-hp: #b93030
 $color-speed: #337430
@@ -26,7 +28,6 @@ $color-speed: #337430
 .character,
 .kind
     position: relative
-    min-height: 20rem
 
     &.dead
         filter: grayscale(100%)
@@ -81,3 +82,10 @@ $color-speed: #337430
             border: 0.8rem solid darken($color-hp, 30%)
             border-radius: 2.2rem
 
+.character
+    border-left-width: 0.5rem
+    border-left-style: solid
+    &.npc
+        border-left-color: $primary
+    &.pc
+        border-left-color: $secondary

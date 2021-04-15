@@ -1,25 +1,25 @@
 import * as wecco from "@wecco/core"
+import { modal, ModalHandle } from "src/common/components/modal"
+import { tabs } from "../../common/components/tabs"
 import { appShell } from "../../common/components/appShell"
-import { CreateCharacter, Message, PerformAttack, RemoveCharacter, RollSavingThrow, SelectTab, UpdateCurrentHitPoints } from "../controller"
+import { Clear, CreateNPC, CreatePC, Message, SelectActiveCharacter, SelectTab } from "../controller"
 import { m } from "../i18n"
-import { Attack, Character, Hit, Kind, Model, SavingThrow } from "../models"
-import { kindEditor } from "./components/kindeditor"
+import { Kind, Model } from "../models"
+import { character } from "./components/character"
+import { kind } from "./components/kind"
 
 export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {
     let content: wecco.ElementUpdate = ""
     
     if (model.tab === "characters") {
-        content = model.characters.map(c => wecco.html`<div class="col-sm-12 col-md-6 col-lg-4 mt-2">${character(context, c)}</div>`)        
+        content = model.characters.map((c, idx) => wecco.html`<div class="col-12" @click=${() => context.emit(new SelectActiveCharacter(idx))}>${character(context, c, idx === model.activeCharacterIndex)}</div>`)
     } else {
-        content = model.kinds.map(k => wecco.html`<div class="col-sm-12 col-md-6 col-lg-4">
-                ${kindEditor({
-                    kind: k,
-                    inEdit: false,
-                    onChange: k => console.log(k),
-                    onDelete: () => console.log("delete", k),
-                })}
-                </div>`)
+        content = model.kinds.map(k => 
+            wecco.html`<div class="col-sm-12 col-md-6 col-lg-4">${kind(k, context)}</div>`
+        )
     }
+
+    let addCharacterModalHandle: ModalHandle
 
     const body = wecco.html`
         <div class="topnav">        
@@ -34,11 +34,15 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                     <div class="col text-end">
                         <button class="btn btn-large btn-primary" @click=${() => {
                             if (model.tab === "characters") {
-                                new bootstrap.Modal(document.querySelector("#create-character-dialog")).show()
+                                addCharacterModalHandle.show()
                             } else {
                                 // TODO: Implement add kind
                             }
                         }}><i class="material-icons">add</i></button>            
+
+                        ${model.tab !== "characters" ? "" : wecco.html`
+                            <button class="btn btn-large btn-outline-danger" @click=${() => context.emit(new Clear())}><i class="material-icons">delete</i></button>
+                        `}
                     </div>
                 </div>
             </div>
@@ -48,144 +52,72 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                 ${content}
             </div>
         </div>
-        ${createCharacterDialog(context, model.kinds)}
+
+        ${addCharacterModal(model.kinds, context, (m: ModalHandle) => {
+            addCharacterModalHandle = m
+        })}
     `
 
     return appShell(body)
 }
 
-function createCharacterDialog(context: wecco.AppContext<Message>, kinds: Array<Kind>): wecco.ElementUpdate {
-    let dialog: HTMLElement
+function addCharacterModal(kinds: Array<Kind>, context: wecco.AppContext<Message>, binder: (h: ModalHandle) => void): wecco.ElementUpdate {
+    let modalHandle: ModalHandle
+    let labelInput: HTMLInputElement
+    let iniInput: HTMLInputElement
+    let kindSelect: HTMLSelectElement
+    let characterType: "pc" | "npc" = "npc"
 
-    const onCreate = () => {        
-        const label = (dialog.querySelector("input[type='text']") as HTMLInputElement).value
-        const kind = kinds[parseInt((dialog.querySelector("select") as HTMLSelectElement).value)]
-        bootstrap.Modal.getInstance(dialog).hide()
-        context.emit(new CreateCharacter(label, kind))
+    const onCreate = () => {
+        modalHandle.hide()
+        
+        const label = labelInput.value
+        if (characterType === "npc") {
+            const kind = kinds[parseInt(kindSelect.value)]
+            context.emit(new CreateNPC(label, kind))
+        } else {
+            const ini = parseInt(iniInput.value)
+            context.emit(new CreatePC(label, ini, 0))
+        }
     }
 
-    return wecco.html`    
-        <div class="modal" id="create-character-dialog" tabindex="-1" @update=${(e: Event) => {dialog = e.target as HTMLElement}}>
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">${m("foes.createCharacter")}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-2">
-                            <label for="create-character-label">${m("foes.createCharacter.label")}</label>
-                            <input type="text" id="create-character-label" placeholder=${m("foes.createCharacter.label")} class="form-control">
-                        </div>
-                        <div class="mb-2">
-                            <label for="create-character-kind">${m("foes.createCharacter.kind")}</label>
-                            <select class="form-select" id="create-character-kind">
-                                ${kinds.map((k, idx) => wecco.html`<option value=${idx}>${k.label}</option>`)}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${m("close")}</button>
-                        <button type="button" class="btn btn-primary" @click=${onCreate}>${m("foes.createCharacter")}</button>
-                    </div>
-                </div>
-            </div>
-        </div>    
-    `    
-}
+    return modal(wecco.html`
+    <div class="mb-2">
+        <label for="create-character-label">${m("foes.createCharacter.label")}</label>
+        <input type="text" id="create-character-label" placeholder=${m("foes.createCharacter.label")} class="form-control" @update=${(e: Event) => labelInput = e.target as HTMLInputElement}>
+    </div>
 
-function character (context: wecco.AppContext<Message>, character: Character): wecco.ElementUpdate {
-    return wecco.html`
-        <div class="mt-2 card character shadow ${character.isDead ? "dead": ""}">
-            <div class="card-body">                
-                <div class="row">
-                    <div class="col">
-                        <strong>Ini.:</strong>${character.ini.value} (${character.ini.modifier})
-                    </div>
-                    <div class="col-6">
-                        <h5 class="card-title">${character.label}</h5>
-                        <h6>${character.kind.label}</h6>
-                    </div>
-                    <div class="col text-end">
-                        <button class="btn btn-flat float-end" @click=${() => context.emit(new RemoveCharacter(character))}><i class="material-icons">close</i></button>
-                    </div>
-                </div>
-                
-                <div class="card-text">
-                    ${character.kind.tags.map(t => wecco.html`<span class="me-1 badge bg-secondary">${t}</span>`)}
-                </div>
-                
-                <div class="mt-2 d-flex align-items-center justify-content-center">
-                    <div class="attribute ac">${character.kind.ac}</div>
-                    <div class="attribute hp">${character.currentHitpoints}</div>
-                    <div class="attribute speed">${character.kind.speed}</div>
-                </div>                
-
-                <div class="mt-2 d-flex align-items-center justify-content-center">
-                    ${m("foes.hp")}:
-                    <strong class=${character.currentHitpoints <= 0 ? "text-danger" : ""}>${character.currentHitpoints}</strong> / ${character.hitpoints} (${character.kind.hitDie}) <br>
-                    <div class="btn-group ms-1">
-                        <button class="btn btn-sm btn-outline-danger" @click=${() => context.emit(new UpdateCurrentHitPoints(character, -5))}>-5</button>
-                        <button class="btn btn-sm btn-outline-danger" @click=${() => context.emit(new UpdateCurrentHitPoints(character, -1))}>-1</button>
-                        <button class="btn btn-sm btn-outline-success" @click=${() => context.emit(new UpdateCurrentHitPoints(character, 1))}>+1</button>
-                        <button class="btn btn-sm btn-outline-success" @click=${() => context.emit(new UpdateCurrentHitPoints(character, 5))}>+5</button>
-                    </div>                                
-                </div>
-
-                <div class="mt-2 d-flex align-items-center justify-content-center">
-                    ${Object.keys(character.kind.savingThrows).map((savingThrow: SavingThrow) => wecco.html`
-                    <div class="col text-center">
-                        <button class="btn btn-light" @click=${() => context.emit(new RollSavingThrow(character, savingThrow))}>${m(`foes.savingthrow.${savingThrow}`)}: ${modifier(character.kind.savingThrows[savingThrow])}</button>
-                        ${character.savingThrows[savingThrow] ? wecco.html`<span class="badge bg-secondary">${character.savingThrows[savingThrow]?.value}` : ""}
-                    </div>
-                    `)}
-                </div>
-                
-                <div class="row mt-2">
-                    ${character.attacks.map(a => wecco.html`
-                    <div class="col">
-                        ${attack(context, character, a[0])}
-                        ${hit(a[1])}
-                    </div>`)}
-                </div>
-            </div>
-        </div>
-    `
-}
-
-function hit(hit: Hit | undefined): wecco.ElementUpdate {
-    if (typeof hit === "undefined") {
-        return ""
-    }
-
-    let acBg = ""
-    if (hit.ac.dieResult === 1) {
-        acBg = "bg-danger"
-    } else if (hit.ac.dieResult === 20) {
-        acBg = "bg-success"
-    }
-
-    return wecco.html`
-        <br>
-        <span class="badge ac ${acBg}">${m("foes.ac")} ${hit.ac.value}</span>
-        ${hit.damage.map(d => wecco.html`<span class="badge hp me-1">${d.label ? `${d.label}: ${d.result.value}` : d.result.value}</span>`)}
-    `
-}
-
-function attack(context: wecco.AppContext<Message>, character: Character, attack: Attack): wecco.ElementUpdate {
-    return wecco.html`
-        <button class="btn btn-outline-secondary" 
-            ?disabled=${character.currentHitpoints <= 0} 
-            @click=${() => context.emit(new PerformAttack(character, attack))}>${attack.label}: ${modifier(attack.mod)}
-        </button>
-    `
-}
-
-function modifier(m: number): string {
-    if (m < 0) {
-        return m.toString()
-    }
-
-    return `+${m}`
+    ${tabs({
+        kind: "pills-fill",
+        onTabSelected(_, idx) {
+            characterType = idx === 0 ? "npc" : "pc"
+        }
+    }, {
+        label: m("foes.npc"),
+        content: wecco.html`
+            <div class="mb-2">
+                <label for="create-character-kind">${m("foes.createCharacter.kind")}</label>
+                <select class="form-select" id="create-character-kind"  @update=${(e: Event) => kindSelect = e.target as HTMLSelectElement}>
+                    ${kinds.map((k, idx) => wecco.html`<option value=${idx}>${k.label}</option>`)}
+                </select>
+            </div>        
+        `
+    }, {
+        label: m("foes.pc"),
+        content: wecco.html`
+            <div class="mb-2">
+                <label for="create-character-ini">${m("foes.ini")}</label>
+                <input type="number" id="create-character-ini" class="form-control" @update=${(e: Event) => iniInput = e.target as HTMLInputElement}>
+            </div>        
+        `})}
+`, 
+{
+    title: m("foes.createCharacter"),
+    actions: [
+        wecco.html`<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">${m("close")}</button>`,
+        wecco.html`<button type="button" class="btn btn-primary" @click=${onCreate}>${m("foes.createCharacter")}</button>`,
+    ],
+    onCreate: m => {modalHandle = m; binder(m)},
+})
 }
 

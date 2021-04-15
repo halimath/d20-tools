@@ -18,6 +18,42 @@ export class StaticMessageLoader implements MessageLoader {
     }
 }
 
+export class MergingMessageLoader implements MessageLoader {
+    private readonly loaders: Array<MessageLoader>
+    
+    constructor (...loaders: Array<MessageLoader>) {
+        if (loaders.length < 2) {
+            throw `Invalid number of loaders to merge: ${loaders.length}`
+        }
+        this.loaders = loaders
+    }
+
+    async loadDefaultMessages(): Promise<Messages> {
+        return this.mergeMessages(this.loaders.map(l => l.loadDefaultMessages()))
+    }
+
+    loadMessages(language: Language): Promise<Messages | undefined> {
+        return this.mergeMessages(this.loaders.map(l => l.loadMessages(language)))
+    }
+
+    private async mergeMessages (input: Array<Promise<Messages | undefined>>): Promise<Messages> {
+        const loaded = await Promise.all(input)
+        const msg = loaded[0] ?? {}
+        loaded.slice(1).forEach(m => {
+            if (!m) {
+                return
+            }
+            Object.keys(m).forEach(k => {
+                if (typeof msg[k] === "undefined") {
+                    msg[k] = m[k]
+                }
+            })
+        })
+
+        return msg
+    }
+}
+
 export class MessageResolver {
     static async create (loader: MessageLoader, language?: Language): Promise<MessageResolver> {
         const lang = language ?? determineNavigatorLanguage()

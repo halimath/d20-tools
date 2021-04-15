@@ -1,4 +1,6 @@
 {
+    "close": "Schließen",
+
     "nav.title": "D20 Tools",
     "nav.diceRoller": "Würfel",
     "nav.gameGrid": "Raster",
@@ -8,6 +10,6 @@
 
     "about.title": "D20 Tools",
     "about.version": "Version {{0}}.",
-    "about.copyright": "Copyright &copy; 2021 Alexander Metzner. Published under the terms of the Apache License version 2.",
+    "about.copyright": "Copyright © 2021 Alexander Metzner. Published under the terms of the Apache License version 2.",
     "about.close": "Close"
 }
