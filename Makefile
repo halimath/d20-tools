@@ -1,5 +1,5 @@
-VERSION = 0.8.0
-BUILD_NUMBER = 6
+VERSION = 0.9.0
+BUILD_NUMBER = 7
 DATE = $(shell date --iso-8601=seconds)
 CWD = $(shell pwd)
 VCS_REF = $(shell git rev-parse --short HEAD)

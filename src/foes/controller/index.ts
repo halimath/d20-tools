@@ -1,3 +1,4 @@
+import { Browser } from "src/common/browser"
 import { Attack, Character, Kind, Model, RollResult, SavingThrow, Tab } from "../models"
 import { saveCharacters, saveKinds } from "../store"
 
@@ -57,34 +58,34 @@ export class SelectActiveCharacter {
     constructor(public readonly index: number) {}
 }
 
-export type Message = Nop | Clear | SelectTab | CreateNPC | CreatePC | RemoveCharacter | PerformAttack | RollSavingThrow | UpdateCurrentHitPoints | SelectActiveCharacter
+export class SaveKind {
+    readonly command = "save-kind"
 
-export function update(model: Model, message: Message): Promise<Model> {
-    const m = applyUpdate(model, message)
-    return saveKinds(m.kinds)
-        .then(() => saveCharacters(m.characters))
-        .then(() => m)
+    constructor(public readonly kind: Kind, public readonly index?: number) {}
 }
 
-function applyUpdate(model: Model, message: Message): Model {
+export type Message = Nop | Clear | SelectTab | CreateNPC | CreatePC | RemoveCharacter | PerformAttack | RollSavingThrow | UpdateCurrentHitPoints | SelectActiveCharacter | SaveKind
+
+export function update(model: Model, message: Message): Model | Promise<Model> {
     switch (message.command) {
         case "nop":
             return model
 
         case "clear":
-            return model.clear()
+            return save(model.clear())
 
         case "select-tab":
+            Browser.urlHash = message.tab
             return new Model(model.kinds, model.characters, model.activeCharacterIndex, message.tab)
 
         case "create-npc":
-            return model.createNPC(message.label, message.kind)
+            return save(model.createNPC(message.label, message.kind))
 
         case "create-pc":
-            return model.createPC(message.label, new RollResult(message.ini - message.iniModifier, message.iniModifier))
+            return save(model.createPC(message.label, new RollResult(message.ini - message.iniModifier, message.iniModifier)))
 
         case "remove-character":
-            return model.removeCharacter(message.character)
+            return save(model.removeCharacter(message.character))
 
         case "perform-attack":
             return model.performAttach(message.character, message.attack)
@@ -97,5 +98,17 @@ function applyUpdate(model: Model, message: Message): Model {
 
         case "select-active-character":
             return model.selectActiveCharacter(message.index)
+
+        case "save-kind":
+            if (typeof message.index !== "undefined") {
+                return save(model.updateKind(message.index, message.kind))
+            }
+            return save(model.appendKind(message.kind))
     }
+}
+
+function save(m: Model): Promise<Model> {
+    return saveKinds(m.kinds)
+        .then(() => saveCharacters(m.characters))
+        .then(() => m)
 }

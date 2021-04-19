@@ -12,9 +12,10 @@ export class Model {
     constructor(
         public readonly kinds: Array<Kind>,
         public readonly characters: Array<Character>,
-        public readonly activeCharacterIndex: number = 1,
+        public readonly activeCharacterIndex: number = 0,
         public readonly tab: Tab = "characters",
     ) { 
+        this.kinds.sort((a, b) => a.label.localeCompare(b.label))
         this.characters.sort((a, b) => b.ini.value - a.ini.value)
     }
 
@@ -105,5 +106,18 @@ export class Model {
 
     clear(): Model {
         return new Model(this.kinds, [], 0, this.tab)
+    }
+
+    updateKind(index: number, k: Kind): Model {
+        const kinds = this.kinds.slice()
+        kinds[index] = k
+        // TODO: Check if we need to upgrade characters
+        return new Model(kinds, this.characters, this.activeCharacterIndex, this.tab)
+    }
+
+    appendKind(k: Kind): Model {
+        const kinds = this.kinds.slice()
+        kinds.push(k)
+        return new Model(kinds, this.characters, this.activeCharacterIndex, this.tab)
     }
 }

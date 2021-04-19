@@ -83,9 +83,12 @@ $color-speed: #337430
             border-radius: 2.2rem
 
 .character
-    border-left-width: 0.5rem
+    border-left-width: 0.8rem
     border-left-style: solid
-    &.npc
+    border-left-color: lighten($secondary, 30%)
+
+    &.active
         border-left-color: $primary
-    &.pc
-        border-left-color: $secondary
+    
+    &:not(.active)
+        margin-left: 2rem

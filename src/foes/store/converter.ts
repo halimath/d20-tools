@@ -1,5 +1,5 @@
 import * as models from "../models"
-import { RollResult } from "../models"
+import { Kind, Roll, RollResult } from "../models"
 import * as dtos from "./dto"
 
 export function convertCharacter(c: models.Character): dtos.PC | dtos.NPC {
@@ -12,7 +12,6 @@ export function convertCharacter(c: models.Character): dtos.PC | dtos.NPC {
     }
 
     throw `illegal character: ${c}`
-
 }
 
 function convertPC (pc: models.PC): dtos.PC {
@@ -46,6 +45,49 @@ export function reconstructCharacter(dto: dtos.PC | dtos.NPC, kinds: Array<model
     }
 
     return models.NPC.create(dto.label, kind, dto.hp, dto.chp, new RollResult(dto.ini.dieResult, dto.ini.modifier))
+}
+
+export function reconstructKind(dto: dtos.Kind): models.Kind {
+    return new models.Kind(dto.label, {
+        tags: dto.tags,
+        ac: dto.ac,
+        ini: dto.ini, 
+        speed: dto.speed, 
+        hitDie: Roll.parse(dto.hitDie),
+        savingThrows: {
+            reflex: dto.savingThrows.reflex,
+            will: dto.savingThrows.will,
+            fortitude: dto.savingThrows.fortitude,
+        }
+    }, ...dto.attacks.map(a => new models.Attack(a.label, a.mod, ...a.damage.map(d => new models.Damage(d.label, Roll.parse(d.damage))))))
+}
+
+export function convertKind (kind: models.Kind): dtos.Kind {
+    return {
+        label: kind.label,
+        ac: kind.ac,
+        ini: kind.ini,
+        speed: kind.speed,
+        hitDie: kind.hitDie.toString(),
+        tags: kind.tags.slice(),
+        savingThrows: {
+            reflex: kind.savingThrows.reflex,
+            will: kind.savingThrows.will,
+            fortitude: kind.savingThrows.fortitude,
+        },
+        attacks: kind.attacks.map(a => {
+            return {
+                label: a.label,
+                mod: a.mod,
+                damage: a.damage.map(d => {
+                    return {
+                        label: d.label,
+                        damage: d.damage.toString(),
+                    }
+                })
+            }
+        }),
+    }
 }
 
 function convertIni (ini: models.RollResult): dtos.Ini {

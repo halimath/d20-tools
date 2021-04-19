@@ -8,19 +8,21 @@ export interface ModalHandle {
     hide(): void
 }
 
+export interface ModalHandleBinder {
+    (handle: ModalHandle): void
+}
+
 export interface ModalOptions {
-    title: string
-    actions: Array<wecco.ElementUpdate>
     show: boolean
-    onCreate(modal: ModalHandle): void
+    size?: "sm" | "lg" | "xl"
+    binder: ModalHandleBinder
 }
 
 export function modal (content: wecco.ElementUpdate, opts?: Partial<ModalOptions>): wecco.ElementUpdate {
     const options: ModalOptions = {
-        title: opts?.title ?? "",
-        actions: opts?.actions ?? [],
         show: !!(opts?.show),
-        onCreate: opts?.onCreate ?? (() => void 0),
+        size: opts?.size,
+        binder: opts?.binder ?? (() => void 0),
     }
 
     const onUpdate = (e: Event) => {
@@ -29,21 +31,14 @@ export function modal (content: wecco.ElementUpdate, opts?: Partial<ModalOptions
         if (options.show) {
             modal.show()
         }
-        options.onCreate(modal)
+        options.binder(modal)
     }
 
     return wecco.html`
         <div class="modal fade" tabindex="-1" aria-hidden="true" @update=${onUpdate}>
-            <div class="modal-dialog">
+            <div class="modal-dialog ${options.size ? "modal-" + options.size : ""}">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">${options.title}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">${content}</div>
-                    <div class="modal-footer">
-                        ${options.actions}
-                    </div>
+                    ${content}
                 </div>
             </div>
         </div>    

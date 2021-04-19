@@ -9,13 +9,18 @@
     "foes.fields.n": "%d fields",
     "foes.ac": "AC",
     "foes.hp": "HP",
+    "foes.label": "Label",
+    "foes.kind": "Kind",
+    "foes.tags": "Tags",
     "foes.savingthrow.will": "Will",
     "foes.savingthrow.reflex": "Ref",
     "foes.savingthrow.fortitude": "Fort",
     "foes.createCharacter": "Create Character",
-    "foes.createCharacter.label": "Label",
-    "foes.createCharacter.kind": "Kind",
-    "foes.kindEditor.attack": "Attack",
-    "foes.kindEditor.modifier": "Mod.",
-    "foes.kindEditor.damage": "Damage"
+    "foes.edit.title": "Edit Kind",
+    "foes.edit.save": "Save Kind",
+    "foes.attacks": "Attacks",
+    "foes.attack": "Attack",
+    "foes.modifier": "Mod.",
+    "foes.damage": "Damage"
+    
 }

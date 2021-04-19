@@ -31,7 +31,7 @@ export class Attack {
     }
 }
 
-export type SavingThrow = "will" | "reflex" | "fortitude"
+export type SavingThrow = "reflex" | "will" | "fortitude"
 
 export type SavingThrows<T> = Record<SavingThrow, T>
 
@@ -46,6 +46,20 @@ export interface KindOptions {
 }
 
 export class Kind {
+    static empty(): Kind {
+        return new Kind("", {
+            speed: 6,
+            ac: 10,
+            ini: 0,
+            hitDie: Roll.parse("1d4"),
+            savingThrows: {
+                reflex: 0,
+                will: 0,
+                fortitude: 0,
+            },
+        })
+    }
+
     public readonly speed: number 
     public readonly ac: number
     public readonly ini: number
@@ -64,8 +78,8 @@ export class Kind {
         this.ac = options.ac
         this.hitDie = options.hitDie
         this.savingThrows = {
-            will: options.savingThrows.will,
             reflex: options.savingThrows.reflex,
+            will: options.savingThrows.will,
             fortitude: options.savingThrows.fortitude,
         }
         this.tags = options.tags ?? []

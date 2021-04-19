@@ -13,7 +13,7 @@ export function character (context: wecco.AppContext<Message>, character: Charac
 
 function pc(context: wecco.AppContext<Message>, pc: PC, active: boolean): wecco.ElementUpdate {
     return wecco.html`
-        <div class="mt-2 mb-2 card character pc shadow-sm ${active ? "" : "ms-4 me-4"}">
+        <div class="mt-2 mb-2 card character pc shadow-sm ${active ? "active" : ""}">
             <div class="card-body">
                 <div class="row">
                     <div class="col">
@@ -23,7 +23,7 @@ function pc(context: wecco.AppContext<Message>, pc: PC, active: boolean): wecco.
                         <h5 class="card-title">${pc.label}</h5>
                     </div>
                     <div class="col text-end">
-                        <button class="btn btn-flat float-end" @click=${() => context.emit(new RemoveCharacter(pc))}><i class="material-icons">close</i></button>
+                        <button class="btn btn-flat float-end" @click+stopPropagation=${() => context.emit(new RemoveCharacter(pc))}><i class="material-icons">close</i></button>
                     </div>
                 </div>
             </div>
@@ -32,7 +32,7 @@ function pc(context: wecco.AppContext<Message>, pc: PC, active: boolean): wecco.
 
 function npc (context: wecco.AppContext<Message>, npc: NPC, active: boolean): wecco.ElementUpdate {
     return wecco.html`
-        <div class="mt-2 mb-2 card character npc shadow-sm ${active ? "" : "ms-4 me-4"} ${npc.isDead ? "dead": ""}">
+        <div class="mt-2 mb-2 card character npc shadow-sm ${active ? "active" : ""} ${npc.isDead ? "dead": ""}">
             <div class="card-body">                
                 <div class="row">
                     <div class="col">
@@ -43,26 +43,33 @@ function npc (context: wecco.AppContext<Message>, npc: NPC, active: boolean): we
                         <h6>${npc.kind.label}</h6>
                         ${npc.kind.tags.map(t => wecco.html`<span class="me-1 badge bg-dark">${t}</span>`)}
                     </div>
+                    <div class="col">
+                        <div class="attribute speed">${npc.kind.speed}</div>
+                    </div>
                     <div class="col text-end">
-                        <button class="btn btn-flat float-end" @click=${() => context.emit(new RemoveCharacter(npc))}><i class="material-icons">close</i></button>
+                        <button class="btn btn-flat float-end" @click+stopPropagation=${() => context.emit(new RemoveCharacter(npc))}><i class="material-icons">close</i></button>
                     </div>
                 </div>
                 
                 <div class="row mt-2">
+                    <div class="col d-flex align-items-start justify-content-center">
+                        <div class="attribute ac">${npc.kind.ac}</div>
+                    </div>
+                    
                     <div class="col">
-                        <div class="d-flex align-items-center justify-content-center">
-                            <div class="attribute ac">${npc.kind.ac}</div>
+                        <div class="d-flex align-items-start justify-content-center">
                             <div class="attribute hp">${npc.currentHitpoints}</div>
-                            <div class="attribute speed">${npc.kind.speed}</div>
                         </div>
                         <div class="mt-2 d-flex align-items-center justify-content-center">
                             ${m("foes.hp")}:
-                            <strong class=${npc.currentHitpoints <= 0 ? "text-danger" : ""}>${npc.currentHitpoints}</strong> / ${npc.hitpoints} (${npc.kind.hitDie}) <br>
+                            <strong class=${npc.currentHitpoints <= 0 ? "text-danger" : ""}>${npc.currentHitpoints}</strong> / ${npc.hitpoints} (${npc.kind.hitDie})
+                        </div>
+                        <div class="mt-2 d-flex align-items-center justify-content-center">
                             <div class="btn-group ms-1">
-                                <button class="btn btn-sm btn-outline-danger" @click=${() => context.emit(new UpdateCurrentHitPoints(npc, -5))}>-5</button>
-                                <button class="btn btn-sm btn-outline-danger" @click=${() => context.emit(new UpdateCurrentHitPoints(npc, -1))}>-1</button>
-                                <button class="btn btn-sm btn-outline-success" @click=${() => context.emit(new UpdateCurrentHitPoints(npc, 1))}>+1</button>
-                                <button class="btn btn-sm btn-outline-success" @click=${() => context.emit(new UpdateCurrentHitPoints(npc, 5))}>+5</button>
+                                <button class="btn btn-sm btn-outline-danger" @click+stopPropagation=${() => context.emit(new UpdateCurrentHitPoints(npc, -5))}>-5</button>
+                                <button class="btn btn-sm btn-outline-danger" @click+stopPropagation=${() => context.emit(new UpdateCurrentHitPoints(npc, -1))}>-1</button>
+                                <button class="btn btn-sm btn-outline-success" @click+stopPropagation=${() => context.emit(new UpdateCurrentHitPoints(npc, 1))}>+1</button>
+                                <button class="btn btn-sm btn-outline-success" @click+stopPropagation=${() => context.emit(new UpdateCurrentHitPoints(npc, 5))}>+5</button>
                             </div>                                
                         </div>
                     </div>
@@ -70,7 +77,7 @@ function npc (context: wecco.AppContext<Message>, npc: NPC, active: boolean): we
                     <div class="col d-flex flex-column align-items-center justify-content-center">
                         ${Object.keys(npc.kind.savingThrows).map((savingThrow: SavingThrow) => wecco.html`
                         <div class="mt-1 text-center">
-                            <button class="btn btn-outline-secondary" @click=${() => context.emit(new RollSavingThrow(npc, savingThrow))}>${m(`foes.savingthrow.${savingThrow}`)}: ${modifier(npc.kind.savingThrows[savingThrow])}</button>
+                            <button class="btn btn-outline-secondary" @click+stopPropagation=${() => context.emit(new RollSavingThrow(npc, savingThrow))}>${m(`foes.savingthrow.${savingThrow}`)}: ${modifier(npc.kind.savingThrows[savingThrow])}</button>
                             ${npc.savingThrows[savingThrow] ? wecco.html`<span class="badge bg-secondary">${npc.savingThrows[savingThrow]?.value}` : ""}
                         </div>
                         `)}                    
@@ -112,7 +119,7 @@ function attack(context: wecco.AppContext<Message>, npc: NPC, attack: Attack): w
     return wecco.html`
         <button class="btn btn-outline-primary" 
             ?disabled=${npc.currentHitpoints <= 0} 
-            @click=${() => context.emit(new PerformAttack(npc, attack))}>${attack.label}: ${modifier(attack.mod)}
+            @click+stopPropagation=${() => context.emit(new PerformAttack(npc, attack))}>${attack.label}: ${modifier(attack.mod)}
         </button>
     `
 }
