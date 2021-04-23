@@ -3,7 +3,7 @@ import { ModalHandle } from "src/common/components/modal"
 import { appShell } from "../../common/components/appShell"
 import { Clear, Message, SaveKind, SelectActiveCharacter, SelectTab } from "../controller"
 import { m } from "../i18n"
-import { Kind, Model } from "../models"
+import { Model } from "../models"
 import { addCharacterModal } from "./components/addCharacter"
 import { character } from "./components/character"
 import { editKindModal } from "./components/editKind"
@@ -15,7 +15,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
     if (model.tab === "characters") {
         content = model.characters.map((c, idx) => wecco.html`<div class="col-12" @click=${() => context.emit(new SelectActiveCharacter(idx))}>${character(context, c, idx === model.activeCharacterIndex)}</div>`)
     } else {
-        content = wecco.html`<div class="col">${kinds(model.kinds, context)}</div>`        
+        content = wecco.html`<div class="col card">${kinds(model.kinds, context)}</div>`        
     }
 
     let createModalHandle: ModalHandle
@@ -48,6 +48,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                 </div>
             </div>
         </div>
+
         <div class="container">
             <div class="row mt-2">
                 ${content}
