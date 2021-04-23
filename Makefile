@@ -18,5 +18,5 @@ save-image: build-image
 	$(DOCKER) save $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) > $(DOCKER_IMAGE_NAME)-$(DOCKER_IMAGE_TAG).tgz
 
 push-image: build-image
-	$(DOCKER) tag $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) docker.pkg.github.com/$(DOCKER_GITHUB_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
-	$(DOCKER) push docker.pkg.github.com/$(DOCKER_GITHUB_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
+	$(DOCKER) tag $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) docker.pkg.github.com/$(GITHUB_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
+	$(DOCKER) push docker.pkg.github.com/$(GITHUB_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
