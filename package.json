@@ -6,7 +6,7 @@
         "email": "alexander.metzner@gmail.com"
     },
     "devDependencies": {
-        "@wecco/core": "https://bitbucket.org/wecco/core/downloads/wecco-core-0.18.0.tgz",
+        "@wecco/core": "https://bitbucket.org/wecco/core/downloads/wecco-core-0.19.0.tgz",
         "typescript": "^4.1.2",
         "webpack": "^5.6.0",
         "webpack-dev-server": "^3.11.0",
