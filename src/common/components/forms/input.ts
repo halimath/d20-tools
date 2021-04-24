@@ -37,7 +37,7 @@ export const inputField = wecco.define("input-field", (data: InputOptions, conte
         context.requestUpdate()
     }
 
-    return wecco.html`<input type=${data.type ?? "text"} id=${data.id ?? ""} class=${styleClasses.join(" ")} .value=${data.value ?? ""} @blur=${onChange}>`
+    return wecco.html`<input type=${data.type ?? "text"} id+omitempty=${data.id} class=${styleClasses.join(" ")} .value=${data.value ?? ""} @blur=${onChange}>`
 })
 
 function validate (data: InputOptions): boolean {

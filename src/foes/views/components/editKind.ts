@@ -8,10 +8,13 @@ export interface SaveHandler {
     (k: Kind): void
 }
 
+let editKindDialogIndex = 0
+
 export function editKindModal (saveHandler: SaveHandler, binder: ModalHandleBinder, kind?: Kind): wecco.ElementUpdate {
     let modalHandle: ModalHandle
 
     const editorData: KindEditorData = {
+        idPrefix: `edit-kind-${editKindDialogIndex++}-`,
         kind: kind,
         editForm: {
             label: kind?.label,
@@ -60,6 +63,7 @@ interface EditFormData {
 }
 
 interface KindEditorData {
+    idPrefix: string
     kind?: Kind
     editForm?: EditFormData
     attacks?: Array<AttackData>
@@ -107,9 +111,9 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
         </div>
         <div class="modal-body">
             <div class="mb-2">
-                <label for="label">${m("foes.label")}</label>
+                <label for="${data.idPrefix}label">${m("foes.label")}</label>
                 ${inputField({
-                    id: "label",
+                    id: `${data.idPrefix}label`,
                     value: data.editForm.label,
                     classes: "form-control",
                     onChange: bindEditFormAttribute("label"),
@@ -117,9 +121,9 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
                 })}
             </div>
             <div class="mb-2">
-                <label for="tags">${m("foes.tags")}</label>
+                <label for="${data.idPrefix}tags">${m("foes.tags")}</label>
                 ${inputField({
-                    id: "tags",
+                    id: `${data.idPrefix}tags`,
                     value: data.editForm.tags,
                     classes: "form-control",
                     onChange: bindEditFormAttribute("tags"),
@@ -128,10 +132,10 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
             
             <div class="row mb-2">
                 <div class="col">
-                    <label for="ini">${m("foes.ini")}</label>
+                    <label for="${data.idPrefix}ini">${m("foes.ini")}</label>
                     ${inputField({
                         type: "number",
-                        id: "ini",
+                        id: `${data.idPrefix}ini`,
                         value: data.editForm.ini,
                         classes: "form-control",
                         onChange: bindEditFormAttribute("ini"),
@@ -139,10 +143,10 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
                     })}                                
                 </div>
                 <div class="col">
-                    <label for="ac">${m("foes.ac")}</label>
+                    <label for="${data.idPrefix}ac">${m("foes.ac")}</label>
                     ${inputField({
                         type: "number",
-                        id: "ac",
+                        id: `${data.idPrefix}ac`,
                         value: data.editForm.ac,
                         classes: "form-control",
                         onChange: bindEditFormAttribute("ac"),
@@ -150,10 +154,10 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
                     })}                                
                 </div>
                 <div class="col">
-                    <label for="speed">${m("foes.speed")}</label>
+                    <label for="${data.idPrefix}speed">${m("foes.speed")}</label>
                     ${inputField({
                         type: "number",
-                        id: "speed",
+                        id: `${data.idPrefix}speed`,
                         value: data.editForm.speed,
                         classes: "form-control",
                         onChange: bindEditFormAttribute("speed"),
@@ -162,8 +166,9 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
 
                 </div>        
                 <div class="col">
-                    <label for="hp">${m("foes.hp")}</label>
+                    <label for="${data.idPrefix}hp">${m("foes.hp")}</label>
                     ${inputField({
+                        id: `${data.idPrefix}hp`,
                         value: data.editForm.hitDie,
                         classes: "form-control",
                         onChange: bindEditFormAttribute("hitDie"),
@@ -174,10 +179,10 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
 
             <div class="row mb-2">
                 <div class="col">
-                    <label for="reflex">${m("foes.savingthrow.reflex")}</label>
+                    <label for="${data.idPrefix}reflex">${m("foes.savingthrow.reflex")}</label>
                     ${inputField({
                         type: "number",
-                        id: "reflex",
+                        id: `${data.idPrefix}reflex`,
                         value: data.editForm.reflex,
                         classes: "form-control",
                         onChange: bindEditFormAttribute("reflex"),
@@ -185,10 +190,10 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
                     })}                                
                 </div>
                 <div class="col">
-                    <label for="will">${m("foes.savingthrow.will")}</label>
+                    <label for="${data.idPrefix}will">${m("foes.savingthrow.will")}</label>
                     ${inputField({
                         type: "number",
-                        id: "will",
+                        id: `${data.idPrefix}will`,
                         value: data.editForm.will,
                         classes: "form-control",
                         onChange: bindEditFormAttribute("will"),
@@ -196,10 +201,10 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
                     })}                                
                 </div>
                 <div class="col">
-                    <label for="fortitude">${m("foes.savingthrow.fortitude")}</label>
+                    <label for="${data.idPrefix}fortitude">${m("foes.savingthrow.fortitude")}</label>
                     ${inputField({
                         type: "number",
-                        id: "fortitude",
+                        id: `${data.idPrefix}fortitude`,
                         value: data.editForm.fortitude,
                         classes: "form-control",
                         onChange: bindEditFormAttribute("fortitude"),
