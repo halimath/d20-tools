@@ -1,4 +1,4 @@
-import * as wecco from "@wecco/core"
+import * as wecco from "@weccoframework/core"
 import { Message, PerformAttack, RemoveCharacter, RollSavingThrow, UpdateCurrentHitPoints } from "../../controller"
 import { m } from "../../i18n"
 import { Attack, Character, Hit, NPC, PC, SavingThrow } from "../../models"

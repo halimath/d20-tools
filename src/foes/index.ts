@@ -1,4 +1,4 @@
-import * as wecco from "@wecco/core"
+import * as wecco from "@weccoframework/core"
 import { Browser } from "src/common/browser"
 import { update } from "./controller"
 import "./index.sass"

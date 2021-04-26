@@ -1,4 +1,4 @@
-import * as wecco from "@wecco/core"
+import * as wecco from "@weccoframework/core"
 import { inputField, notEmpty } from "../../../common/components/forms/input"
 import { modal, ModalHandle, ModalHandleBinder } from "../../../common/components/modal"
 import { m } from "../../i18n"

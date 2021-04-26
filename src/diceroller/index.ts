@@ -1,4 +1,4 @@
-import * as wecco from "@wecco/core"
+import * as wecco from "@weccoframework/core"
 import "./index.sass"
 import { update } from "./controller"
 import { root } from "./views"

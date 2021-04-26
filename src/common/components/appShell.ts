@@ -1,4 +1,4 @@
-import * as wecco from "@wecco/core"
+import * as wecco from "@weccoframework/core"
 import { version } from "../../../package.json"
 import { m } from "./i18n"
 import { modal, ModalHandle } from "./modal"

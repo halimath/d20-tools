@@ -1,4 +1,4 @@
-import * as wecco from "@wecco/core"
+import * as wecco from "@weccoframework/core"
 import { ModalHandle } from "src/common/components/modal"
 import { appShell } from "../../common/components/appShell"
 import { Clear, Message, SaveKind, SelectActiveCharacter, SelectTab } from "../controller"

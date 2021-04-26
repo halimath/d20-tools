@@ -1,4 +1,4 @@
-import * as wecco from "@wecco/core"
+import * as wecco from "@weccoframework/core"
 import { GameGrid, Model, Token, TokenColor, TokenSymbol, Wall, WallPosition, WallSymbol } from "../models"
 import { Browser } from "../utils/browser"
 

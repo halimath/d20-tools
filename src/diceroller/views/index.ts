@@ -1,4 +1,4 @@
-import * as wecco from "@wecco/core"
+import * as wecco from "@weccoframework/core"
 import { appShell } from "../../common/components/appShell"
 import { Message } from "../controller"
 import { m } from "../i18n"
