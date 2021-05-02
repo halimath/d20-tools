@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
 import { appShell } from "../../common/components/appShell"
 import { ChangeGrid, ClearGrid, Message, PlaceToken, PlaceWall, SelectToken } from "../controller"
-import { m } from "../i18n"
+import { m } from "../../common/i18n"
 import { GameGrid, Token, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, Wall, WallSymbol, WallSymbols } from "../models"
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"

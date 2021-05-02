@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
 import { inputField, notEmpty } from "../../../common/components/forms/input"
 import { modal, ModalHandle, ModalHandleBinder } from "../../../common/components/modal"
-import { m } from "../../i18n"
+import { m } from "../../../common/i18n"
 import { Attack, Damage, Kind, Roll } from "../../models"
 
 export interface SaveHandler {

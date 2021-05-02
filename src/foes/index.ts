@@ -1,12 +1,14 @@
 import * as wecco from "@weccoframework/core"
 import { Browser } from "src/common/browser"
+import { load } from "src/common/i18n"
 import { update } from "./controller"
 import "./index.sass"
 import { Model, Tab } from "./models"
 import { loadCharacters, loadKinds } from "./store"
 import { root } from "./views"
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    await load()
     wecco.app(loadModel, update, root, "#app")
 })
 

@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
 import { Message, PerformAttack, RemoveCharacter, RollSavingThrow, UpdateCurrentHitPoints } from "../../controller"
-import { m } from "../../i18n"
+import { m } from "../../../common/i18n"
 import { Attack, Character, Hit, NPC, PC, SavingThrow } from "../../models"
 
 export function character (context: wecco.AppContext<Message>, character: Character, active: boolean): wecco.ElementUpdate {

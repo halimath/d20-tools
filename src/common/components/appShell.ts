@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
 import { version } from "../../../package.json"
-import { m } from "./i18n"
+import { m } from "../i18n"
 import { modal, ModalHandle } from "./modal"
 
 export function appShell(main: wecco.ElementUpdate): wecco.ElementUpdate {
@@ -38,7 +38,7 @@ export function appShell(main: wecco.ElementUpdate): wecco.ElementUpdate {
                 <p>${m("about.version", version)}</p><p>${m("about.copyright")}</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${m("about.close")}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${m("close")}</button>
             </div>`, {
                 binder: m => aboutDialog = m,            
         })}

@@ -4,7 +4,7 @@ import { inputField, notEmpty } from "../../../common/components/forms/input"
 import { modal, ModalHandleBinder } from "../../../common/components/modal"
 import { tabs } from "../../../common/components/tabs"
 import { CreateNPC, CreatePC, Message } from "../../controller"
-import { m } from "../../i18n"
+import { m } from "../../../common/i18n"
 import { Kind } from "../../models"
 
 export function addCharacterModal(kinds: Array<Kind>, context: wecco.AppContext<Message>, binder: ModalHandleBinder): wecco.ElementUpdate {

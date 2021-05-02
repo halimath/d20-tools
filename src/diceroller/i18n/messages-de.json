@@ -1,7 +1,0 @@
-{
-    "diceRoller.title": "Würfel",
-    "diceRoller.intro": "Klicke einen der unten stehenden Knöpfe, um den entsprechenden Würfel zu werfen.",
-    "diceRoller.btn": "W{{0}}",
-    "diceRoller.result.value": "{{0}}",
-    "diceRoller.result.die": "Du hast einen W{{0}} geworfen."
-}
