@@ -1,6 +1,7 @@
 {
     "name": "d20-tools",
     "version": "0.8.0",
+    "versionLabel": "0.8.0 (local; local)",
     "author": {
         "name": "Alexander Metzner",
         "email": "alexander.metzner@gmail.com"
@@ -31,7 +32,7 @@
     "scripts": {
         "start": "webpack serve",
         "build": "webpack --mode=production",
-        "dist": "npm run build && cp public/* dist",
+        "dist": "npm run build && cp -r public/* dist",
         "lint": "eslint .",
         "test": "mocha --require ts-node/register test/**/*.test.ts"
     }

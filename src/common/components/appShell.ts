@@ -1,5 +1,5 @@
 import * as wecco from "@weccoframework/core"
-import { version } from "../../../package.json"
+import { versionLabel } from "../../../package.json"
 import { m } from "../i18n"
 import { modal, ModalHandle } from "./modal"
 
@@ -35,7 +35,7 @@ export function appShell(main: wecco.ElementUpdate): wecco.ElementUpdate {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>${m("about.version", version)}</p><p>${m("about.copyright")}</p>
+                <p>${m("about.version", versionLabel)}</p><p>${m("about.copyright")}</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${m("close")}</button>
