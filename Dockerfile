@@ -11,6 +11,7 @@ ARG vcs_ref
 ARG build_number
 
 RUN node -e "const p = require('./package.json'); p.version = '${version}'; p.versionLabel = '${version} (${build_number}; ${vcs_ref})'; console.log(JSON.stringify(p));" > package.json.mod
+RUN mv package.json.mod package.json
 
 COPY tsconfig.json .
 COPY webpack.config.js .
@@ -45,4 +46,4 @@ LABEL org.label-schema.schema-version = "1.0"
 
 COPY *.conf /etc/nginx/conf.d
 
-COPY --from=0 /workdir/dist/* /usr/share/nginx/html/
+COPY --from=0 /workdir/dist/ /usr/share/nginx/html/
