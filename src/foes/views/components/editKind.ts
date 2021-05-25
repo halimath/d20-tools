@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
 import { inputField, notEmpty } from "../../../common/components/forms/input"
-import { modal, ModalHandle, ModalHandleBinder } from "../../../common/components/modal"
+import { modal, ModalHandle, ModalHandleBinder } from "../../../common/components/modal-deprecated"
 import { m } from "../../../common/i18n"
 import { Attack, Damage, Kind, Roll } from "../../models"
 

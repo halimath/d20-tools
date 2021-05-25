@@ -1,11 +1,24 @@
 import * as wecco from "@weccoframework/core"
-import { GameGrid, Model, Token, TokenColor, TokenSymbol, Wall, WallPosition, WallSymbol } from "../models"
-import { Browser } from "../utils/browser"
+import { GameGrid, GameGridInfo, Model, Token, TokenColor, TokenSymbol, Wall, WallPosition, WallSymbol } from "../models"
+import { loadGameGrid, saveGameGrid } from "../store"
+import { Browser } from "../../common/browser"
+
+export class LoadGrid {
+    readonly command = "load-grid"
+
+    constructor(public readonly id: string) {}
+}
 
 export class ChangeGrid {
     readonly command = "change-grid"
 
     constructor(public readonly cols = 20, public readonly rows = 10) {}
+}
+
+export class UpdateLabel {
+    readonly command = "update-label"
+
+    constructor(public readonly label: string) {}
 }
 
 export class SelectToken {
@@ -30,50 +43,83 @@ export class ClearGrid {
     readonly command = "clear-grid"
 }
 
+export class TogglePresentationMode {
+    readonly command = "toggle-presentation-mode"
+}
+
 // --
 
-export type Message = ChangeGrid | PlaceToken | PlaceWall | SelectToken | ClearGrid
+export type Message = LoadGrid | ChangeGrid | UpdateLabel | PlaceToken | PlaceWall | SelectToken | ClearGrid | TogglePresentationMode
 
-export function update(model: Model, message: Message, context: wecco.AppContext<Message>): Model {
+export function update(model: Model, message: Message, context: wecco.AppContext<Message>): Model | Promise<Model> {
+    const updated = applyUpdate(model, message)
+    
+    if (updated instanceof Model) {
+        if (updated.gameGrid.isEmpty) {
+            Browser.urlHash = ""
+        } else {
+            saveGameGrid(updated.gameGrid)
+                .catch(e => {
+                    // TODO: Emit error message
+                    console.error(e)
+                })
+            Browser.urlHash = updated.gameGrid.id
+        }
+    }
+    
+    return updated
+}
+
+function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
     switch (message.command) {
+        case "load-grid":
+            return loadGameGrid(message.id)
+                .then(g => new Model(g, false))
+
         case "change-grid":
-            return GameGrid.createInitial(message.cols, message.rows)
+            return new Model(GameGrid.createInitial(message.cols, message.rows), false)
+
+        case "update-label":
+            model.gameGrid.setLabel(message.label)
+            break
 
         case "place-token": {
-            const t = model.tokenAt(message.col, message.row)
+            const t = model.gameGrid.tokenAt(message.col, message.row)
             if (typeof t !== "undefined") {                
-                model = model
+                model.gameGrid
                     .setTokenAt(message.col, message.row, undefined)
-                    .select(t.color, t.symbol, model.wallSymbol)
+                    .select(t.color, t.symbol, model.gameGrid.wallSymbol)
             } else {
-                model = model.setTokenAt(message.col, message.row, message.token)
+                model.gameGrid.setTokenAt(message.col, message.row, message.token)
             }
-            
-            Browser.urlHash = model.toUrlHash()
-            
-            return model
+
+            break                       
         }
 
         case "place-wall": {
-            const w = model.wallAt(message.col, message.row, message.position)
+            const w = model.gameGrid.wallAt(message.col, message.row, message.position)
             if (typeof w !== "undefined") {                
-                model = model
+                model.gameGrid
                     .setWallAt(message.col, message.row, message.position, undefined)
-                    .select(w.color, model.tokenSymbol, w.symbol)
+                    .select(w.color, model.gameGrid.tokenSymbol, w.symbol)
             } else {
-                model = model
-                    .setWallAt(message.col, message.row, message.position, message.wall)
+                model.gameGrid.setWallAt(message.col, message.row, message.position, message.wall)
             }
             
-            Browser.urlHash = model.toUrlHash()
-            
-            return model
+            break
         }
 
         case "select-token":
-            return model.select(message.color, message.tokenSymbol, message.wallSymbol)
+            model.gameGrid.select(message.color, message.tokenSymbol, message.wallSymbol)
+            break
 
         case "clear-grid":
-            return GameGrid.createInitial(model.cols, model.rows)
+            return new Model(GameGrid.createInitial(model.gameGrid.cols, model.gameGrid.rows), false)
+
+        case "toggle-presentation-mode":
+            model.togglePresentationMode()
+            break
     }
+
+    return model
 }
