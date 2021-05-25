@@ -1,12 +1,12 @@
 import * as wecco from "@weccoframework/core"
 import { load } from "src/common/i18n"
-import { update } from "./controller"
-import { createId, GameGrid, Model } from "./models"
 import { Browser } from "../common/browser"
+import { update } from "./controller"
+import "./index.sass"
+import { createId, GameGrid, Model } from "./models"
+import { loadGameGrid } from "./store"
 import { root } from "./views"
 
-import "./index.sass"
-import { loadGameGrid } from "./store"
 
 document.addEventListener("DOMContentLoaded", async () => {
     await load()

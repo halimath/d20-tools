@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
-import { GameGrid, GameGridInfo, Model, Token, TokenColor, TokenSymbol, Wall, WallPosition, WallSymbol } from "../models"
-import { loadGameGrid, saveGameGrid } from "../store"
 import { Browser } from "../../common/browser"
+import { GameGrid, Model, Token, TokenColor, TokenSymbol, Wall, WallPosition, WallSymbol } from "../models"
+import { loadGameGrid, saveGameGrid } from "../store"
 
 export class LoadGrid {
     readonly command = "load-grid"
