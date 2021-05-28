@@ -1,11 +1,10 @@
 import * as wecco from "@weccoframework/core"
-import { modal } from "src/common/components/modal"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
-import { ChangeGrid, ClearGrid, LoadGrid, Message, SelectToken, TogglePresentationMode, UpdateLabel } from "../controller"
-import { GameGridInfo, Model, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, WallSymbol, WallSymbols } from "../models"
-import { deleteGameGrid, loadSummaries } from "../store"
+import { ChangeGrid, ClearGrid, Message, SelectToken, TogglePresentationMode, UpdateLabel } from "../controller"
+import { Model, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, WallSymbol, WallSymbols } from "../models"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
+import { showLoadDialog } from "./loaddialog"
 
 export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {
     function notifyGridSizeChanged(cols: number, rows: number) {
@@ -13,85 +12,87 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
     }
 
     const body = wecco.html`
-        <div class="container">
-            ${model.presentationMode ? "" :
-                wecco.html`<div class="row mt-4 justify-content-center">
-                    <div class="col-4">
-                        <input type="text" class="form-control" placeholder="Label" .value=${model.gameGrid.label} @change=${(e: InputEvent) => context.emit(new UpdateLabel((e.target as HTMLInputElement).value.trim()))}>
-                    </div>
-                    
-                    <div class="col-2">
-                        <div class="input-group">
-                            <input type="number" min="2" max="30" class="form-control" value=${model.gameGrid.cols} @change=${(e: InputEvent) => {
-                                const value = (e.target as HTMLInputElement).value
-                                notifyGridSizeChanged(parseInt(value), model.gameGrid.rows)
-                            }}>
-                            <span class="input-group-text">x</span>
-                            <input type="number" min="2" max="30" class="form-control" value=${model.gameGrid.rows} @change=${(e: InputEvent) => {
-                                const value = (e.target as HTMLInputElement).value
-                                notifyGridSizeChanged(model.gameGrid.cols, parseInt(value))
-                            }}>
+        <div class="topnav">
+            <div class="container">
+                ${model.presentationMode ? "" :
+                    wecco.html`<div class="row mt-4 justify-content-center">
+                        <div class="col-4">
+                            <input type="text" class="form-control" placeholder="Label" .value=${model.gameGrid.label} @change=${(e: InputEvent) => context.emit(new UpdateLabel((e.target as HTMLInputElement).value.trim()))}>
                         </div>
-                    </div>
-
-                    <div class="col-2">
-                        <div class="btn-group">
-                            <button class="btn btn-outline-secondary" @click=${downloadGridAsPNG}><i class="material-icons mr-1">image</i></button>
-                            <button class="btn btn-outline-secondary"><i class="material-icons mr-1">link</i></button>
-                        </div>                
-                    </div>
-
-                    <div class="col-2">
-                        <div class="btn-group">
-                            <button class="btn btn-outline-primary"><i class="material-icons" @click=${() => context.emit(new ClearGrid())}>add</i></button>
-                            <button class="btn btn-outline-primary"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, context)}>more_horiz</i></button>
+                        
+                        <div class="col-2">
+                            <div class="input-group">
+                                <input type="number" min="2" max="30" class="form-control" value=${model.gameGrid.cols} @change=${(e: InputEvent) => {
+                                    const value = (e.target as HTMLInputElement).value
+                                    notifyGridSizeChanged(parseInt(value), model.gameGrid.rows)
+                                }}>
+                                <span class="input-group-text">x</span>
+                                <input type="number" min="2" max="30" class="form-control" value=${model.gameGrid.rows} @change=${(e: InputEvent) => {
+                                    const value = (e.target as HTMLInputElement).value
+                                    notifyGridSizeChanged(model.gameGrid.cols, parseInt(value))
+                                }}>
+                            </div>
                         </div>
-                    </div>
-                </div>`
-            }
 
-            <div class="row mt-2 justify-content-center">
-                <div class="col-11 d-flex justify-content-center">
-                    <div class="btn-toolbar">
-                        <div class="btn-group">
-                            ${TokenSymbols.map(s => wecco.html`
+                        <div class="col-2">
+                            <div class="btn-group">
+                                <button class="btn btn-outline-secondary" @click=${downloadGridAsPNG}><i class="material-icons mr-1">image</i></button>
+                                <button class="btn btn-outline-secondary"><i class="material-icons mr-1">link</i></button>
+                            </div>                
+                        </div>
+
+                        <div class="col-2">
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary"><i class="material-icons" @click=${() => context.emit(new ClearGrid())}>add</i></button>
+                                <button class="btn btn-outline-primary"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, context)}>more_horiz</i></button>
+                            </div>
+                        </div>
+                    </div>`
+                }
+
+                <div class="row mt-2 justify-content-center">
+                    <div class="col-11 d-flex justify-content-center">
+                        <div class="btn-toolbar">
+                            <div class="btn-group">
+                                ${TokenSymbols.map(s => wecco.html`
+                                    <button 
+                                        @click=${() => context.emit(new SelectToken(model.gameGrid.color, s, model.gameGrid.wallSymbol))} 
+                                        accesskey=${TokenSymbolUrlCharMapping.get(s)}
+                                        class="btn ${s === model.gameGrid.tokenSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
+                                        ${tokenSymbolButtonLabel(s)}
+                                    </button>
+                                `)}
+                            </div>
+
+                            <div class="btn-group ms-1">
+                                ${WallSymbols.map(s => wecco.html`
+                                    <button 
+                                        @click=${() => context.emit(new SelectToken(model.gameGrid.color, model.gameGrid.tokenSymbol, s))} 
+                                        class="btn ${s === model.gameGrid.wallSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
+                                        ${wallSymbolButtonLabel(s)}
+                                    </button>
+                                `)}
+                            </div>
+
+                            <div class="btn-group ms-1">
+                            ${
+                                TokenColors.map(c => wecco.html`
                                 <button 
-                                    @click=${() => context.emit(new SelectToken(model.gameGrid.color, s, model.gameGrid.wallSymbol))} 
-                                    accesskey=${TokenSymbolUrlCharMapping.get(s)}
-                                    class="btn ${s === model.gameGrid.tokenSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
-                                    ${tokenSymbolButtonLabel(s)}
+                                    @click=${() => context.emit(new SelectToken(c, model.gameGrid.tokenSymbol, model.gameGrid.wallSymbol))} 
+                                    accesskey=${TokenColorUrlCharMapping.get(c)}
+                                    class="btn btn-outline-secondary color-selector ${c} ${c === model.gameGrid.color ? "selected" : ""}">
+                                    ${m("gameGrid.color." + c)}
                                 </button>
-                            `)}
-                        </div>
-
-                        <div class="btn-group ms-1">
-                            ${WallSymbols.map(s => wecco.html`
-                                <button 
-                                    @click=${() => context.emit(new SelectToken(model.gameGrid.color, model.gameGrid.tokenSymbol, s))} 
-                                    class="btn ${s === model.gameGrid.wallSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
-                                    ${wallSymbolButtonLabel(s)}
-                                </button>
-                            `)}
-                        </div>
-
-                        <div class="btn-group ms-1">
-                        ${
-                            TokenColors.map(c => wecco.html`
-                            <button 
-                                @click=${() => context.emit(new SelectToken(c, model.gameGrid.tokenSymbol, model.gameGrid.wallSymbol))} 
-                                accesskey=${TokenColorUrlCharMapping.get(c)}
-                                class="btn btn-outline-secondary color-selector ${c} ${c === model.gameGrid.color ? "selected" : ""}">
-                                ${m("gameGrid.color." + c)}
-                            </button>
-                            `)
-                        }
+                                `)
+                            }
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-1">
-                    <button class="btn btn-outline-primary d-flex justify-content-center align-content-between" @click=${() => context.emit(new TogglePresentationMode())}>
-                        <i class="material-icons mr-1">fullscreen${model.presentationMode ? "_exit" : ""}</i>
-                    </button>
+                    <div class="col-1">
+                        <button class="btn btn-outline-primary d-flex justify-content-center align-content-between" @click=${() => context.emit(new TogglePresentationMode())}>
+                            <i class="material-icons mr-1">fullscreen${model.presentationMode ? "_exit" : ""}</i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -110,66 +111,6 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
     }
 
     return appShell(body)
-}
-
-interface LoadDialogModel {
-    onLoad: (id: string) => void
-    infos?: Array<GameGridInfo>
-}
-
-const LoadDialog = wecco.define("load-dialog", (model: LoadDialogModel, ctx: wecco.RenderContext) => {
-    if (!model.infos) {
-        ctx.once("load", async () => {
-            model.infos = await loadSummaries()
-            ctx.requestUpdate()
-        })
-
-        return wecco.html`<p class="d-flex justify-content-center">${m("gameGrid.loadGrid.loading")}</p>`
-    }
-
-    return wecco.html`
-        <div class="modal-header">
-            <h5 class="modal-title">${m("gameGrid.loadGrid.title")}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>${m("gameGrid.loadGrid.label")}</th>
-                        <th>${m("gameGrid.loadGrid.dimension")}</th>
-                        <th>${m("gameGrid.loadGrid.lastModified")}</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${model.infos.map((i, idx) => wecco.html`
-                        <tr>
-                            <td>${i.label}</td>
-                            <td>${i.dimension}</td>
-                            <td>${m("$relativeTime", i.lastUpdate.getTime() - new Date().getTime())}</td>
-                            <td>
-                                <button class="btn btn-outline-primary btn-small" data-bs-dismiss="modal" @click=${() => model.onLoad(i.id)}><i class="material-icons">edit</i></button>
-                                <button class="btn btn-outline-danger btn-small"><i class="material-icons" @click=${() => {
-                                    model.infos?.splice(idx, 1)
-                                    deleteGameGrid(i.id)
-                                    ctx.requestUpdate()
-                                }}>delete</i></button>
-                            </td>
-                        </tr>`)}
-                </tbody>
-            </table>
-        </div>`
-})
-
-function showLoadDialog(context: wecco.AppContext<Message>) {
-    modal(LoadDialog({
-        onLoad(id: string) {
-            context.emit(new LoadGrid(id))
-        }
-    }), {
-        show: true,
-    })
 }
 
 function wallSymbolButtonLabel(s: WallSymbol): wecco.ElementUpdate {
