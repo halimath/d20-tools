@@ -1,11 +1,19 @@
 @import "../common/index.sass"
 
-#app
-    background-color: white
+body
+    background-color: $light-grey
+
+.topnav
+    background-color: rgba(255,255,255,0.95)
+    box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 5%), inset 0 -1px 0 rgb(0 0 0 / 15%)
+    display: flex
+    align-items: center
+    justify-items: stretch
+    padding-bottom: 1rem!important
+    margin-bottom: 1rem!important
 
 .flex-grow-5
     flex-grow: 5
-
 
 $token-colors: ("grey": #aaa, "green": #02551d, "blue": #001f75, "red": #900018, "orange": #c54f00, "purple": #750075, "yellow": #b8a500, "black": #222, "brown": #5d2a00)
 
@@ -46,7 +54,7 @@ svg
     width: 100%        
     
     &#game-grid
-        background-color: white
+        background-color: $light-grey
 
     .legend
         font-family: sans-serif

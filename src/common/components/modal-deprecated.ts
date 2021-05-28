@@ -8,34 +8,33 @@ export interface ModalHandle {
     hide(): void
 }
 
+export interface ModalHandleBinder {
+    (handle: ModalHandle): void
+}
+
 export interface ModalOptions {
     show: boolean
     size?: "sm" | "lg" | "xl"
+    binder: ModalHandleBinder
 }
 
-export function modal (content: wecco.ElementUpdate, opts?: Partial<ModalOptions>): ModalHandle {
+export function modal (content: wecco.ElementUpdate, opts?: Partial<ModalOptions>): wecco.ElementUpdate {
     const options: ModalOptions = {
         show: !!(opts?.show),
         size: opts?.size,
+        binder: opts?.binder ?? (() => void 0),
     }
-
-    let modal: bootstrap.Modal
 
     const onUpdate = (e: Event) => {
         const modalElement = e.target as HTMLElement
-        modal = new bootstrap.Modal(modalElement)
+        const modal = new bootstrap.Modal(modalElement)
         if (options.show) {
             modal.show()
         }
+        options.binder(modal)
     }
 
-    let outlet = document.querySelector("#modal-outlet")
-    if (!outlet) {
-        outlet = document.body.appendChild(document.createElement("div"))
-        outlet.id = "modal-outlet"
-    }
-
-    wecco.updateElement(outlet, wecco.html`
+    return wecco.html`
         <div class="modal fade" tabindex="-1" aria-hidden="true" @update=${onUpdate}>
             <div class="modal-dialog ${options.size ? "modal-" + options.size : ""}">
                 <div class="modal-content">
@@ -43,15 +42,5 @@ export function modal (content: wecco.ElementUpdate, opts?: Partial<ModalOptions
                 </div>
             </div>
         </div>    
-    `)
-
-    return {
-        show: () => {
-            modal?.show()
-        },
-
-        hide: () => {
-            modal?.hide()
-        }
-    }
+    `
 }

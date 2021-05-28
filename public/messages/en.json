@@ -52,5 +52,13 @@
     "gameGrid.color.purple": "Purple",
     "gameGrid.color.yellow": "Yellow",
     "gameGrid.color.black": "Black",
-    "gameGrid.color.brown": "Brown"
+    "gameGrid.color.brown": "Brown",
+
+    "gameGrid.loadGrid.loading": "Loading your saved grids...",
+    "gameGrid.loadGrid.title": "Loading saved grid",
+    "gameGrid.loadGrid.label": "Label",
+    "gameGrid.loadGrid.dimension": "Dimension",
+    "gameGrid.loadGrid.lastModified": "Last modified",
+    "gameGrid.loadGrid.load": "Load",
+    "gameGrid.share.title": "Copy link"
 }

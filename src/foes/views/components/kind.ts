@@ -1,5 +1,5 @@
 import * as wecco from "@weccoframework/core"
-import { ModalHandle } from "src/common/components/modal"
+import { ModalHandle } from "../../../common/components/modal-deprecated"
 import { Message, SaveKind } from "../../controller"
 import { m } from "../../../common/i18n"
 import { Kind } from "../../models"

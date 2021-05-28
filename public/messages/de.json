@@ -32,6 +32,16 @@
     "foes.kindEditor.attack": "Angriff",
     "foes.kindEditor.modifier": "Mod.",
     "foes.kindEditor.damage": "Schaden",
+    "foes.pc": "SC",
+    "foes.npc": "NSC",
+    "foes.ini": "Initiative",
+    "foes.tags": "Tags",
+    "foes.edit.title": "Art bearbeiten",
+    "foes.edit.save": "Art speichern",
+    "foes.attacks": "Angriffe",
+    "foes.attack": "Angriff",
+    "foes.modifier": "Mod.",
+    "foes.damage": "Schaden",
 
     "gameGrid.cols": "Spalten",
     "gameGrid.rows": "Zeilen",
@@ -43,5 +53,12 @@
     "gameGrid.color.purple": "Lila",
     "gameGrid.color.yellow": "Gelb",
     "gameGrid.color.black": "Schwarz",
-    "gameGrid.color.brown": "Braun"
+    "gameGrid.color.brown": "Braun",
+    "gameGrid.loadGrid.loading": "Raster werden geladen...",
+    "gameGrid.loadGrid.title": "Raster laden",
+    "gameGrid.loadGrid.label": "Bezeichnung",
+    "gameGrid.loadGrid.dimension": "Größe",
+    "gameGrid.loadGrid.lastModified": "Zuletzt bearbeitet",
+    "gameGrid.loadGrid.load": "Laden",
+    "gameGrid.share.title": "Link kopieren"
 }

@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
 import { select } from "src/common/components/forms/select"
 import { inputField, notEmpty } from "../../../common/components/forms/input"
-import { modal, ModalHandleBinder } from "../../../common/components/modal"
+import { modal, ModalHandleBinder } from "../../../common/components/modal-deprecated"
 import { tabs } from "../../../common/components/tabs"
 import { CreateNPC, CreatePC, Message } from "../../controller"
 import { m } from "../../../common/i18n"

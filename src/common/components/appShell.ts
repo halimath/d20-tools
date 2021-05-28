@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
 import { versionLabel } from "../../../package.json"
 import { m } from "../i18n"
-import { modal, ModalHandle } from "./modal"
+import { modal, ModalHandle } from "./modal-deprecated"
 
 export function appShell(main: wecco.ElementUpdate): wecco.ElementUpdate {
     let aboutDialog: ModalHandle

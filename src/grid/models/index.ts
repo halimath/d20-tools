@@ -1,12 +1,18 @@
+import { range } from "src/common/tools"
 
+/** Defines the available colors for use with Tokens. */
 export type TokenColor = "grey" | "green" | "blue" | "red" | "orange" | "purple" | "yellow" | "black" | "brown"
 
+/** Provides all available colors to use with Tokens as an Array */
 export const TokenColors: Array<TokenColor> = ["grey", "green", "blue", "red", "orange", "purple", "yellow", "black", "brown"]
 
+/** Defines the available token symbols. */
 export type TokenSymbol = "circle" | "cross" | "square" | "diamond" | "lines"
 
+/** Provides all available token symbols as an Array */
 export const TokenSymbols: Array<TokenSymbol> = ["circle", "cross", "square", "diamond", "lines"]
 
+/** Maps every TokenSymbol to a single character used to encode the token symbol. The resulting relation must be bijective.  */
 export const TokenSymbolUrlCharMapping = new Map<TokenSymbol, string>()
     .set("circle", "c")
     .set("cross", "x")
@@ -14,6 +20,7 @@ export const TokenSymbolUrlCharMapping = new Map<TokenSymbol, string>()
     .set("square", "s")
     .set("diamond", "d")
 
+/** Maps every TokenColor to a single character used to encode the token color. The resulting relation must be bijective.  */
 export const TokenColorUrlCharMapping = new Map<TokenColor, string>()
     .set("grey", "e")
     .set("green", "g")
@@ -25,6 +32,13 @@ export const TokenColorUrlCharMapping = new Map<TokenColor, string>()
     .set("black", "k")
     .set("brown", "w")
 
+/**
+ * Defines a single token placed on the game grid. A token is a marker
+ * that occupies a single grid cell. A grid cell may contain at most
+ * one token.
+ * 
+ * A token consists of a color and a symbol.
+ */
 export class Token {
     static fromUrlHash(hash: string): Token | undefined {
         if (hash.length !== 2) {
@@ -59,19 +73,32 @@ export class Token {
     }
 }
 
+/** Defines the valid positions of a wall. */
 export type WallPosition = "left" | "top"
 
+/** Provides an array containing all available wall positions. */
 export const WallPositions: Array<WallPosition> = ["left", "top"]
 
+/** Defines the symbols (i.e kinds) of a wall. */
 export type WallSymbol = "wall" | "door" | "window"
 
+/** Provides an array containing all available wall positions. */
 export const WallSymbols: Array<WallSymbol> = ["wall", "door", "window"]
 
+/** Maps every wall symbol to a single character. The resulting relation must be bijective. */
 export const WallSymbolUrlCharMapping = new Map<WallSymbol, string>()
     .set("wall", "l")
     .set("door", "d")
     .set("window", "w")
 
+/**
+ * A single wall placed on the grid. A wall is placed on a single cell
+ * but carries a position which places the wall either on the left or
+ * on the top edge of the cell.
+ * 
+ * A wall also has a symbol and a color. The walls choose from the
+ * same color set as the Tokens.
+ */
 export class Wall {
     static fromUrlHash(hash: string): Wall | undefined {
         if (hash.length !== 2) {
@@ -106,24 +133,27 @@ export class Wall {
     }
 }
 
+/**
+ * GrameGrid defines a grid with contained Tokens and Walls.
+ */
 export class GameGrid {
-    static fromUrlHash(hash: string): GameGrid {
-        const [sizeString, tokensString, wallsString] = hash.split("/")
+    static fromDescriptor(id: string, label: string, descriptor: string): GameGrid {
+        const [sizeString, tokensString, wallsString] = descriptor.split("/")
         if (!sizeString) {
-            return GameGrid.createInitial()
+            throw new Error(`invalid grid descriptor: invalid size string: "${sizeString}"`)
         }
         const [colsString, rowsString] = sizeString.split(":")
         const cols = parseInt(colsString)
         const rows = parseInt(rowsString)
         if (isNaN(cols) || isNaN(rows)) {
-            return GameGrid.createInitial()
+            throw new Error(`invalid grid descriptor: invalid size: ${cols}x${rows}`)
         }
 
-        return new GameGrid(cols, rows, GameGrid.parseTokensUrlString(cols, rows, tokensString), GameGrid.parseWallsUrlString(cols, rows, wallsString), "grey", "lines", "wall")    
+        return new GameGrid(id, cols, rows, label, GameGrid.parseTokensUrlString(cols, rows, tokensString), GameGrid.parseWallsUrlString(cols, rows, wallsString), "grey", "lines", "wall")    
     }
 
     private static parseTokensUrlString(cols: number, rows: number, tokensString: string): Array<Token | undefined> {
-        const tokens: Array<Token | undefined> = Array.apply(null, { length: cols * rows })
+        const tokens: Array<Token | undefined> = [...range(cols * rows)].map(() => void 0)
 
         let insertIndex = 0
 
@@ -152,7 +182,7 @@ export class GameGrid {
     }
 
     private static parseWallsUrlString(cols: number, rows: number, wallsString: string): Array<Wall | undefined> {
-        const walls: Array<Wall | undefined> = Array.apply(null, { length: cols * rows * 2})
+        const walls: Array<Wall | undefined> = [...range(cols * rows * 2)].map(() => void 0)
 
         let insertIndex = 0
 
@@ -181,17 +211,19 @@ export class GameGrid {
     }
 
     static createInitial(cols = 20, rows = 10): GameGrid {
-        return new GameGrid(cols, rows, Array.apply(null, { length: cols * rows }), Array.apply(null, { length: cols * rows * 2 }), "grey", "lines", "wall")
+        return new GameGrid(createId(), cols, rows, "", [...range(cols * rows)].map(() => void 0), [...range(cols * rows * 2)].map(() => void 0), "grey", "lines", "wall")
     }
 
     constructor(
-        public readonly cols: number = 10,
-        public readonly rows: number = 8,
-        public readonly tokens: Array<Token | undefined>,
-        public readonly walls: Array<Wall | undefined>,
-        public readonly color: TokenColor,
-        public readonly tokenSymbol: TokenSymbol,
-        public readonly wallSymbol: WallSymbol,
+        public readonly id: string,
+        public readonly cols: number,
+        public readonly rows: number,
+        public label: string,
+        public tokens: Array<Token | undefined>,
+        public walls: Array<Wall | undefined>,
+        public color: TokenColor,
+        public tokenSymbol: TokenSymbol,
+        public wallSymbol: WallSymbol,
     ) { }
 
     tokenAt(col: number, row: number): Token | undefined {
@@ -199,9 +231,8 @@ export class GameGrid {
     }
 
     setTokenAt(col: number, row: number, token: Token | undefined): GameGrid {
-        const tokens = this.tokens.slice()
-        tokens[row * this.cols + col] = token
-        return new GameGrid(this.cols, this.rows, tokens, this.walls, this.color, this.tokenSymbol, this.wallSymbol)
+        this.tokens[row * this.cols + col] = token
+        return this
     }
 
     wallAt(col: number, row: number, position: WallPosition): Wall | undefined {
@@ -209,16 +240,37 @@ export class GameGrid {
     }
 
     setWallAt(col: number, row: number, position: WallPosition, wall: Wall | undefined): GameGrid {
-        const walls = this.walls.slice()
-        walls[row * this.cols * 2 + col * 2 + (position === "top" ? 1 : 0)] = wall
-        return new GameGrid(this.cols, this.rows, this.tokens, walls, this.color, this.tokenSymbol, this.wallSymbol)
+        this.walls[row * this.cols * 2 + col * 2 + (position === "top" ? 1 : 0)] = wall
+        return this
     }
 
     select(color: TokenColor, tokenSymbol: TokenSymbol, wallSymbol: WallSymbol): GameGrid {
-        return new GameGrid(this.cols, this.rows, this.tokens, this.walls, color, tokenSymbol, wallSymbol)
+        this.color = color
+        this.tokenSymbol = tokenSymbol
+        this.wallSymbol = wallSymbol
+        return this
     }
 
-    toUrlHash(): string {
+    setLabel(label: string): GameGrid {
+        this.label = label
+        return this
+    }
+
+    get isEmpty(): boolean {
+        for (const token of this.tokens) {
+            if (typeof token !== "undefined") {
+                return false
+            }
+        }
+        for (const wall of this.walls) {
+            if (typeof wall !== "undefined") {
+                return false
+            }
+        }
+        return true
+    }
+
+    get descriptor (): string {
         return `${this.cols}:${this.rows}/${this.urlHashTokens()}/${this.urlHashWalls()}`
     }
 
@@ -283,6 +335,24 @@ export class GameGrid {
     }
 }
 
+export class Model {
+    constructor (public readonly gameGrid: GameGrid, public presentationMode: boolean) {}
+
+    togglePresentationMode(): Model {
+        this.presentationMode = !this.presentationMode
+        return this
+    }
+}
+
 // --
 
-export type Model = GameGrid
+export function createId (): string {
+    // TODO: Find a real Implement
+    return (new Date().getTime() * Math.random()).toString(32).split(".")[0]
+}
+
+// --
+
+export class GameGridInfo {
+    constructor (public readonly id: string, public readonly lastUpdate: Date, public readonly label: string, public readonly dimension: string) {}
+}
