@@ -4,7 +4,8 @@ import { m } from "../../common/i18n"
 import { ChangeGrid, ClearGrid, Message, SelectToken, TogglePresentationMode, UpdateLabel } from "../controller"
 import { Model, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, WallSymbol, WallSymbols } from "../models"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
-import { showLoadDialog } from "./loaddialog"
+import { showLoadDialog } from "./dialogs/loadgrid"
+import { showShareDialog } from "./dialogs/shrare"
 
 export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {
     function notifyGridSizeChanged(cols: number, rows: number) {
@@ -37,7 +38,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                         <div class="col-2">
                             <div class="btn-group">
                                 <button class="btn btn-outline-secondary" @click=${downloadGridAsPNG}><i class="material-icons mr-1">image</i></button>
-                                <button class="btn btn-outline-secondary"><i class="material-icons mr-1">link</i></button>
+                                <button class="btn btn-outline-secondary" @click=${() => showShareDialog(model.gameGrid)}><i class="material-icons mr-1">link</i></button>
                             </div>                
                         </div>
 

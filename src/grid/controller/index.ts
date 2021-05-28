@@ -74,7 +74,10 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
     switch (message.command) {
         case "load-grid":
             return loadGameGrid(message.id)
-                .then(g => new Model(g, false))
+                .then(g => {
+                    Browser.urlHash = g.id
+                    return new Model(g, false)
+                })
 
         case "change-grid":
             return new Model(GameGrid.createInitial(message.cols, message.rows), false)

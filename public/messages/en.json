@@ -59,5 +59,6 @@
     "gameGrid.loadGrid.label": "Label",
     "gameGrid.loadGrid.dimension": "Dimension",
     "gameGrid.loadGrid.lastModified": "Last modified",
-    "gameGrid.loadGrid.load": "Load"
+    "gameGrid.loadGrid.load": "Load",
+    "gameGrid.share.title": "Copy link"
 }

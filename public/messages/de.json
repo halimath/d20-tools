@@ -59,5 +59,6 @@
     "gameGrid.loadGrid.label": "Bezeichnung",
     "gameGrid.loadGrid.dimension": "Größe",
     "gameGrid.loadGrid.lastModified": "Zuletzt bearbeitet",
-    "gameGrid.loadGrid.load": "Laden"
+    "gameGrid.loadGrid.load": "Laden",
+    "gameGrid.share.title": "Link kopieren"
 }
