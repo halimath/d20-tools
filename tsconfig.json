@@ -14,7 +14,10 @@
         ],
         "experimentalDecorators": true,
         "baseUrl": ".",
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "paths": {
+            "d20-tools/*": ["src/*"],
+        },
     },
     "include": [
         "src/**/*.ts",
