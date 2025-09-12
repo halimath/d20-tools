@@ -1,11 +1,11 @@
-import { range } from "src/common/tools"
+import { range } from "d20-tools/common/tools"
 
 export type DieType = 2 | 3 | 4 | 6 | 8 | 10 | 12 | 20 | 100
 
 export const DieTypes: Array<DieType> = [2, 3, 4, 6, 8, 10, 12, 20, 100]
 
 export class DieRoll {
-    constructor (public readonly dieType: DieType, public readonly amount = 1) {}
+    constructor(public readonly dieType: DieType, public readonly amount = 1) { }
 
     roll(): number {
         return [...range(this.amount)].reduce(p => p + Math.floor(Math.random() * this.dieType) + 1, 0)
@@ -17,7 +17,7 @@ export class DieRoll {
 }
 
 export class RollResult {
-    constructor (public readonly dieResult: number, public readonly modifier: number) {}
+    constructor(public readonly dieResult: number, public readonly modifier: number) { }
 
     get value(): number {
         return this.dieResult + this.modifier
@@ -34,7 +34,7 @@ export class Roll {
 
         const amount = parseInt(matches[1])
         const die = parseInt(matches[2]) as DieType
-        const modifier = parseInt(matches[3] ?? "0")        
+        const modifier = parseInt(matches[3] ?? "0")
 
         if (DieTypes.indexOf(die) < 0) {
             throw `invalid expression: ${expr}`

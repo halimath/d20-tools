@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - main
+    - feature/*
+    - bugfix/*
+  pull_request:
+
+jobs:
+  build_and_test:
+    name: build and run tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 24
+      
+    - run: npm install
+    - run: npm run build
+    - run: npm test
