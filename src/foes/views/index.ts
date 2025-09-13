@@ -24,13 +24,13 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
     }
 
     const body = wecco.html`
-        <div class="topnav">        
+        <div class="topnav">
             <div class="container">
                 <div class="row mt-2">
                     <div class="col-8">
                         <nav class="nav nav-pills">
-                            <a class="nav-link ${model.tab === "characters" ? "active" : ""}" @click=${() => emit(new SelectTab("characters"))}>${m("foes.characters")}</a>
-                            <a class="nav-link ${model.tab === "kinds" ? "active" : ""}" @click=${() => emit(new SelectTab("kinds"))}>${m("foes.kinds")}</a>
+                            <a href="#" class="nav-link ${model.tab === "characters" ? "active" : ""}" @click=${() => emit(new SelectTab("characters"))}>${m("foes.characters")}</a>
+                            <a href="#" class="nav-link ${model.tab === "kinds" ? "active" : ""}" @click=${() => emit(new SelectTab("kinds"))}>${m("foes.kinds")}</a>
                         </nav>
                     </div>
                     <div class="col text-end">

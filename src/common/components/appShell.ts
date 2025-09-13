@@ -15,12 +15,11 @@ export function appShell(main: wecco.ElementUpdate): wecco.ElementUpdate {
                 </span>
                 <ul class="navbar-nav me-auto flex-grow-1">
                     <li class="nav-item"><a class="nav-link" href="/">${m("nav.diceRoller")}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/grid">${m("nav.gameGrid")}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/foes">${m("nav.foes")}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/grid/">${m("nav.gameGrid")}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/foes/">${m("nav.foes")}</a></li>
                 </ul>
                 <ul class="navbar-nav me-auto">                    
-                    <li class="nav-item"><a class="nav-link" @click=${()=> aboutDialog.show()}>${m("nav.about")}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="https://github.com/halimath/d20-tools">${m("nav.source")}</a></li>                            
+                    <li class="nav-item"><a class="nav-link" @click=${()=> aboutDialog.show()}>${m("nav.about")}</a></li>                    
                 </ul>
             </div>
         </nav>
@@ -35,7 +34,9 @@ export function appShell(main: wecco.ElementUpdate): wecco.ElementUpdate {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>${m("about.version", versionLabel)}</p><p>${m("about.copyright")}</p>
+                <p>${m("about.version", versionLabel)}</p>
+                <p>${m("about.copyright")}</p>
+                <p><a href="https://github.com/halimath/d20-tools">https://github.com/halimath/d20-tools</a></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${m("close")}</button>
