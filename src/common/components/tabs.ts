@@ -66,7 +66,7 @@ export function tabs (optsOrTab: Partial<Options> | Tab, ...remainingTabs: Array
 
     return wecco.html`
         <ul class="nav ${styleClasses}">
-            ${tabs.map((t, idx) => wecco.html`<li class="nav-item"><a class="nav-link ${idx === 0 ? "active" : ""}" @click=${selectIndex.bind(null, idx)} @update=${(e: Event) => tabLinks[idx] = e.target as HTMLAnchorElement}>${t.label}</a></li>`)}
+            ${tabs.map((t, idx) => wecco.html`<li class="nav-item"><a href="#" class="nav-link ${idx === 0 ? "active" : ""}" @click=${selectIndex.bind(null, idx)} @update=${(e: Event) => tabLinks[idx] = e.target as HTMLAnchorElement}>${t.label}</a></li>`)}
         </ul>
         ${tabs.map((t, idx) => wecco.html`<div class="${idx === 0 ? "" : "d-none"}" @update=${(e: Event) => contentWrappers[idx] = e.target as HTMLElement}>${t.content}</div>`)}
     `

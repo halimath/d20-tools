@@ -16,15 +16,20 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                                 <p class="lead">${m("diceRoller.result.die", model.roll?.dieType ?? "0")}</span></p>
                             </div>
                         </div>
+                        
                         <div class="row card-body">                            
                             <h5 class="card-title">${m("diceRoller.title")}</h5>
+
                             <p class="card-text">${m("diceRoller.intro")}</p>
+                            
                             ${model.availableDice.map(die => wecco.html`
-                            <div class="col mt-2 text-center">
-                                <button class="btn btn-dark d${die}" @click=${()=> context.emit(new
-                                    Message(die))}>${m("diceRoller.btn", die)}</button>
-                            </div>
+                                <div class="col mt-2 text-center">
+                                    <button class="btn btn-dark d${die}" @click=${()=> context.emit(new
+                                        Message(die))}>${m("diceRoller.btn", die)}</button>
+                                </div>                            
                             `)}
+                            
+                            ${history(model)}
                         </div>
                     </div>
                 </div>
@@ -33,4 +38,17 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
     `
 
     return appShell(body)
+}
+
+function history (model: Model): wecco.ElementUpdate {
+    if (model.history.length === 0) {
+        return ""
+    }
+
+    return wecco.html`
+    <h2 class="mt-5">${m("diceRoller.history")}</h2>
+    <ul class="list-unstyled">
+        ${model.history.slice(0, 10).map(r => wecco.html`<li><span class="badge text-bg-primary">${m("diceRoller.btn", r.dieType)}</span>: ${r.result}</li>`)}
+    </ul>
+    `
 }
