@@ -5,18 +5,18 @@
     "nav.diceRoller": "Dice Roller",
     "nav.gameGrid": "Game Grid",
     "nav.foes": "Foes",
-    "nav.source": "Fork me on Github",
     "nav.about": "About",
 
     "about.title": "D20 Tools",
     "about.version": "Version {{0}}.",
-    "about.copyright": "Copyright © 2021 Alexander Metzner. Published under the terms of the Apache License version 2.",
+    "about.copyright": "Copyright © 2021 - 2025 Alexander Metzner. Published under the terms of the Apache License version 2.",
 
     "diceRoller.title": "Dice Roller",
     "diceRoller.intro": "Click a button to roll the respective die.",
     "diceRoller.btn": "D{{0}}",
     "diceRoller.result.value": "{{0}}",
     "diceRoller.result.die": "Result of rolling a D{{0}}.",
+    "diceRoller.history": "History",
 
     "foes.characters": "Characters",
     "foes.pc": "Player Character",

@@ -36,9 +36,9 @@ module.exports = {
         plugins: [new TsconfigPathsPlugin()]
     },
     devServer: {
-        contentBase: "./public",
-        staticOptions: {
-            extensions: ["html"],
+        static: {
+            directory: "./public",
+            serveIndex: true,
         },
         host: "0.0.0.0",
         compress: true,
