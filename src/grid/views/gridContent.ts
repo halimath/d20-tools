@@ -4,7 +4,7 @@ import { GameGrid, Token, Wall } from "../models"
 
 const WallSnapSize = 0.2
 
-export function gridContent(context: wecco.AppContext<Message>, model: GameGrid): wecco.ElementUpdate {
+export function gridContent(emit: wecco.MessageEmitter<Message>, model: GameGrid): wecco.ElementUpdate {
     let svgElement: SVGElement
 
     function calculateGridSizeAndOffsets (svg: SVGElement): [number, [number, number]] {
@@ -61,26 +61,26 @@ export function gridContent(context: wecco.AppContext<Message>, model: GameGrid)
         const distanceY = relativeY / gridSize - targetRow
 
         if (distanceX < WallSnapSize) {
-            context.emit(new PlaceWall(targetCol, targetRow, "left", new Wall(model.wallSymbol, model.color)))
+            emit(new PlaceWall(targetCol, targetRow, "left", new Wall(model.wallSymbol, model.color)))
             return
         }
         
         if (distanceX > 1 - WallSnapSize) {
-            context.emit(new PlaceWall(targetCol + 1, targetRow, "left", new Wall(model.wallSymbol, model.color)))
+            emit(new PlaceWall(targetCol + 1, targetRow, "left", new Wall(model.wallSymbol, model.color)))
             return
         }
 
         if (distanceY < WallSnapSize) {
-            context.emit(new PlaceWall(targetCol, targetRow, "top", new Wall(model.wallSymbol, model.color)))
+            emit(new PlaceWall(targetCol, targetRow, "top", new Wall(model.wallSymbol, model.color)))
             return
         }
         
         if (distanceY > 1 - WallSnapSize) {
-            context.emit(new PlaceWall(targetCol, targetRow + 1, "top", new Wall(model.wallSymbol, model.color)))
+            emit(new PlaceWall(targetCol, targetRow + 1, "top", new Wall(model.wallSymbol, model.color)))
             return
         }
 
-        context.emit(new PlaceToken(targetCol, targetRow, new Token(model.tokenSymbol, model.color)))
+        emit(new PlaceToken(targetCol, targetRow, new Token(model.tokenSymbol, model.color)))
     }
 
     const svgContent = []

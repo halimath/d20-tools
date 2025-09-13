@@ -10,11 +10,11 @@ interface LoadDialogModel {
     infos?: Array<GameGridInfo>
 }
 
-const LoadDialog = wecco.define("load-dialog", (model: LoadDialogModel, ctx: wecco.RenderContext) => {
-    if (!model.infos) {
-        ctx.once("load", async () => {
-            model.infos = await loadSummaries()
-            ctx.requestUpdate()
+const LoadDialog = wecco.define("load-dialog", ({data, requestUpdate, once}: wecco.RenderContext<LoadDialogModel>) => {
+    if (!data.infos) {
+        once("load", async () => {
+            data.infos = await loadSummaries()
+            requestUpdate()
         })
 
         return wecco.html`<p class="d-flex justify-content-center">${m("gameGrid.loadGrid.loading")}</p>`
@@ -36,17 +36,17 @@ const LoadDialog = wecco.define("load-dialog", (model: LoadDialogModel, ctx: wec
                     </tr>
                 </thead>
                 <tbody>
-                    ${model.infos.map((i, idx) => wecco.html`
+                    ${data.infos.map((i, idx) => wecco.html`
                         <tr>
                             <td>${i.label}</td>
                             <td>${i.dimension}</td>
                             <td>${m("$relativeTime", i.lastUpdate.getTime() - new Date().getTime())}</td>
                             <td>
-                                <button class="btn btn-outline-primary btn-small" data-bs-dismiss="modal" @click=${() => model.onLoad(i.id)}><i class="material-icons">edit</i></button>
+                                <button class="btn btn-outline-primary btn-small" data-bs-dismiss="modal" @click=${() => data.onLoad(i.id)}><i class="material-icons">edit</i></button>
                                 <button class="btn btn-outline-danger btn-small"><i class="material-icons" @click=${() => {
-                                    model.infos?.splice(idx, 1)
+                                    data.infos?.splice(idx, 1)
                                     deleteGameGrid(i.id)
-                                    ctx.requestUpdate()
+                                    requestUpdate()
                                 }}>delete</i></button>
                             </td>
                         </tr>`)}
@@ -55,10 +55,10 @@ const LoadDialog = wecco.define("load-dialog", (model: LoadDialogModel, ctx: wec
         </div>`
 })
 
-export function showLoadDialog(context: wecco.AppContext<Message>): void {
+export function showLoadDialog(emit: wecco.MessageEmitter<Message>): void {
     modal(LoadDialog({
         onLoad(id: string) {
-            context.emit(new LoadGrid(id))
+            emit(new LoadGrid(id))
         }
     }), {
         show: true,

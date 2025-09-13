@@ -8,7 +8,7 @@ export interface SelectOptions {
     classes?: string | Array<string>
 }
 
-export const select = wecco.define("select-field", (data: SelectOptions, context) => {
+export const select = wecco.define("select-field", ({data}: wecco.RenderContext<SelectOptions>) => {
     const styleClasses = Array.isArray(data.classes) ? data.classes.join(" ") : (data.classes ?? "")
 
     return wecco.html`

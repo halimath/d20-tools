@@ -51,7 +51,7 @@ export class TogglePresentationMode {
 
 export type Message = LoadGrid | ChangeGrid | UpdateLabel | PlaceToken | PlaceWall | SelectToken | ClearGrid | TogglePresentationMode
 
-export function update(model: Model, message: Message, context: wecco.AppContext<Message>): Model | Promise<Model> {
+export function update({model, message}: wecco.UpdaterContext<Model, Message>): Model | Promise<Model> {
     const updated = applyUpdate(model, message)
     
     if (updated instanceof Model) {

@@ -7,9 +7,9 @@ import { downloadGridAsPNG, gridContent } from "./gridContent"
 import { showLoadDialog } from "./dialogs/loadgrid"
 import { showShareDialog } from "./dialogs/shrare"
 
-export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {
+export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.ElementUpdate {
     function notifyGridSizeChanged(cols: number, rows: number) {
-        context.emit(new ChangeGrid(cols, rows))
+        emit(new ChangeGrid(cols, rows))
     }
 
     const body = wecco.html`
@@ -18,7 +18,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                 ${model.presentationMode ? "" :
                     wecco.html`<div class="row mt-4 justify-content-center">
                         <div class="col-4">
-                            <input type="text" class="form-control" placeholder="Label" .value=${model.gameGrid.label} @change=${(e: InputEvent) => context.emit(new UpdateLabel((e.target as HTMLInputElement).value.trim()))}>
+                            <input type="text" class="form-control" placeholder="Label" .value=${model.gameGrid.label} @change=${(e: InputEvent) => emit(new UpdateLabel((e.target as HTMLInputElement).value.trim()))}>
                         </div>
                         
                         <div class="col-2">
@@ -44,7 +44,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
 
                         <div class="col-2">
                             <div class="btn-group">
-                                <button class="btn btn-outline-primary"><i class="material-icons" @click=${() => context.emit(new ClearGrid())}>add</i></button>
+                                <button class="btn btn-outline-primary"><i class="material-icons" @click=${() => emit(new ClearGrid())}>add</i></button>
                                 <button class="btn btn-outline-primary"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, context)}>more_horiz</i></button>
                             </div>
                         </div>
@@ -57,7 +57,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                             <div class="btn-group">
                                 ${TokenSymbols.map(s => wecco.html`
                                     <button 
-                                        @click=${() => context.emit(new SelectToken(model.gameGrid.color, s, model.gameGrid.wallSymbol))} 
+                                        @click=${() => emit(new SelectToken(model.gameGrid.color, s, model.gameGrid.wallSymbol))} 
                                         accesskey=${TokenSymbolUrlCharMapping.get(s)}
                                         class="btn ${s === model.gameGrid.tokenSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
                                         ${tokenSymbolButtonLabel(s)}
@@ -68,7 +68,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                             <div class="btn-group ms-1">
                                 ${WallSymbols.map(s => wecco.html`
                                     <button 
-                                        @click=${() => context.emit(new SelectToken(model.gameGrid.color, model.gameGrid.tokenSymbol, s))} 
+                                        @click=${() => emit(new SelectToken(model.gameGrid.color, model.gameGrid.tokenSymbol, s))} 
                                         class="btn ${s === model.gameGrid.wallSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
                                         ${wallSymbolButtonLabel(s)}
                                     </button>
@@ -79,7 +79,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                             ${
                                 TokenColors.map(c => wecco.html`
                                 <button 
-                                    @click=${() => context.emit(new SelectToken(c, model.gameGrid.tokenSymbol, model.gameGrid.wallSymbol))} 
+                                    @click=${() => emit(new SelectToken(c, model.gameGrid.tokenSymbol, model.gameGrid.wallSymbol))} 
                                     accesskey=${TokenColorUrlCharMapping.get(c)}
                                     class="btn btn-outline-secondary color-selector ${c} ${c === model.gameGrid.color ? "selected" : ""}">
                                     ${m("gameGrid.color." + c)}
@@ -90,7 +90,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                         </div>
                     </div>
                     <div class="col-1">
-                        <button class="btn btn-outline-primary d-flex justify-content-center align-content-between" @click=${() => context.emit(new TogglePresentationMode())}>
+                        <button class="btn btn-outline-primary d-flex justify-content-center align-content-between" @click=${() => emit(new TogglePresentationMode())}>
                             <i class="material-icons mr-1">fullscreen${model.presentationMode ? "_exit" : ""}</i>
                         </button>
                     </div>
@@ -101,7 +101,7 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
         <div class="container-fluid">
             <div class="row mt-2">
                 <div class="col">
-                    ${gridContent(context, model.gameGrid)}
+                    ${gridContent(emit, model.gameGrid)}
                 </div>
             </div>        
         </div>

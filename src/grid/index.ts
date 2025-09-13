@@ -11,7 +11,7 @@ import { root } from "./views"
 document.addEventListener("DOMContentLoaded", async () => {
     await load()
        
-    wecco.app(async () => {
+    wecco.createApp(async () => {
         if (Browser.urlHash) {
             if (Browser.urlHash.indexOf("/") > 0) {
                 return new Model(GameGrid.fromDescriptor(createId(), "", Browser.urlHash), false)
@@ -28,5 +28,5 @@ document.addEventListener("DOMContentLoaded", async () => {
             return new Model(GameGrid.createInitial(), false)
         }
     
-    }, update, root, "#app")    
+    }, update, root).mount("#app")    
 })

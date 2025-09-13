@@ -7,7 +7,7 @@ import { CreateNPC, CreatePC, Message } from "../../controller"
 import { m } from "../../../common/i18n"
 import { Kind } from "../../models"
 
-export function addCharacterModal(kinds: Array<Kind>, context: wecco.AppContext<Message>, binder: ModalHandleBinder): wecco.ElementUpdate {
+export function addCharacterModal(kinds: Array<Kind>, emit: wecco.MessageEmitter<Message>, binder: ModalHandleBinder): wecco.ElementUpdate {
     let label: string
     let kindIndex = 0
     let ini = 0
@@ -15,11 +15,10 @@ export function addCharacterModal(kinds: Array<Kind>, context: wecco.AppContext<
 
     const onCreate = () => {
         if (characterType === "npc") {
-            const kind = kinds[kindIndex]
-            console.log(kind, kindIndex)
-            context.emit(new CreateNPC(label, kind))
+            const kind = kinds[kindIndex]            
+            emit(new CreateNPC(label, kind))
         } else {
-            context.emit(new CreatePC(label, ini, 0))
+            emit(new CreatePC(label, ini, 0))
         }
     }
 

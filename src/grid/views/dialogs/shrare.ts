@@ -3,8 +3,8 @@ import { modal } from "src/common/components/modal"
 import { m } from "../../../common/i18n"
 import { GameGrid } from "../../models"
 
-const ShareDialog = wecco.define("share-dialog", (model: { grid: GameGrid }, ctx: wecco.RenderContext) => {
-    const url = document.location.href.replace(/#.*/, "#" + model.grid.descriptor)
+const ShareDialog = wecco.define("share-dialog", ({data}: wecco.RenderContext<{ grid: GameGrid }>) => {
+    const url = document.location.href.replace(/#.*/, "#" + data.grid.descriptor)
     return wecco.html`
         <div class="modal-header">
             <h5 class="modal-title">${m("gameGrid.share.title")}</h5>

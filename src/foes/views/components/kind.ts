@@ -5,7 +5,7 @@ import { m } from "../../../common/i18n"
 import { Kind } from "../../models"
 import { editKindModal } from "./editKind"
 
-export function kinds(kinds: Array<Kind>, context: wecco.AppContext<Message>): wecco.ElementUpdate {
+export function kinds(kinds: Array<Kind>, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
     return wecco.html`
         <table class="table table-striped">
             <thead>
@@ -23,13 +23,13 @@ export function kinds(kinds: Array<Kind>, context: wecco.AppContext<Message>): w
                 </tr>
             </thead>
             <tbody>
-                ${kinds.map(kindRow.bind(null, context))}
+                ${kinds.map(kindRow.bind(null, emit))}
             </tbody>
         </table>
     `
 }
 
-function kindRow(context: wecco.AppContext<Message>, k: Kind, idx: number): wecco.ElementUpdate {
+function kindRow(emit: wecco.MessageEmitter<Message>, k: Kind, idx: number): wecco.ElementUpdate {
     let modalHandle: ModalHandle
     return wecco.html`
         <tr>
@@ -58,7 +58,7 @@ function kindRow(context: wecco.AppContext<Message>, k: Kind, idx: number): wecc
                 </ul>
             </td>
             <td>
-                ${editKindModal(k => context.emit(new SaveKind(k, idx)), mh => modalHandle = mh, k)}
+                ${editKindModal(k => emit(new SaveKind(k, idx)), mh => modalHandle = mh, k)}
                 <button class="btn btn-link"><i class="material-icons" @click=${() => modalHandle.show()}>edit</i></button>                
                 <button class="btn btn-link text-danger"><i class="material-icons">delete</i></button>                
             </td>
