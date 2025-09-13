@@ -1,3 +1,4 @@
+import * as wecco from "@weccoframework/core"
 import { Browser } from "src/common/browser"
 import { Attack, Character, Kind, Model, RollResult, SavingThrow, Tab } from "../models"
 import { saveCharacters, saveKinds } from "../store"
@@ -66,7 +67,7 @@ export class SaveKind {
 
 export type Message = Nop | Clear | SelectTab | CreateNPC | CreatePC | RemoveCharacter | PerformAttack | RollSavingThrow | UpdateCurrentHitPoints | SelectActiveCharacter | SaveKind
 
-export function update(model: Model, message: Message): Model | Promise<Model> {
+export function update({model, message}: wecco.UpdaterContext<Model, Message>): Model | Promise<Model> {
     switch (message.command) {
         case "nop":
             return model

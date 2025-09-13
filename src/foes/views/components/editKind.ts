@@ -71,7 +71,7 @@ interface KindEditorData {
     modalBinder?: ModalHandleBinder
 }
 
-const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: wecco.RenderContext) => {
+const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.RenderContext<KindEditorData>) => {
     // eslint-disable @typescript-eslint/no-non-null-assertion
     data.editForm = data.editForm ?? {}
     data.attacks = data.attacks ?? []
@@ -225,11 +225,11 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
                         </tr>
                     </thead>
                     <tbody>
-                        ${data.attacks?.map((a, idx) => attackRow(data.attacks!, a, idx, context))}
+                        ${data.attacks?.map((a, idx) => attackRow(data.attacks!, a, idx, requestUpdate))}
                     </tbody>
                 </table>
                 <div class="text-end">
-                    <button class="btn btn-link" @click=${() => { data.attacks?.push({}); context.requestUpdate() }}><i class="material-icons">add</i></button>
+                    <button class="btn btn-link" @click=${() => { data.attacks?.push({}); requestUpdate() }}><i class="material-icons">add</i></button>
                 </div>
             </div>
         </div>
@@ -240,7 +240,7 @@ const kindEditor = wecco.define("kind-editor", (data: KindEditorData, context: w
     `
 })
 
-function attackRow(attacks: Array<AttackData>, attack: AttackData, idx: number, context: wecco.RenderContext): wecco.ElementUpdate {
+function attackRow(attacks: Array<AttackData>, attack: AttackData, idx: number, requestUpdate: () => void): wecco.ElementUpdate {
     const bindField = (name: keyof AttackData) => 
         (value: string) => attacks[idx][name] = value
     
@@ -249,7 +249,7 @@ function attackRow(attacks: Array<AttackData>, attack: AttackData, idx: number, 
             <td>${inputField({value: attack.label, classes: "form-control", onChange: bindField("label"), validator: notEmpty})}</td>
             <td>${inputField({value: attack.mod, type: "number", classes: "form-control", onChange: bindField("mod"), validator: notEmpty})}</td>
             <td>${inputField({value: attack.damage, classes: "form-control", onChange: bindField("damage"), validator: [notEmpty, rollValidator]})}</td>
-            <td><button class="btn btn-link" @click=${() => { attacks.splice(idx, 1); context.requestUpdate()}}><i class="material-icons">delete</i></button></td>
+            <td><button class="btn btn-link" @click=${() => { attacks.splice(idx, 1); requestUpdate()}}><i class="material-icons">delete</i></button></td>
         </tr>
     `
 }

@@ -4,7 +4,7 @@ import { Message } from "../controller"
 import { m } from "../../common/i18n"
 import { Model } from "../models"
 
-export function root(model: Model, context: wecco.AppContext<Message>): wecco.ElementUpdate {
+export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.ElementUpdate {
     const body = wecco.html`
         <div class="container mt-4">
             <div class="row">
@@ -23,10 +23,10 @@ export function root(model: Model, context: wecco.AppContext<Message>): wecco.El
                             <p class="card-text">${m("diceRoller.intro")}</p>
                             
                             ${model.availableDice.map(die => wecco.html`
-                                <div class="col mt-2 text-center">
-                                    <button class="btn btn-dark d${die}" @click=${()=> context.emit(new
-                                        Message(die))}>${m("diceRoller.btn", die)}</button>
-                                </div>                            
+                            <div class="col mt-2 text-center">
+                                <button class="btn btn-dark d${die}" @click=${()=> emit(new
+                                    Message(die))}>${m("diceRoller.btn", die)}</button>
+                            </div>
                             `)}
                             
                             ${history(model)}

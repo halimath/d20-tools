@@ -9,7 +9,7 @@ import { root } from "./views"
 
 document.addEventListener("DOMContentLoaded", async () => {
     await load()
-    wecco.app(loadModel, update, root, "#app")
+    wecco.createApp(loadModel, update, root).mount("#app")
 })
 
 async function loadModel(): Promise<Model> {

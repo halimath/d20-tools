@@ -16,7 +16,7 @@ export interface InputOptions {
     isValid?: boolean
 }
 
-export const inputField = wecco.define("input-field", (data: InputOptions, context: wecco.RenderContext) => {    
+export const inputField = wecco.define("input-field", ({data, requestUpdate}: wecco.RenderContext<InputOptions>) => {    
     if (typeof data.isValid === "undefined" && typeof data.value !== "undefined") {
         data.isValid = validate(data)
     }
@@ -34,7 +34,7 @@ export const inputField = wecco.define("input-field", (data: InputOptions, conte
         if (data.isValid) {
             data.onChange(data.value)
         }
-        context.requestUpdate()
+        requestUpdate()
     }
 
     return wecco.html`<input type=${data.type ?? "text"} id+omitempty=${data.id} class=${styleClasses.join(" ")} .value=${data.value ?? ""} @blur=${onChange}>`
