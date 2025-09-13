@@ -23,17 +23,10 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                             <p class="card-text">${m("diceRoller.intro")}</p>
                             
                             ${model.availableDice.map(die => wecco.html`
-<<<<<<< HEAD
                             <div class="col mt-2 text-center">
                                 <button class="btn btn-dark d${die}" @click=${()=> emit(new
                                     Message(die))}>${m("diceRoller.btn", die)}</button>
                             </div>
-=======
-                                <div class="col mt-2 text-center">
-                                    <button class="btn btn-dark d${die}" @click=${()=> context.emit(new
-                                        Message(die))}>${m("diceRoller.btn", die)}</button>
-                                </div>                            
->>>>>>> b4cfb826a278444ee5fa83b304d5281587fee2a6
                             `)}
                             
                             ${history(model)}

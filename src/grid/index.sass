@@ -23,13 +23,13 @@ $token-colors: ("grey": #aaa, "green": #02551d, "blue": #001f75, "red": #900018,
 .btn.color-selector
     @each $token-color, $value in $token-colors
         &.#{$token-color}
-            color: lighten($value, 10%)
+            color: lighten($value, 0%)
+            background-color: lighten($value, 0%)
             &:hover
                 background-color: lighten($value, 10%)
                 color: lighten($value, 80%)
             &.selected
-                background-color: $value
-                color: lighten($value, 80%)
+                color: white
 
 .btn-outline-secondary
     svg        

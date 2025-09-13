@@ -45,7 +45,7 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                         <div class="col-2">
                             <div class="btn-group">
                                 <button class="btn btn-outline-primary"><i class="material-icons" @click=${() => emit(new ClearGrid())}>add</i></button>
-                                <button class="btn btn-outline-primary"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, context)}>more_horiz</i></button>
+                                <button class="btn btn-outline-primary"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, emit)}>more_horiz</i></button>
                             </div>
                         </div>
                     </div>`
@@ -81,8 +81,9 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                                 <button 
                                     @click=${() => emit(new SelectToken(c, model.gameGrid.tokenSymbol, model.gameGrid.wallSymbol))} 
                                     accesskey=${TokenColorUrlCharMapping.get(c)}
-                                    class="btn btn-outline-secondary color-selector ${c} ${c === model.gameGrid.color ? "selected" : ""}">
-                                    ${m("gameGrid.color." + c)}
+                                    class="btn btn-outline-secondary color-selector ${c} ${c === model.gameGrid.color ? "selected" : ""}"
+                                    aria-label="${m("gameGrid.color." + c)}">
+                                    &nbsp;x&nbsp;
                                 </button>
                                 `)
                             }
