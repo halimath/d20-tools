@@ -1,3 +1,5 @@
+import { SavingThrow } from "../models"
+
 export interface Ini {
     dieResult: number
     modifier: number
@@ -18,11 +20,13 @@ export interface NPC {
     chp: number
 }
 
-export interface SavingThrows {
-    reflex: number
-    will: number
-    fortitude: number
-}
+export type SavingThrows = Record<SavingThrow, number>
+
+// export interface SavingThrows {
+//     reflex: number
+//     will: number
+//     fortitude: number
+// }
 
 export interface Damage {
     label: string
