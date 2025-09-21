@@ -17,7 +17,7 @@ function pc(emit: wecco.MessageEmitter<Message>, pc: PC, active: boolean): wecco
             <div class="card-body">
                 <div class="row">
                     <div class="col">
-                        <strong>${m("foes.ini")}:</strong>${pc.ini.value} (${pc.ini.modifier})
+                        ${m("foes.ini")}: <strong>${pc.ini.value}</strong>
                     </div>
                     <div class="col-6">
                         <h5 class="card-title">${pc.label}</h5>
@@ -36,30 +36,23 @@ function npc (emit: wecco.MessageEmitter<Message>, npc: NPC, active: boolean): w
             <div class="card-body">                
                 <div class="row">
                     <div class="col">
-                        <strong>${m("foes.ini")}:</strong>${npc.ini.value} (${npc.ini.modifier})
-                    </div>
-                    <div class="col-6">
-                        <h5 class="card-title">${npc.label}</h5>
-                        <h6>${npc.kind.label}</h6>
-                        ${npc.kind.tags.map(t => wecco.html`<span class="me-1 badge bg-dark">${t}</span>`)}
+                        ${m("foes.ini")}: <strong>${npc.ini.value}</strong>
                     </div>
                     <div class="col">
-                        <div class="attribute speed">${npc.kind.speed}</div>
+                        <h5 class="card-title">${npc.label} (${npc.kind.label})</h5>
+                        ${npc.kind.tags.map(t => wecco.html`<span class="me-1 badge bg-dark">${t}</span>`)}
                     </div>
                     <div class="col text-end">
                         <button class="btn btn-flat float-end" @click+stopPropagation=${() => emit(new RemoveCharacter(npc))}><i class="material-icons">close</i></button>
                     </div>
                 </div>
-                
-                <div class="row mt-2">
-                    <div class="col d-flex align-items-start justify-content-center">
-                        <div class="attribute ac">${npc.kind.ac}</div>
-                    </div>
-                    
-                    <div class="col">
-                        <div class="d-flex align-items-start justify-content-center">
-                            <div class="attribute hp">${npc.currentHitpoints}</div>
+                <div class="row">
+                    <div class="col d-flex flex-column align-items-center justify-content-center">
+                        <div class="d-flex flex-row align-items-center justify-content-center mt-2">
+                            <div class="me-2 attribute speed">${npc.kind.speed}</div>
+                            <div class="attribute ac">${npc.kind.ac}</div>
                         </div>
+                        <div class="mt-2 attribute hp">${npc.currentHitpoints}</div>
                         <div class="mt-2 d-flex align-items-center justify-content-center">
                             ${m("foes.hp")}:
                             <strong class=${npc.currentHitpoints <= 0 ? "text-danger" : ""}>${npc.currentHitpoints}</strong> / ${npc.hitpoints} (${npc.kind.hitDie})
@@ -73,22 +66,23 @@ function npc (emit: wecco.MessageEmitter<Message>, npc: NPC, active: boolean): w
                             </div>                                
                         </div>
                     </div>
-                    
-                    <div class="col d-flex flex-column align-items-center justify-content-center">
-                        ${Object.keys(npc.kind.savingThrows).map((savingThrow: SavingThrow) => wecco.html`
-                        <div class="mt-1 text-center">
-                            <button class="btn btn-outline-secondary" @click+stopPropagation=${() => emit(new RollSavingThrow(npc, savingThrow))}>${m(`foes.savingthrow.${savingThrow}`)}: ${modifier(npc.kind.savingThrows[savingThrow])}</button>
-                            ${npc.savingThrows[savingThrow] ? wecco.html`<span class="badge bg-secondary">${npc.savingThrows[savingThrow]?.value}` : ""}
-                        </div>
-                        `)}                    
-                    </div>
-
-                    <div class="col d-flex align-items-center justify-content-center">
-                        ${npc.attacks.map(a => wecco.html`
+                    <div class="col-8">
                         <div>
+                            ${Object.keys(npc.kind.savingThrows).map((savingThrow: SavingThrow) => wecco.html`
+                            <div class="mt-2 me-2 w-auto text-center d-inline-block">
+                                <button class="btn ${npc.savingThrows[savingThrow] ? "btn-secondary" : "btn-outline-secondary"}" @click+stopPropagation=${() => emit(new RollSavingThrow(npc, savingThrow))}>
+                                    ${m(`foes.savingthrow.${savingThrow}`)}
+                                    ${npc.savingThrows[savingThrow] ? ` = ${npc.savingThrows[savingThrow]?.value}` : `: ${modifier(npc.kind.savingThrows[savingThrow])}`}                                
+                                </button>
+                            </div>
+                            `)}
+                            </div>
+                        ${npc.attacks.map(a => wecco.html`
+                        <div class="mt-2">
                             ${attack(emit, npc, a[0])}
-                            <div class="d-flex justify-content-evenly align-items-center">${hit(a[1])}</div>`)}
+                            ${hit(a[1])}
                         </div>
+                        `)}
                     </div>
                 </div>                
             </div>
@@ -109,7 +103,6 @@ function hit(hit: Hit | undefined): wecco.ElementUpdate {
     }
 
     return wecco.html`
-        <br>
         <span class="badge ac ${acBg}">${m("foes.ac")} ${hit.ac.value}</span>
         ${hit.damage.map(d => wecco.html`<span class="badge hp me-1">${d.label ? `${d.label}: ${d.result.value}` : d.result.value}</span>`)}
     `

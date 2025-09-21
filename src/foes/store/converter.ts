@@ -55,9 +55,12 @@ export function reconstructKind(dto: dtos.Kind): models.Kind {
         speed: dto.speed, 
         hitDie: Roll.parse(dto.hitDie),
         savingThrows: {
-            reflex: dto.savingThrows.reflex,
-            will: dto.savingThrows.will,
-            fortitude: dto.savingThrows.fortitude,
+            str: dto.savingThrows.str,
+            dex: dto.savingThrows.dex,
+            con: dto.savingThrows.con,
+            int: dto.savingThrows.int,
+            wis: dto.savingThrows.wis,
+            cha: dto.savingThrows.cha,
         }
     }, ...dto.attacks.map(a => new models.Attack(a.label, a.mod, ...a.damage.map(d => new models.Damage(d.label, Roll.parse(d.damage))))))
 }
@@ -70,10 +73,13 @@ export function convertKind (kind: models.Kind): dtos.Kind {
         speed: kind.speed,
         hitDie: kind.hitDie.toString(),
         tags: kind.tags.slice(),
-        savingThrows: {
-            reflex: kind.savingThrows.reflex,
-            will: kind.savingThrows.will,
-            fortitude: kind.savingThrows.fortitude,
+        savingThrows: {            
+            str: kind.savingThrows.str,
+            dex: kind.savingThrows.dex,
+            con: kind.savingThrows.con,
+            int: kind.savingThrows.int,
+            wis: kind.savingThrows.wis,
+            cha: kind.savingThrows.cha,
         },
         attacks: kind.attacks.map(a => {
             return {

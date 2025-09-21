@@ -2,7 +2,7 @@ import * as wecco from "@weccoframework/core"
 import { inputField, notEmpty } from "../../../common/components/forms/input"
 import { modal, ModalHandle, ModalHandleBinder } from "../../../common/components/modal-deprecated"
 import { m } from "../../../common/i18n"
-import { Attack, Damage, Kind, Roll } from "../../models"
+import { Attack, Damage, Kind, Roll, SavingThrowKeys } from "../../models"
 
 export interface SaveHandler {
     (k: Kind): void
@@ -21,11 +21,14 @@ export function editKindModal (saveHandler: SaveHandler, binder: ModalHandleBind
             tags: kind?.tags.join(", "),
             ac: kind?.ac.toString(),
             hitDie: kind?.hitDie.toString(),
-            ini: kind?.ini.toString(),
+            ini: kind?.ini?.toString(),
             speed: kind?.speed.toString(),
-            reflex: kind?.savingThrows.reflex.toString(),
-            will: kind?.savingThrows.will.toString(),
-            fortitude: kind?.savingThrows.fortitude.toString(),
+            str: kind?.savingThrows.str.toString(),
+            dex: kind?.savingThrows.dex.toString(),
+            con: kind?.savingThrows.con.toString(),
+            int: kind?.savingThrows.int.toString(),
+            wis: kind?.savingThrows.wis.toString(),
+            cha: kind?.savingThrows.cha.toString(),
         },
         attacks: kind?.attacks.map(a => {
             return {
@@ -57,9 +60,12 @@ interface EditFormData {
     ac?: string
     speed?: string
     hitDie?: string
-    reflex?: string
-    will?: string
-    fortitude?: string    
+    str?: string    
+    dex?: string    
+    con?: string    
+    int?: string    
+    wis?: string    
+    cha?: string    
 }
 
 interface KindEditorData {
@@ -92,9 +98,12 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
                 speed: parseInt(data.editForm!.speed!),
                 tags: data.editForm!.tags?.split(", "),
                 savingThrows: {
-                    reflex: parseInt(data.editForm!.reflex!),
-                    will: parseInt(data.editForm!.will!),
-                    fortitude: parseInt(data.editForm!.fortitude!),
+                    str: parseInt(data.editForm!.str!),
+                    dex: parseInt(data.editForm!.dex!),
+                    con: parseInt(data.editForm!.con!),
+                    int: parseInt(data.editForm!.int!),
+                    wis: parseInt(data.editForm!.wis!),
+                    cha: parseInt(data.editForm!.cha!),
                 }
             }, ...data.attacks?.map(a => new Attack(a.label ?? "", parseInt(a.mod ?? "0"), new Damage("", Roll.parse(a.damage ?? "")))) ?? []
             )
@@ -177,44 +186,27 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
                 </div>        
             </div>
 
+            <h5>${m("foes.savingthrows")}</h5>
             <div class="row mb-2">
-                <div class="col">
-                    <label for="${data.idPrefix}reflex">${m("foes.savingthrow.reflex")}</label>
-                    ${inputField({
-                        type: "number",
-                        id: `${data.idPrefix}reflex`,
-                        value: data.editForm.reflex,
-                        classes: "form-control",
-                        onChange: bindEditFormAttribute("reflex"),
-                        validator: notEmpty,
-                    })}                                
-                </div>
-                <div class="col">
-                    <label for="${data.idPrefix}will">${m("foes.savingthrow.will")}</label>
-                    ${inputField({
-                        type: "number",
-                        id: `${data.idPrefix}will`,
-                        value: data.editForm.will,
-                        classes: "form-control",
-                        onChange: bindEditFormAttribute("will"),
-                        validator: notEmpty,
-                    })}                                
-                </div>
-                <div class="col">
-                    <label for="${data.idPrefix}fortitude">${m("foes.savingthrow.fortitude")}</label>
-                    ${inputField({
-                        type: "number",
-                        id: `${data.idPrefix}fortitude`,
-                        value: data.editForm.fortitude,
-                        classes: "form-control",
-                        onChange: bindEditFormAttribute("fortitude"),
-                        validator: notEmpty,
-                    })}
-                </div>
+                ${
+                    SavingThrowKeys.map(st => wecco.html`
+                        <div class="col">
+                            <label for="${data.idPrefix}${st}">${m(`foes.savingthrow.${st}`)}</label>
+                            ${inputField({
+                                type: "number",
+                                id: `${data.idPrefix}${st}`,
+                                value: data.editForm ? data.editForm[st] : "",
+                                classes: "form-control",
+                                onChange: bindEditFormAttribute(st),
+                                validator: notEmpty,
+                            })}                                
+                        </div>
+                    `)
+                }
             </div>
 
             <div class="mb-2">
-                <h6>${m("foes.attacks")}</h6>
+                <h5>${m("foes.attacks")}</h5>
                 <table class="table table-striped">
                     <thead>
                         <tr>

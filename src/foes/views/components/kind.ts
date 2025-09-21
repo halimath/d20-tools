@@ -15,9 +15,12 @@ export function kinds(kinds: Array<Kind>, emit: wecco.MessageEmitter<Message>): 
                     <th>${m("foes.speed")}</th>
                     <th>${m("foes.ac")}</th>
                     <th>${m("foes.hp")}</th>
-                    <th>${m("foes.savingthrow.reflex")}</th>
-                    <th>${m("foes.savingthrow.will")}</th>
-                    <th>${m("foes.savingthrow.fortitude")}</th>
+                    <th>${m("foes.savingthrow.str")}</th>
+                    <th>${m("foes.savingthrow.dex")}</th>
+                    <th>${m("foes.savingthrow.con")}</th>
+                    <th>${m("foes.savingthrow.int")}</th>
+                    <th>${m("foes.savingthrow.wis")}</th>
+                    <th>${m("foes.savingthrow.cha")}</th>
                     <th>${m("foes.attacks")}</th>
                     <th></th>
                 </tr>
@@ -41,19 +44,17 @@ function kindRow(emit: wecco.MessageEmitter<Message>, k: Kind, idx: number): wec
             <td>${k.speed}</td>
             <td>${k.ac}</td>
             <td>${k.hitDie}</td>
-            <td>${modifier(k.savingThrows.reflex)}</td>
-            <td>${modifier(k.savingThrows.will)}</td>
-            <td>${modifier(k.savingThrows.fortitude)}</td>
+            <td>${modifier(k.savingThrows.str)}</td>
+            <td>${modifier(k.savingThrows.dex)}</td>
+            <td>${modifier(k.savingThrows.con)}</td>
+            <td>${modifier(k.savingThrows.int)}</td>
+            <td>${modifier(k.savingThrows.wis)}</td>
+            <td>${modifier(k.savingThrows.cha)}</td>
             <td>
-                <ul>                        
+                <ul class="list-unstyled">                        
                     ${k.attacks.map(a => wecco.html`
                     <li>
                         ${a.label}: ${modifier(a.mod)}
-                        <ul>
-                            ${a.damage.map(d => wecco.html`
-                                <li>${d.label}: ${d.damage}</li>
-                            `)}
-                        </ul>
                     </li>`)}
                 </ul>
             </td>

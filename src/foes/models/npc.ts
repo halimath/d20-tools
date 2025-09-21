@@ -31,7 +31,9 @@ export class Attack {
     }
 }
 
-export type SavingThrow = "reflex" | "will" | "fortitude"
+export type SavingThrow = "str" | "dex" | "con" | "int" | "wis" | "cha"
+
+export const SavingThrowKeys: Array<SavingThrow> = ["str", "dex", "con", "int", "wis", "cha"]
 
 export type SavingThrows<T> = Record<SavingThrow, T>
 
@@ -53,9 +55,12 @@ export class Kind {
             ini: 0,
             hitDie: Roll.parse("1d4"),
             savingThrows: {
-                reflex: 0,
-                will: 0,
-                fortitude: 0,
+                str: 0,
+                dex: 0,
+                con: 0,
+                int: 0,
+                wis: 0,
+                cha: 0,
             },
         })
     }
@@ -78,9 +83,12 @@ export class Kind {
         this.ac = options.ac
         this.hitDie = options.hitDie
         this.savingThrows = {
-            reflex: options.savingThrows.reflex,
-            will: options.savingThrows.will,
-            fortitude: options.savingThrows.fortitude,
+            str: options.savingThrows.str,
+            dex: options.savingThrows.dex,
+            con: options.savingThrows.con,
+            int: options.savingThrows.int,
+            wis: options.savingThrows.wis,
+            cha: options.savingThrows.cha,
         }
         this.tags = options.tags ?? []
         this.attacks = (options.attacks ?? []).concat(attacks)
@@ -118,7 +126,14 @@ export class NPC implements Character {
     }
 
     rollSavingThrow(savingThrow: SavingThrow): NPC {
-        const savingThrows = Object.assign({}, this.savingThrows)
+        const savingThrows: SavingThrows<RollResult | undefined> = {
+            str: undefined,
+            dex: undefined,
+            con: undefined,
+            int: undefined,
+            wis: undefined,
+            cha: undefined,
+        }
         savingThrows[savingThrow] = Roll.create(1, 20, this.kind.savingThrows[savingThrow]).roll()
 
         return new NPC(this.label, this.kind, this.ini, this.hitpoints, this.currentHitpoints, this.attacks, savingThrows)

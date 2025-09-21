@@ -22,7 +22,7 @@ export function saveKinds(kinds: Array<Kind>): Promise<void> {
 }
 
 export function loadCharacters(kinds: Array<Kind>): Promise<Array<Character>> {
-    const r = sessionStorage.getItem("characters")
+    const r = localStorage.getItem("characters")
     if (!r) {
         return Promise.resolve([])
     }
@@ -36,6 +36,6 @@ export function loadCharacters(kinds: Array<Kind>): Promise<Array<Character>> {
 }
 
 export function saveCharacters(characters: Array<Character>): Promise<void> {
-    sessionStorage.setItem("characters", JSON.stringify(characters.map(convertCharacter)))
+    localStorage.setItem("characters", JSON.stringify(characters.map(convertCharacter)))
     return Promise.resolve()
 }
