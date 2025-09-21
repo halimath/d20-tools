@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
 import { appShell } from "../../common/components/appShell"
-import { Message } from "../controller"
+import { Message, RollDie } from "../controller"
 import { m } from "../../common/i18n"
 import { Model } from "../models"
 
@@ -25,11 +25,11 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                             ${model.availableDice.map(die => wecco.html`
                             <div class="col mt-2 text-center">
                                 <button class="btn btn-dark d${die}" @click=${()=> emit(new
-                                    Message(die))}>${m("diceRoller.btn", die)}</button>
+                                    RollDie(die))}>${m("diceRoller.btn", die)}</button>
                             </div>
                             `)}
                             
-                            ${history(model)}
+                            ${history(model, emit)}
                         </div>
                     </div>
                 </div>
@@ -40,15 +40,27 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
     return appShell(body)
 }
 
-function history (model: Model): wecco.ElementUpdate {
+function history (model: Model, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
     if (model.history.length === 0) {
         return ""
     }
 
+    const aggregatedHistory = model.aggregatedHistory
+
+    const pool = model.availableDice
+        .map(dt => [aggregatedHistory.countOfDie(dt), dt])
+        .filter(c => c[0] > 0)
+        .map(c => `${c[0]}${m("diceRoller.btn", c[1])}`)
+        .join("+")
+
     return wecco.html`
     <h2 class="mt-5">${m("diceRoller.history")}</h2>
+    <div>
+        ${pool} = <strong>${aggregatedHistory.sum}</strong> 
+        <a href="#" class="btn btn-outline-danger" @click=${() => emit("clearHistory")}>Clear</a>
+    </div>
     <ul class="list-unstyled">
-        ${model.history.slice(0, 10).map(r => wecco.html`<li><span class="badge text-bg-primary">${m("diceRoller.btn", r.dieType)}</span>: ${r.result}</li>`)}
+        ${model.history.map(r => wecco.html`<li><span class="badge text-bg-primary">${m("diceRoller.btn", r.dieType)}</span>: ${r.result}</li>`)}
     </ul>
     `
 }
