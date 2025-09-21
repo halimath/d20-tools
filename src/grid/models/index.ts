@@ -226,6 +226,24 @@ export class GameGrid {
         public wallSymbol: WallSymbol,
     ) { }
 
+    resize(cols: number, rows: number): GameGrid {
+        const tokens = [...range(cols * rows)].map(() => void 0)
+        const walls = [...range(cols * rows * 2)].map(() => void 0)
+
+        const result = new GameGrid(this.id, cols, rows, this.label, tokens, walls, this.color, this.tokenSymbol, this.wallSymbol)
+
+        for (let c = 0; c < Math.min(this.cols, cols); c++) {
+            for (let r = 0; r < Math.min(this.rows, rows); r++) {
+                result.setTokenAt(c, r, this.tokenAt(c, r))
+                for (const wp of WallPositions) {
+                    result.setWallAt(c, r, wp, this.wallAt(c, r, wp))
+                }
+            }
+        }
+
+        return result
+    }
+
     tokenAt(col: number, row: number): Token | undefined {
         return this.tokens[row * this.cols + col]
     }
