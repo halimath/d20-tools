@@ -80,7 +80,7 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
                 })
 
         case "change-grid":
-            return new Model(GameGrid.createInitial(message.cols, message.rows), false)
+            return new Model(model.gameGrid.resize(message.cols, message.rows), model.presentationMode)
 
         case "update-label":
             model.gameGrid.setLabel(message.label)
