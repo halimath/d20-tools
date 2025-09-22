@@ -14,18 +14,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     wecco.createApp(async () => {
         if (Browser.urlHash) {
             if (Browser.urlHash.indexOf("/") > 0) {
-                return new Model(GameGrid.fromDescriptor(createId(), "", Browser.urlHash), false)
+                return new Model(GameGrid.fromDescriptor(createId(), "", Browser.urlHash))
             } else {
                 return loadGameGrid(Browser.urlHash)
-                    .then(g => new Model(g, false))
+                    .then(g => new Model(g))
                     .catch(e => {
                         console.error(e)
                         Browser.urlHash = ""
-                        return new Model(GameGrid.createInitial(), false)
+                        return new Model(GameGrid.createInitial())
                     })
             }
         } else {
-            return new Model(GameGrid.createInitial(), false)
+            return new Model(GameGrid.createInitial())
         }
     
     }, update, root).mount("#app")    

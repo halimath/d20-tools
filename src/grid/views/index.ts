@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
-import { ChangeGrid, ClearGrid, Message, SelectToken, TogglePresentationMode, UpdateLabel } from "../controller"
+import { ChangeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectToken, UpdateLabel } from "../controller"
 import { Model, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, WallSymbol, WallSymbols } from "../models"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
 import { showLoadDialog } from "./dialogs/loadgrid"
@@ -15,41 +15,36 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
     const body = wecco.html`
         <div class="topnav">
             <div class="container">
-                ${model.presentationMode ? "" :
-                    wecco.html`<div class="row mt-4 justify-content-center">
-                        <div class="col-4">
-                            <input type="text" class="form-control" placeholder="Label" .value=${model.gameGrid.label} @change=${(e: InputEvent) => emit(new UpdateLabel((e.target as HTMLInputElement).value.trim()))}>
+                <div class="row mt-4 justify-content-center">
+                    <div class="col-4">
+                        <input type="text" class="form-control" placeholder="Label" .value=${model.gameGrid.label} @change=${(e: InputEvent) => emit(new UpdateLabel((e.target as HTMLInputElement).value.trim()))}>
+                    </div>
+                    
+                    <div class="col-2">
+                        <div class="input-group">
+                            <input type="number" min="2" max="90" class="form-control" value=${model.gameGrid.cols} @change=${(e: InputEvent) => {
+                                const value = (e.target as HTMLInputElement).value
+                                notifyGridSizeChanged(parseInt(value), model.gameGrid.rows)
+                            }}>
+                            <span class="input-group-text">x</span>
+                            <input type="number" min="2" max="90" class="form-control" value=${model.gameGrid.rows} @change=${(e: InputEvent) => {
+                                const value = (e.target as HTMLInputElement).value
+                                notifyGridSizeChanged(model.gameGrid.cols, parseInt(value))
+                            }}>
                         </div>
-                        
-                        <div class="col-2">
-                            <div class="input-group">
-                                <input type="number" min="2" max="30" class="form-control" value=${model.gameGrid.cols} @change=${(e: InputEvent) => {
-                                    const value = (e.target as HTMLInputElement).value
-                                    notifyGridSizeChanged(parseInt(value), model.gameGrid.rows)
-                                }}>
-                                <span class="input-group-text">x</span>
-                                <input type="number" min="2" max="30" class="form-control" value=${model.gameGrid.rows} @change=${(e: InputEvent) => {
-                                    const value = (e.target as HTMLInputElement).value
-                                    notifyGridSizeChanged(model.gameGrid.cols, parseInt(value))
-                                }}>
-                            </div>
-                        </div>
+                    </div>
 
-                        <div class="col-2">
-                            <div class="btn-group">
-                                <button class="btn btn-outline-secondary" @click=${downloadGridAsPNG}><i class="material-icons mr-1">image</i></button>
-                                <button class="btn btn-outline-secondary" @click=${() => showShareDialog(model.gameGrid)}><i class="material-icons mr-1">link</i></button>
-                            </div>                
+                    <div class="col-2">
+                        <div class="btn-group">
+                            <button class="btn btn-outline-secondary" @click=${() => emit(new DecZoom())}><i class="material-icons mr-1">zoom_out</i></button>
+                            <button class="btn btn-outline-secondary" @click=${() => emit(new IncZoom())}><i class="material-icons mr-1">zoom_in</i></button>
+                            <button class="btn btn-outline-secondary" @click=${downloadGridAsPNG}><i class="material-icons mr-1">image</i></button>
+                            <button class="btn btn-outline-secondary" @click=${() => showShareDialog(model.gameGrid)}><i class="material-icons mr-1">link</i></button>
+                            <button class="btn btn-outline-danger"><i class="material-icons" @click=${() => emit(new ClearGrid())}>delete</i></button>
+                            <button class="btn btn-outline-primary"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, emit)}>more_horiz</i></button>
                         </div>
-
-                        <div class="col-2">
-                            <div class="btn-group">
-                                <button class="btn btn-outline-primary"><i class="material-icons" @click=${() => emit(new ClearGrid())}>add</i></button>
-                                <button class="btn btn-outline-primary"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, emit)}>more_horiz</i></button>
-                            </div>
-                        </div>
-                    </div>`
-                }
+                    </div>
+                </div>                
 
                 <div class="row mt-2 justify-content-center">
                     <div class="col-11 d-flex justify-content-center">
@@ -90,27 +85,14 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                             </div>
                         </div>
                     </div>
-                    <div class="col-1">
-                        <button class="btn btn-outline-primary d-flex justify-content-center align-content-between" @click=${() => emit(new TogglePresentationMode())}>
-                            <i class="material-icons mr-1">fullscreen${model.presentationMode ? "_exit" : ""}</i>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="container-fluid">
-            <div class="row mt-2">
-                <div class="col">
-                    ${gridContent(emit, model.gameGrid)}
-                </div>
-            </div>        
+        <div class="grid-wrapper">
+            ${gridContent(emit, model.gameGrid, model.zoomLevel)}
         </div>
     `
-
-    if (model.presentationMode) {
-        return body
-    }
 
     return appShell(body)
 }
