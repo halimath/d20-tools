@@ -43,9 +43,17 @@ export class ClearGrid {
     readonly command = "clear-grid"
 }
 
+export class IncZoom {
+    readonly command = "inc-zoom"
+}
+
+export class DecZoom {
+    readonly command = "dec-zoom"
+}
+
 // --
 
-export type Message = LoadGrid | ChangeGrid | UpdateLabel | PlaceToken | PlaceWall | SelectToken | ClearGrid 
+export type Message = LoadGrid | ChangeGrid | UpdateLabel | PlaceToken | PlaceWall | SelectToken | ClearGrid | IncZoom | DecZoom 
 
 export function update({model, message}: wecco.UpdaterContext<Model, Message>): Model | Promise<Model> {
     const updated = applyUpdate(model, message)
@@ -76,7 +84,7 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
                 })
 
         case "change-grid":
-            return new Model(model.gameGrid.resize(message.cols, message.rows))
+            return new Model(model.gameGrid.resize(message.cols, message.rows), model.zoomLevel)
 
         case "update-label":
             model.gameGrid.setLabel(message.label)
@@ -114,6 +122,20 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
 
         case "clear-grid":
             return new Model(GameGrid.createInitial(model.gameGrid.cols, model.gameGrid.rows))
+
+        case "dec-zoom":
+            if (model.zoomLevel === 3) {
+                return model
+            }
+
+            return new Model(model.gameGrid, model.zoomLevel - 1)
+
+        case "inc-zoom":
+            if (model.zoomLevel === 15) {
+                return model
+            }
+
+            return new Model(model.gameGrid, model.zoomLevel + 1)
 
     }
 

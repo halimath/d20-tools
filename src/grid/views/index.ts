@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
-import { ChangeGrid, ClearGrid, Message, SelectToken, UpdateLabel } from "../controller"
+import { ChangeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectToken, UpdateLabel } from "../controller"
 import { Model, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, WallSymbol, WallSymbols } from "../models"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
 import { showLoadDialog } from "./dialogs/loadgrid"
@@ -36,6 +36,8 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
 
                     <div class="col-2">
                         <div class="btn-group">
+                            <button class="btn btn-outline-secondary" @click=${() => emit(new DecZoom())}><i class="material-icons mr-1">zoom_out</i></button>
+                            <button class="btn btn-outline-secondary" @click=${() => emit(new IncZoom())}><i class="material-icons mr-1">zoom_in</i></button>
                             <button class="btn btn-outline-secondary" @click=${downloadGridAsPNG}><i class="material-icons mr-1">image</i></button>
                             <button class="btn btn-outline-secondary" @click=${() => showShareDialog(model.gameGrid)}><i class="material-icons mr-1">link</i></button>
                             <button class="btn btn-outline-danger"><i class="material-icons" @click=${() => emit(new ClearGrid())}>delete</i></button>
@@ -88,7 +90,7 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
         </div>
 
         <div class="grid-wrapper">
-            ${gridContent(emit, model.gameGrid)}
+            ${gridContent(emit, model.gameGrid, model.zoomLevel)}
         </div>
     `
 

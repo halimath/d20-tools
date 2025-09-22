@@ -360,7 +360,7 @@ export class GameGrid {
 }
 
 export class Model {
-    constructor (public readonly gameGrid: GameGrid) {}
+    constructor (public readonly gameGrid: GameGrid, public readonly zoomLevel: number = 5) {}
 }
 
 // --
