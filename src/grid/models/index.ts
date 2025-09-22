@@ -1,3 +1,4 @@
+import { m } from "d20-tools/common/i18n"
 import { range } from "src/common/tools"
 
 /** Defines the available colors for use with Tokens. */
@@ -133,6 +134,11 @@ export class Wall {
     }
 }
 
+function randomLabel(): string {
+    const index = Math.floor(Math.random() * 10);
+    return m(`gameGrid.title.placeholder.${index}`)
+}
+
 /**
  * GrameGrid defines a grid with contained Tokens and Walls.
  */
@@ -211,7 +217,7 @@ export class GameGrid {
     }
 
     static createInitial(cols = 20, rows = 10): GameGrid {
-        return new GameGrid(createId(), cols, rows, "", [...range(cols * rows)].map(() => void 0), [...range(cols * rows * 2)].map(() => void 0), "grey", "lines", "wall")
+        return new GameGrid(createId(), cols, rows, randomLabel(), [...range(cols * rows)].map(() => void 0), [...range(cols * rows * 2)].map(() => void 0), "grey", "lines", "wall")
     }
 
     constructor(
@@ -354,12 +360,7 @@ export class GameGrid {
 }
 
 export class Model {
-    constructor (public readonly gameGrid: GameGrid, public presentationMode: boolean) {}
-
-    togglePresentationMode(): Model {
-        this.presentationMode = !this.presentationMode
-        return this
-    }
+    constructor (public readonly gameGrid: GameGrid) {}
 }
 
 // --

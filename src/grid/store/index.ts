@@ -68,7 +68,7 @@ export function saveGameGrid (gameGrid: GameGrid): Promise<void> {
 
     try {
         const s = localStorage.getItem(LocalStorageKey) ?? "[]"
-        const grids = JSON.parse(s) as Array<GameGridDto>
+        let grids = JSON.parse(s) as Array<GameGridDto>
         let found = false
         for (let i = 0; i < grids.length; i++) {
             if (grids[i].id === gameGrid.id) {
@@ -79,7 +79,7 @@ export function saveGameGrid (gameGrid: GameGrid): Promise<void> {
         }
 
         if (!found) {
-            grids.push(dto)
+            grids = [dto].concat(grids)            
         }
         localStorage.setItem(LocalStorageKey, JSON.stringify(grids))
         return Promise.resolve()

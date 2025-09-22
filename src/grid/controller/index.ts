@@ -43,13 +43,9 @@ export class ClearGrid {
     readonly command = "clear-grid"
 }
 
-export class TogglePresentationMode {
-    readonly command = "toggle-presentation-mode"
-}
-
 // --
 
-export type Message = LoadGrid | ChangeGrid | UpdateLabel | PlaceToken | PlaceWall | SelectToken | ClearGrid | TogglePresentationMode
+export type Message = LoadGrid | ChangeGrid | UpdateLabel | PlaceToken | PlaceWall | SelectToken | ClearGrid 
 
 export function update({model, message}: wecco.UpdaterContext<Model, Message>): Model | Promise<Model> {
     const updated = applyUpdate(model, message)
@@ -76,11 +72,11 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
             return loadGameGrid(message.id)
                 .then(g => {
                     Browser.urlHash = g.id
-                    return new Model(g, false)
+                    return new Model(g)
                 })
 
         case "change-grid":
-            return new Model(model.gameGrid.resize(message.cols, message.rows), model.presentationMode)
+            return new Model(model.gameGrid.resize(message.cols, message.rows))
 
         case "update-label":
             model.gameGrid.setLabel(message.label)
@@ -117,11 +113,8 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
             break
 
         case "clear-grid":
-            return new Model(GameGrid.createInitial(model.gameGrid.cols, model.gameGrid.rows), false)
+            return new Model(GameGrid.createInitial(model.gameGrid.cols, model.gameGrid.rows))
 
-        case "toggle-presentation-mode":
-            model.togglePresentationMode()
-            break
     }
 
     return model

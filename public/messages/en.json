@@ -48,6 +48,18 @@
 
     "gameGrid.cols": "Cols",
     "gameGrid.rows": "Rows",
+
+    "gameGrid.title.placeholder.0": "The Boggy Burrow of Bumbling Banshees",
+	"gameGrid.title.placeholder.1": "Crypt of the Clumsy Cultists",
+	"gameGrid.title.placeholder.2": "The Menacing Maze of Mischievous Monkeys",
+	"gameGrid.title.placeholder.3": "Tower of Terribly Tired Trolls",
+	"gameGrid.title.placeholder.4": "The Forgotten Furnace of Flatulent Fire-Giants",
+	"gameGrid.title.placeholder.5": "Dungeon of the Dazed and Disoriented Druids",
+	"gameGrid.title.placeholder.6": "The Catacombs of Cowardly Kobolds",
+	"gameGrid.title.placeholder.7": "The Labyrinth of Lamenting Llamas",
+	"gameGrid.title.placeholder.8": "The Gassy Grotto of Greedy Goblins",
+	"gameGrid.title.placeholder.9": "The Pit of Panicked Paladins",
+
     "gameGrid.color.grey": "Grey",
     "gameGrid.color.green": "Green",
     "gameGrid.color.blue": "Blue",
