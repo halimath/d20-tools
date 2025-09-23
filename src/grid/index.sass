@@ -109,10 +109,11 @@ svg
         stroke: #aaa
         stroke-width: 0.1    
         
-    .token
-        stroke-width: 1
-        stroke-linecap: round
-        stroke-linejoin: round
+    text.token
+        font-family: system-ui, Arial, sans-serif
+        font-size: 10px
+        text-anchor: middle
+        dominant-baseline: central
 
         @each $token-color, $value in $token-colors
             &.#{$token-color}

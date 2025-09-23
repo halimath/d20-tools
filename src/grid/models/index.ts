@@ -8,18 +8,32 @@ export type TokenColor = "grey" | "green" | "blue" | "red" | "orange" | "purple"
 export const TokenColors: Array<TokenColor> = ["grey", "green", "blue", "red", "orange", "purple", "yellow", "black", "brown"]
 
 /** Defines the available token symbols. */
-export type TokenSymbol = "circle" | "cross" | "square" | "diamond" | "lines"
+export type TokenSymbol = "●" | "▲" | "▼" | "■" | "◆" | "♚" | "♛" | "♜" | "♝" | "♞" | "♟" | "☠" | "☣" | "✦" | "✪" | "✬" | "⚔" | "⚒" | "▨"
 
 /** Provides all available token symbols as an Array */
-export const TokenSymbols: Array<TokenSymbol> = ["circle", "cross", "square", "diamond", "lines"]
+export const TokenSymbols: Array<TokenSymbol> = "●▲▼■◆♚♛♜♝♞♟☠☣✦✪✬⚔⚒▨".split("").map(r => r as TokenSymbol)
 
 /** Maps every TokenSymbol to a single character used to encode the token symbol. The resulting relation must be bijective.  */
 export const TokenSymbolUrlCharMapping = new Map<TokenSymbol, string>()
-    .set("circle", "c")
-    .set("cross", "x")
-    .set("lines", "l")
-    .set("square", "s")
-    .set("diamond", "d")
+    .set("●", "a")
+    .set("▲", "b")
+    .set("▼", "c")
+    .set("■", "d")
+    .set("◆", "e")
+    .set("♚", "f")
+    .set("♛", "g")
+    .set("♜", "h")
+    .set("♝", "i")
+    .set("♞", "j")
+    .set("♟", "k")
+    .set("☠", "l")
+    .set("☣", "m")
+    .set("✦", "n")
+    .set("✪", "o")
+    .set("✬", "p")
+    .set("⚔", "q")
+    .set("⚒", "r")
+    .set("▨", "s")
 
 /** Maps every TokenColor to a single character used to encode the token color. The resulting relation must be bijective.  */
 export const TokenColorUrlCharMapping = new Map<TokenColor, string>()
@@ -49,8 +63,8 @@ export class Token {
 
         const [symbolChar, colorChar] = hash.split("")
 
-        let symbol: TokenSymbol = "lines"
-        let color: TokenColor = "grey"
+        let symbol: TokenSymbol = TokenSymbols[0]
+        let color: TokenColor = TokenColors[0]
 
         for (const s of TokenSymbolUrlCharMapping.keys()) {
             if (symbolChar === TokenSymbolUrlCharMapping.get(s)) {
@@ -155,7 +169,7 @@ export class GameGrid {
             throw new Error(`invalid grid descriptor: invalid size: ${cols}x${rows}`)
         }
 
-        return new GameGrid(id, cols, rows, label, GameGrid.parseTokensUrlString(cols, rows, tokensString), GameGrid.parseWallsUrlString(cols, rows, wallsString), "grey", "lines", "wall")    
+        return new GameGrid(id, cols, rows, label, GameGrid.parseTokensUrlString(cols, rows, tokensString), GameGrid.parseWallsUrlString(cols, rows, wallsString), TokenColors[0], TokenSymbols[0], "wall")    
     }
 
     private static parseTokensUrlString(cols: number, rows: number, tokensString: string): Array<Token | undefined> {
@@ -217,7 +231,7 @@ export class GameGrid {
     }
 
     static createInitial(cols = 20, rows = 10): GameGrid {
-        return new GameGrid(createId(), cols, rows, randomLabel(), [...range(cols * rows)].map(() => void 0), [...range(cols * rows * 2)].map(() => void 0), "grey", "lines", "wall")
+        return new GameGrid(createId(), cols, rows, randomLabel(), [...range(cols * rows)].map(() => void 0), [...range(cols * rows * 2)].map(() => void 0), TokenColors[0], TokenSymbols[0], "wall")
     }
 
     constructor(

@@ -55,7 +55,7 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                                         @click=${() => emit(new SelectToken(model.gameGrid.color, s, model.gameGrid.wallSymbol))} 
                                         accesskey=${TokenSymbolUrlCharMapping.get(s)}
                                         class="btn ${s === model.gameGrid.tokenSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
-                                        ${tokenSymbolButtonLabel(s)}
+                                        ${s}
                                     </button>
                                 `)}
                             </div>
@@ -125,47 +125,47 @@ function wallSymbolButtonLabel(s: WallSymbol): wecco.ElementUpdate {
     return s
 }
 
-function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
-    if (s === "diamond") {
-        return wecco.html`
-            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-diamond" class="token wall-symbol"/>
-            </svg>
-        `
-    }
+// function tokenSymbolButtonLabel(s: TokenSymbol): wecco.ElementUpdate {
+//     if (s === "diamond") {
+//         return wecco.html`
+//             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+//                 <use href="#token-diamond" class="token wall-symbol"/>
+//             </svg>
+//         `
+//     }
 
-    if (s === "square") {
-        return wecco.html`
-            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-square" class="token wall-symbol"/>
-            </svg>
-        `
-    }
+//     if (s === "square") {
+//         return wecco.html`
+//             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+//                 <use href="#token-square" class="token wall-symbol"/>
+//             </svg>
+//         `
+//     }
 
-    if (s === "cross") {
-        return wecco.html`
-            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-cross" class="token wall-symbol"/>
-            </svg>
-        `
-    }
+//     if (s === "cross") {
+//         return wecco.html`
+//             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+//                 <use href="#token-cross" class="token wall-symbol"/>
+//             </svg>
+//         `
+//     }
 
-    if (s === "lines") {
-        return wecco.html`
-            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-lines" class="token wall-symbol"/>
-            </svg>
-        `
-    }
+//     if (s === "lines") {
+//         return wecco.html`
+//             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+//                 <use href="#token-lines" class="token wall-symbol"/>
+//             </svg>
+//         `
+//     }
 
-    if (s === "circle") {
-        return wecco.html`
-            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                <use href="#token-circle" class="token wall-symbol"/>
-            </svg>
-        `
-    }
+//     if (s === "circle") {
+//         return wecco.html`
+//             <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+//                 <use href="#token-circle" class="token wall-symbol"/>
+//             </svg>
+//         `
+//     }
 
-    throw `Missing button definition for ${s}`
-}
+//     throw `Missing button definition for ${s}`
+// }
 

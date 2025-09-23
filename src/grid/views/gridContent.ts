@@ -76,7 +76,7 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: GameGrid
             const token = model.tokenAt(col, row)
             if (typeof token !== "undefined") {
                 const e = createTokenElement(token)
-                e.setAttribute("transform", `translate(${(col * 10)} ${(row * 10)})`)
+                e.setAttribute("transform", `translate(${(col * 10) + 5} ${(row * 10) + 5})`)
                 svgContent.push(e)
             }
         }
@@ -154,13 +154,9 @@ function renderWall(wall: Wall, transform: string): wecco.ElementUpdate {
 }
 
 function createTokenElement (token: Token): SVGElement {
-    const e = document.createElementNS(SVGNamespaceURI, "use")
-    e.setAttribute("width", "10")
-    e.setAttribute("height", "10")
-    e.setAttribute("href", `#token-${token.symbol}`)
-    e.classList.add("token")
-    e.classList.add(token.color)
-
+    const e = document.createElementNS(SVGNamespaceURI, "text")
+    e.setAttribute("class", `token ${token.color}`)
+    e.appendChild(document.createTextNode(token.symbol))
     return e
 }
 
