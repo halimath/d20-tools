@@ -128,7 +128,7 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
         </div>
     `
 
-    return appShell(body)
+    return appShell(body, "grid")
 }
 
 function wallSymbolButtonLabel(s: WallSymbol): wecco.ElementUpdate {

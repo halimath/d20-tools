@@ -37,7 +37,7 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
         </div>
     `
 
-    return appShell(body)
+    return appShell(body, "diceroller")
 }
 
 function history (model: Model, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
@@ -57,7 +57,7 @@ function history (model: Model, emit: wecco.MessageEmitter<Message>): wecco.Elem
     <h2 class="mt-5">${m("diceRoller.history")}</h2>
     <div>
         ${pool} = <strong>${aggregatedHistory.sum}</strong> 
-        <a href="#" class="btn btn-outline-danger" @click+preventDefault+stopPropagation=${() => emit("clearHistory")}>Clear</a>
+        <a href="#" class="btn btn-outline-danger" @click+preventDefault+stopPropagation=${() => emit("clearHistory")}>${m("diceRoller.history.clear")}</a>
     </div>
     <ul class="list-unstyled">
         ${model.history.map(r => wecco.html`<li><span class="badge text-bg-primary">${m("diceRoller.btn", r.dieType)}</span>: ${r.result}</li>`)}

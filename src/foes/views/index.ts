@@ -61,6 +61,6 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
         }
     `
 
-    return appShell(body)
+    return appShell(body, "foes")
 }
 
