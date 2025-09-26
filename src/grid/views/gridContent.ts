@@ -2,7 +2,7 @@ import * as wecco from "@weccoframework/core"
 import { Message, PlaceBackground, PlaceToken, PlaceWall } from "../controller"
 import { Color, isTokenSymbol, Model, Token, Wall, WallSymbol } from "../models"
 
-const WallSnapSize = 0.3
+const WallSnapSize = 0.2
 const GridCellSize = 10
 
 export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): wecco.ElementUpdate {

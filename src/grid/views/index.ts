@@ -112,8 +112,8 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" @click=${downloadGridAsPNG}><i class="material-icons mr-1">downloading</i> ${m("gameGrid.actions.download")}</a></li>
                                     <li><a class="dropdown-item" @click=${() => showShareDialog(model.gameGrid)}><i class="material-icons mr-1">link</i> ${m("gameGrid.actions.share")}</a></li>
-                                    <li><a class="dropdown-item"><i class="material-icons" @click=${() => emit(new ClearGrid())}>delete</i> ${m("gameGrid.actions.delete")}</a></li>
-                                    <li><a class="dropdown-item"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, emit)}>file_open</i> ${m("gameGrid.actions.load")}</a></li>
+                                    <li><a class="dropdown-item" @click=${() => emit(new ClearGrid())}><i class="material-icons" >delete</i> ${m("gameGrid.actions.delete")}</a></li>
+                                    <li><a class="dropdown-item" @click=${showLoadDialog.bind(null, emit)}><i class="material-icons mr-1">file_open</i> ${m("gameGrid.actions.load")}</a></li>
                                 </ul>
                             </div>                                
                             </div>
