@@ -1,10 +1,10 @@
 import * as wecco from "@weccoframework/core"
-import { select } from "src/common/components/forms/select"
-import { inputField, notEmpty } from "../../../common/components/forms/input"
-import { modal, ModalHandleBinder } from "../../../common/components/modal-deprecated"
-import { tabs } from "../../../common/components/tabs"
+import { select } from "d20-tools/common/components/forms/select"
+import { inputField, notEmpty } from "d20-tools/common/components/forms/input"
+import { modal, ModalHandleBinder } from "d20-tools/common/components/modal-deprecated"
+import { tabs } from "d20-tools/common/components/tabs"
 import { CreateNPC, CreatePC, Message } from "../../controller"
-import { m } from "../../../common/i18n"
+import { m } from "d20-tools/common/i18n"
 import { Kind } from "../../models"
 
 export function addCharacterModal(kinds: Array<Kind>, emit: wecco.MessageEmitter<Message>, binder: ModalHandleBinder): wecco.ElementUpdate {

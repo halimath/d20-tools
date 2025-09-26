@@ -1,11 +1,12 @@
 import * as wecco from "@weccoframework/core"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
-import { ChangeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectToken, UpdateLabel } from "../controller"
-import { Model, TokenColors, TokenColorUrlCharMapping, TokenSymbol, TokenSymbols, TokenSymbolUrlCharMapping, WallSymbol, WallSymbols } from "../models"
-import { downloadGridAsPNG, gridContent } from "./gridContent"
+import { ChangeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectTool, UpdateLabel } from "../controller"
+import { Colors, isWallSymbol, Model, TokenSymbols, WallSymbol, WallSymbols } from "../models"
 import { showLoadDialog } from "./dialogs/loadgrid"
 import { showShareDialog } from "./dialogs/shrare"
+import { downloadGridAsPNG, gridContent } from "./gridContent"
+import { expandOverlay } from "d20-tools/common/components/expand_overlay"
 
 export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.ElementUpdate {
     function notifyGridSizeChanged(cols: number, rows: number) {
@@ -34,54 +35,87 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                         </div>
                     </div>
 
-                    <div class="col-2">
-                        <div class="btn-group">
-                            <button class="btn btn-outline-secondary" @click=${() => emit(new DecZoom())}><i class="material-icons mr-1">zoom_out</i></button>
-                            <button class="btn btn-outline-secondary" @click=${() => emit(new IncZoom())}><i class="material-icons mr-1">zoom_in</i></button>
-                            <button class="btn btn-outline-secondary" @click=${downloadGridAsPNG}><i class="material-icons mr-1">image</i></button>
-                            <button class="btn btn-outline-secondary" @click=${() => showShareDialog(model.gameGrid)}><i class="material-icons mr-1">link</i></button>
-                            <button class="btn btn-outline-danger"><i class="material-icons" @click=${() => emit(new ClearGrid())}>delete</i></button>
-                            <button class="btn btn-outline-primary"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, emit)}>more_horiz</i></button>
-                        </div>
-                    </div>
-                </div>                
+                    <div class="col-2 d-flex justify-content-center">
+                        ${expandOverlay({
+                            expanded: wecco.html`
+                                <div class="btn-toolbar flex-nowrap">
+                                    <div class="btn-group">
+                                        ${TokenSymbols.map(s => wecco.html`
+                                            <button 
+                                                @click=${() => emit(new SelectTool(model.color, s))} 
+                                                class="btn ${s === model.tool ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
+                                                ${s}
+                                            </button>
+                                        `)}
+                                    </div>
 
-                <div class="row mt-2 justify-content-center">
-                    <div class="col-11 d-flex justify-content-center">
-                        <div class="btn-toolbar">
+                                    <div class="btn-group ms-1">
+                                        ${WallSymbols.map(s => wecco.html`
+                                            <button 
+                                                @click=${() => emit(new SelectTool(model.color, s))} 
+                                                class="btn ${s === model.tool ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
+                                                ${wallSymbolButtonLabel(s)}
+                                            </button>
+                                        `)}
+                                    </div>
+
+                                    <div class="btn-group ms-1">
+                                        <button 
+                                                @click=${() => emit(new SelectTool(model.color, "background"))} 
+                                                class="btn ${model.tool === "background" ? "btn-secondary" : "btn-outline-secondary"} symbol-selector background">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+                                                    <use href="#background" class="token wall-symbol"/>
+                                                </svg>
+                                            </button>
+                                    </div>
+                                </div>`,
+                                collapsed: wecco.html`<div class="btn btn-outline-secondary symbol-selector selected">
+                                    ${
+                                        model.tool === "background"
+                                        ? wecco.html`<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10"><use href="#background" class="token wall-symbol"/></svg>`
+                                        : isWallSymbol(model.tool)
+                                            ? wallSymbolButtonLabel(model.tool)
+                                            : model.tool
+                                    }
+
+                                </div>`
+                            })}
+
+                            ${expandOverlay({
+                                expanded: wecco.html`
+                                    <div class="btn-group ms-1">
+                                    ${
+                                        Colors.map(c => wecco.html`
+                                        <button 
+                                            @click=${() => emit(new SelectTool(c, model.tool))} 
+                                            class="btn btn-outline-secondary color-selector ${c} ${c === model.color ? "selected" : ""}"
+                                            aria-label="${m("gameGrid.color." + c)}">
+                                            &nbsp;x&nbsp;
+                                        </button>
+                                        `)
+                                    }
+                                    </div>                                
+                                `,
+                                collapsed: wecco.html`
+                                    <div class="btn btn-outline-secondary color-selector ${model.color} selected">&nbsp;x&nbsp;</div>
+                                `
+                            })}
+                        </div>                        
+
+                        <div class="col-2">
                             <div class="btn-group">
-                                ${TokenSymbols.map(s => wecco.html`
-                                    <button 
-                                        @click=${() => emit(new SelectToken(model.gameGrid.color, s, model.gameGrid.wallSymbol))} 
-                                        accesskey=${TokenSymbolUrlCharMapping.get(s)}
-                                        class="btn ${s === model.gameGrid.tokenSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
-                                        ${s}
-                                    </button>
-                                `)}
-                            </div>
-
-                            <div class="btn-group ms-1">
-                                ${WallSymbols.map(s => wecco.html`
-                                    <button 
-                                        @click=${() => emit(new SelectToken(model.gameGrid.color, model.gameGrid.tokenSymbol, s))} 
-                                        class="btn ${s === model.gameGrid.wallSymbol ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
-                                        ${wallSymbolButtonLabel(s)}
-                                    </button>
-                                `)}
-                            </div>
-
-                            <div class="btn-group ms-1">
-                            ${
-                                TokenColors.map(c => wecco.html`
-                                <button 
-                                    @click=${() => emit(new SelectToken(c, model.gameGrid.tokenSymbol, model.gameGrid.wallSymbol))} 
-                                    accesskey=${TokenColorUrlCharMapping.get(c)}
-                                    class="btn btn-outline-secondary color-selector ${c} ${c === model.gameGrid.color ? "selected" : ""}"
-                                    aria-label="${m("gameGrid.color." + c)}">
-                                    &nbsp;x&nbsp;
+                                <button class="btn btn-outline-secondary" @click=${() => emit(new DecZoom())}><i class="material-icons mr-1">zoom_out</i></button>
+                                <button class="btn btn-outline-secondary" @click=${() => emit(new IncZoom())}><i class="material-icons mr-1">zoom_in</i></button>
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="material-icons">more_horiz</i>
                                 </button>
-                                `)
-                            }
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" @click=${downloadGridAsPNG}><i class="material-icons mr-1">downloading</i> ${m("gameGrid.actions.download")}</a></li>
+                                    <li><a class="dropdown-item" @click=${() => showShareDialog(model.gameGrid)}><i class="material-icons mr-1">link</i> ${m("gameGrid.actions.share")}</a></li>
+                                    <li><a class="dropdown-item"><i class="material-icons" @click=${() => emit(new ClearGrid())}>delete</i> ${m("gameGrid.actions.delete")}</a></li>
+                                    <li><a class="dropdown-item"><i class="material-icons mr-1" @click=${showLoadDialog.bind(null, emit)}>file_open</i> ${m("gameGrid.actions.load")}</a></li>
+                                </ul>
+                            </div>                                
                             </div>
                         </div>
                     </div>
@@ -90,7 +124,7 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
         </div>
 
         <div class="grid-wrapper">
-            ${gridContent(emit, model.gameGrid, model.zoomLevel)}
+            ${gridContent(emit, model)}
         </div>
     `
 

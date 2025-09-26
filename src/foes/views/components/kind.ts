@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
-import { ModalHandle } from "../../../common/components/modal-deprecated"
+import { ModalHandle } from "d20-tools/common/components/modal-deprecated"
 import { Message, SaveKind } from "../../controller"
-import { m } from "../../../common/i18n"
+import { m } from "d20-tools/common/i18n"
 import { Kind } from "../../models"
 import { editKindModal } from "./editKind"
 

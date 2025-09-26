@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
 import { Browser } from "../../common/browser"
-import { GameGrid, Model, Token, TokenColor, TokenSymbol, Wall, WallPosition, WallSymbol } from "../models"
+import { Color, Colors, DefaultZoomLevel, GameGrid, Model, Token, TokenSymbols, Tool, Wall, WallPosition, WallSymbols } from "../models"
 import { loadGameGrid, saveGameGrid } from "../store"
 
 export class LoadGrid {
@@ -21,10 +21,10 @@ export class UpdateLabel {
     constructor(public readonly label: string) {}
 }
 
-export class SelectToken {
-    readonly command = "select-token"
+export class SelectTool {
+    readonly command = "select-tool"
 
-    constructor(public readonly color: TokenColor, public readonly tokenSymbol: TokenSymbol, public readonly wallSymbol: WallSymbol) {}
+    constructor(public readonly color: Color, public readonly tool: Tool) {}
 }
 
 export class PlaceToken {
@@ -37,6 +37,12 @@ export class PlaceWall {
     readonly command = "place-wall"
 
     constructor(public readonly col: number, public readonly row: number, public readonly position: WallPosition, public readonly wall: Wall) {}
+}
+
+export class PlaceBackground {
+    readonly command = "place-background"
+
+    constructor(public readonly col: number, public readonly row: number, public readonly color: Color) {}
 }
 
 export class ClearGrid {
@@ -53,7 +59,7 @@ export class DecZoom {
 
 // --
 
-export type Message = LoadGrid | ChangeGrid | UpdateLabel | PlaceToken | PlaceWall | SelectToken | ClearGrid | IncZoom | DecZoom 
+export type Message = LoadGrid | ChangeGrid | UpdateLabel | PlaceToken | PlaceWall | PlaceBackground | SelectTool | ClearGrid | IncZoom | DecZoom 
 
 export function update({model, message}: wecco.UpdaterContext<Model, Message>): Model | Promise<Model> {
     const updated = applyUpdate(model, message)
@@ -80,11 +86,11 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
             return loadGameGrid(message.id)
                 .then(g => {
                     Browser.urlHash = g.id
-                    return new Model(g)
+                    return new Model(g, Colors[0], TokenSymbols[0], DefaultZoomLevel)
                 })
 
         case "change-grid":
-            return new Model(model.gameGrid.resize(message.cols, message.rows), model.zoomLevel)
+            return new Model(model.gameGrid.resize(message.cols, message.rows), model.color, model.tool, model.zoomLevel)
 
         case "update-label":
             model.gameGrid.setLabel(message.label)
@@ -95,7 +101,8 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
             if (typeof t !== "undefined") {                
                 model.gameGrid
                     .setTokenAt(message.col, message.row, undefined)
-                    .select(t.color, t.symbol, model.gameGrid.wallSymbol)
+                model
+                    .selectColorAndTool(t.color, t.symbol)
             } else {
                 model.gameGrid.setTokenAt(message.col, message.row, message.token)
             }
@@ -108,7 +115,8 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
             if (typeof w !== "undefined") {                
                 model.gameGrid
                     .setWallAt(message.col, message.row, message.position, undefined)
-                    .select(w.color, model.gameGrid.tokenSymbol, w.symbol)
+                model
+                    .selectColorAndTool(w.color, w.symbol)
             } else {
                 model.gameGrid.setWallAt(message.col, message.row, message.position, message.wall)
             }
@@ -116,27 +124,33 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
             break
         }
 
-        case "select-token":
-            model.gameGrid.select(message.color, message.tokenSymbol, message.wallSymbol)
+        case "place-background": {
+            const bg = model.gameGrid.backgroundAt(message.col, message.row)
+            if (typeof bg !== "undefined") {                
+                model.gameGrid
+                    .setBackgroundAt(message.col, message.row, undefined)
+                model
+                    .selectColorAndTool(bg, "background")
+            } else {
+                model.gameGrid.setBackgroundAt(message.col, message.row, message.color)
+            }
+            
             break
+        }
+
+
+        case "select-tool":
+            return model.selectColorAndTool(message.color, message.tool)
+            
 
         case "clear-grid":
-            return new Model(GameGrid.createInitial(model.gameGrid.cols, model.gameGrid.rows))
+            return new Model(GameGrid.createInitial(model.gameGrid.cols, model.gameGrid.rows), Colors[0], TokenSymbols[0], DefaultZoomLevel)
 
         case "dec-zoom":
-            if (model.zoomLevel === 3) {
-                return model
-            }
-
-            return new Model(model.gameGrid, model.zoomLevel - 1)
+            return model.decreaseZoom()
 
         case "inc-zoom":
-            if (model.zoomLevel === 15) {
-                return model
-            }
-
-            return new Model(model.gameGrid, model.zoomLevel + 1)
-
+            return model.increaseZoom()
     }
 
     return model

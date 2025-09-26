@@ -1,6 +1,6 @@
 import { expect } from "chai"
 
-import { Character, DieRoll, Kind, Model, Roll } from "d20-tools/foes/models/index"
+import { DieRoll, Roll } from "d20-tools/foes/models/index"
 
 describe("models", () => {
     describe("DieRoll", () => {

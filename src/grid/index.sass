@@ -1,3 +1,5 @@
+@use "sass:color"
+
 @import "../common/index.sass"
 
 html, body
@@ -42,6 +44,7 @@ html, body
     flex-grow: 5
 
 $token-colors: ("grey": #aaa, "green": #02551d, "blue": #001f75, "red": #900018, "orange": #c54f00, "purple": #750075, "yellow": #b8a500, "black": #222, "brown": #5d2a00)
+$background-colors: ("grey": #b1b1b1, "green": #739f81, "blue": #7091ec, "red": #c88c96, "orange": #d09670, "purple": #cd7ecd, "yellow": #e6e0a5, "black": #c5c5c5, "brown": #eea366)
 
 .btn.symbol-selector
     width: 2.8rem
@@ -82,48 +85,34 @@ svg
     &#game-grid
         background-color: $light-grey
 
-    .legend
-        font-family: sans-serif
-        font-size: 2px
-        font-weight: bold
-        fill: #888
-        text-anchor: middle
-        dominant-baseline: middle
-
-    .ruler-text
-        font-family: sans-serif
-        font-size: 1.5px
-        fill: #aaa
-        text-anchor: middle
-        dominant-baseline: middle
-
-
     .canvas
         fill: white
     
     .grid-line
         stroke: black
         stroke-width: 0.1    
-    
-    .ruler-line
-        stroke: #aaa
-        stroke-width: 0.1    
-        
+            
     text.token
         font-family: system-ui, Arial, sans-serif
         font-size: 10px
         text-anchor: middle
         dominant-baseline: central
+        stroke-width: 0.3
 
         @each $token-color, $value in $token-colors
             &.#{$token-color}
                 stroke: $value
                 fill: lighten($value, 15%)
 
-        &.dashed
-            @each $token-color, $value in $token-colors
-                &.#{$token-color}                        
-                    stroke: lighten($value, 15%)
+    .background
+        stroke-width: 1
+        stroke-linecap: round
+        stroke-linejoin: round
+
+        @each $background-color, $value in $background-colors
+            &.#{$background-color}
+                stroke: lighten($value, 10%)
+                fill: lighten($value, 10%)
 
     .wall
         stroke-width: 1.5
