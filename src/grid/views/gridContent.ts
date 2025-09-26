@@ -1,18 +1,18 @@
 import * as wecco from "@weccoframework/core"
-import { Message, PlaceToken, PlaceWall } from "../controller"
-import { GameGrid, Token, Wall } from "../models"
+import { Message, PlaceBackground, PlaceToken, PlaceWall } from "../controller"
+import { Color, isTokenSymbol, Model, Token, Wall, WallSymbol } from "../models"
 
 const WallSnapSize = 0.2
 const GridCellSize = 10
 
-export function gridContent(emit: wecco.MessageEmitter<Message>, model: GameGrid, scale: number): wecco.ElementUpdate {
+export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): wecco.ElementUpdate {
     let svgElement: SVGElement
 
-    function updateSvgTransform (svg: SVGElement) {
-        svg.querySelector("g")?.setAttribute("transform", `translate(10, 10), scale(${scale}, ${scale})`)
+    function updateSvgTransform(svg: SVGElement) {
+        svg.querySelector("g")?.setAttribute("transform", `translate(10, 10), scale(${model.zoomLevel}, ${model.zoomLevel})`)
     }
 
-    function updateSvg (e: SVGElement) {
+    function updateSvg(e: SVGElement) {
         svgElement = e
 
         window.addEventListener("resize", () => {
@@ -25,59 +25,108 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: GameGrid
         updateSvgTransform(svgElement)
     }
 
-    function onSvgClick (e: MouseEvent) {
+    function onSvgClick(e: MouseEvent) {
+        // Calculate the target (=clicked) grid cell by calculating the coordinates
+        // based on the mouse event's x/y coordinates and the relative positioning
+        // of the svg element, which is read from the bounding box.
+        // Note that the bounding box' left and top values also compensate for
+        // any inner scrolling from overflow: auto.
         const bcr = svgElement.getBoundingClientRect()
 
-        const relX = (e.clientX - bcr.left) / 10 / scale
-        const relY = (e.clientY - bcr.top) / 10 / scale
+        const relX = (e.clientX - bcr.left) / 10 / model.zoomLevel
+        const relY = (e.clientY - bcr.top) / 10 / model.zoomLevel
 
         const targetCol = Math.floor(relX)
         const targetRow = Math.floor(relY)
 
-        if (targetCol < 0 || targetCol >= model.cols || targetRow < 0 || targetRow >= model.rows) {
+        if (targetCol < 0 || targetCol >= model.gameGrid.cols || targetRow < 0 || targetRow >= model.gameGrid.rows) {
             return
         }
 
+        // check if currently selected tool is a token
+        if (isTokenSymbol(model.tool)) {
+            // if yes, either place or remove a token
+            emit(new PlaceToken(targetCol, targetRow, new Token(model.tool, model.color)))
+            // and we're done here
+            return
+        }
+
+        if (model.tool === "background") {
+            // If selected tool is background, just place the currently selected color as the background
+            emit(new PlaceBackground(targetCol, targetRow, model.color))
+            return
+        }
+
+        // If we reach this point, the currently selected tool is a wall.
+        // Determine which direction of the wall should be used by looking
+        // at the distance to both x and y grid lanes.
         const distanceX = relX - targetCol
         const distanceY = relY - targetRow
 
-        console.log(distanceX, distanceY)
+        const wallSymbol = model.tool as WallSymbol
 
         if (distanceX < WallSnapSize) {
-            emit(new PlaceWall(targetCol, targetRow, "left", new Wall(model.wallSymbol, model.color)))
+            emit(new PlaceWall(targetCol, targetRow, "left", new Wall(wallSymbol, model.color)))
             return
         }
-        
+
         if (distanceX > 1 - WallSnapSize) {
-            emit(new PlaceWall(targetCol + 1, targetRow, "left", new Wall(model.wallSymbol, model.color)))
+            emit(new PlaceWall(targetCol + 1, targetRow, "left", new Wall(wallSymbol, model.color)))
             return
         }
 
         if (distanceY < WallSnapSize) {
-            emit(new PlaceWall(targetCol, targetRow, "top", new Wall(model.wallSymbol, model.color)))
+            emit(new PlaceWall(targetCol, targetRow, "top", new Wall(wallSymbol, model.color)))
             return
         }
-        
+
         if (distanceY > 1 - WallSnapSize) {
-            emit(new PlaceWall(targetCol, targetRow + 1, "top", new Wall(model.wallSymbol, model.color)))
+            emit(new PlaceWall(targetCol, targetRow + 1, "top", new Wall(wallSymbol, model.color)))
             return
         }
-
-
-        emit(new PlaceToken(targetCol, targetRow, new Token(model.tokenSymbol, model.color)))
     }
 
     const svgContent = []
 
+    // Backgrounds
+    for (let col = 0; col < model.gameGrid.cols; col++) {
+        for (let row = 0; row < model.gameGrid.rows; row++) {
+            const bgColor = model.gameGrid.backgroundAt(col, row)
+            if (typeof bgColor === "undefined") {
+                continue
+            }
+
+            const e = createBackgroundElement(bgColor);
+            e.setAttribute("transform", `translate(${(col * 10)} ${(row * 10)})`)
+
+            svgContent.push(e);
+        }
+    }    
+
     // Tokens
     // Paint tokens first to allow painting the grid and coordinates over the tokens
-    for (let col = 0; col < model.cols; col++) {
-        for (let row = 0; row < model.rows; row++) {
-            const token = model.tokenAt(col, row)
+    for (let col = 0; col < model.gameGrid.cols; col++) {
+        for (let row = 0; row < model.gameGrid.rows; row++) {
+            const token = model.gameGrid.tokenAt(col, row)
             if (typeof token !== "undefined") {
                 const e = createTokenElement(token)
-                e.setAttribute("transform", `translate(${(col * 10)} ${(row * 10)})`)
+                e.setAttribute("transform", `translate(${(col * 10) + 5} ${(row * 10) + 5})`)
                 svgContent.push(e)
+            }
+        }
+    }
+
+
+    // Walls
+    for (let col = 0; col < model.gameGrid.cols; col++) {
+        for (let row = 0; row < model.gameGrid.rows; row++) {
+            const leftWall = model.gameGrid.wallAt(col, row, "left")
+            if (typeof leftWall !== "undefined") {
+                svgContent.push(renderWall(leftWall, `translate(${col * 10} ${row * 10}) rotate(90)`))
+            }
+            const topWall = model.gameGrid.wallAt(col, row, "top")
+            if (typeof topWall !== "undefined") {
+                svgContent.push(renderWall(topWall, `translate(${col * 10} ${row * 10})`))
             }
         }
     }
@@ -85,36 +134,23 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: GameGrid
     // Grid
     const gridPath = []
 
-    for (let col = 1; col < model.cols; col++) {
-        gridPath.push(`M ${(col * 10)} 0 l 0 ${model.rows * 10}`)
+    for (let col = 1; col < model.gameGrid.cols; col++) {
+        gridPath.push(`M ${(col * 10)} 0 l 0 ${model.gameGrid.rows * 10}`)
     }
-    for (let row = 1; row < model.rows; row++) {
-        gridPath.push(`M 0 ${(row * 10)} l ${model.cols * 10} 0`)
+    for (let row = 1; row < model.gameGrid.rows; row++) {
+        gridPath.push(`M 0 ${(row * 10)} l ${model.gameGrid.cols * 10} 0`)
     }
 
     svgContent.push(svg`<path d="${gridPath.join(" ")}" class="grid-line"/>`)
 
-    // Walls
-    for (let col = 0; col < model.cols; col++) {
-        for (let row = 0; row < model.rows; row++) {
-            const leftWall = model.wallAt(col, row, "left")
-            if (typeof leftWall !== "undefined") {
-                svgContent.push(renderWall(leftWall, `translate(${col * 10} ${row * 10}) rotate(90)`))
-            }
-            const topWall = model.wallAt(col, row, "top")
-            if (typeof topWall !== "undefined") {
-                svgContent.push(renderWall(topWall, `translate(${col * 10} ${row * 10})`))
-            }
-        }
-    }
 
     return wecco.html`
-    <svg xmlns="http://www.w3.org/2000/svg" id="game-grid" width="${model.cols * GridCellSize * scale}" height="${model.rows * GridCellSize * scale}" @update=${(e: Event) => setTimeout(() => updateSvg(e.target as SVGElement), 1)} @click=${onSvgClick}>
+    <svg xmlns="http://www.w3.org/2000/svg" id="game-grid" width="${model.gameGrid.cols * GridCellSize * model.zoomLevel}" height="${model.gameGrid.rows * GridCellSize * model.zoomLevel}" @update=${(e: Event) => setTimeout(() => updateSvg(e.target as SVGElement), 1)} @click=${onSvgClick}>
         <g>
             ${svgContent}
         </g>
     </svg>
-    ` 
+    `
 }
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"
@@ -138,7 +174,7 @@ function svg(literals: TemplateStringsArray, ...placeholders: Array<any>): wecco
 }
 
 function renderWall(wall: Wall, transform: string): wecco.ElementUpdate {
-    let path: string 
+    let path: string
     switch (wall.symbol) {
         case "door":
             path = "M 0 0 L 2 0 M 10 0 l -2 0"
@@ -153,13 +189,20 @@ function renderWall(wall: Wall, transform: string): wecco.ElementUpdate {
     return svg`<path d="${path}" class="wall ${wall.color}" transform="${transform}"/>`
 }
 
-function createTokenElement (token: Token): SVGElement {
+function createTokenElement(token: Token): SVGElement {
+    const e = document.createElementNS(SVGNamespaceURI, "text")
+    e.setAttribute("class", `token ${token.color}`)
+    e.appendChild(document.createTextNode(token.symbol))
+    return e
+}
+
+function createBackgroundElement (color: Color): SVGElement {
     const e = document.createElementNS(SVGNamespaceURI, "use")
     e.setAttribute("width", "10")
     e.setAttribute("height", "10")
-    e.setAttribute("href", `#token-${token.symbol}`)
-    e.classList.add("token")
-    e.classList.add(token.color)
+    e.setAttribute("href", "#background")
+    e.classList.add("background")
+    e.classList.add(color)
 
     return e
 }
@@ -177,7 +220,7 @@ export function downloadGridAsPNG(): void {
 
     src = src.replace(/^\s*(<svg[^>]*?>)(.*)$/mi, `$1<style>${styleRules}</style><defs>${defs}</defs>$2`)
 
-    const blob = new Blob([src], { type: "image/svg+xml;charset=utf-8"})
+    const blob = new Blob([src], { type: "image/svg+xml;charset=utf-8" })
     const dataUrl = URL.createObjectURL(blob)
 
     const canvas = document.createElement("canvas")

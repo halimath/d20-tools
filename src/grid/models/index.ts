@@ -1,28 +1,14 @@
 import { m } from "d20-tools/common/i18n"
-import { range } from "src/common/tools"
+import { range } from "d20-tools/common/tools"
 
 /** Defines the available colors for use with Tokens. */
-export type TokenColor = "grey" | "green" | "blue" | "red" | "orange" | "purple" | "yellow" | "black" | "brown"
+export type Color = "grey" | "green" | "blue" | "red" | "orange" | "purple" | "yellow" | "black" | "brown"
 
 /** Provides all available colors to use with Tokens as an Array */
-export const TokenColors: Array<TokenColor> = ["grey", "green", "blue", "red", "orange", "purple", "yellow", "black", "brown"]
+export const Colors: Array<Color> = ["grey", "green", "brown", "blue", "red", "orange", "purple", "yellow", "black",]
 
-/** Defines the available token symbols. */
-export type TokenSymbol = "circle" | "cross" | "square" | "diamond" | "lines"
-
-/** Provides all available token symbols as an Array */
-export const TokenSymbols: Array<TokenSymbol> = ["circle", "cross", "square", "diamond", "lines"]
-
-/** Maps every TokenSymbol to a single character used to encode the token symbol. The resulting relation must be bijective.  */
-export const TokenSymbolUrlCharMapping = new Map<TokenSymbol, string>()
-    .set("circle", "c")
-    .set("cross", "x")
-    .set("lines", "l")
-    .set("square", "s")
-    .set("diamond", "d")
-
-/** Maps every TokenColor to a single character used to encode the token color. The resulting relation must be bijective.  */
-export const TokenColorUrlCharMapping = new Map<TokenColor, string>()
+/** Maps every Color to a single character used to encode the token color. The resulting relation must be bijective.  */
+const ColorUrlCharMapping = new Map<Color, string>()
     .set("grey", "e")
     .set("green", "g")
     .set("blue", "b")
@@ -32,6 +18,45 @@ export const TokenColorUrlCharMapping = new Map<TokenColor, string>()
     .set("yellow", "y")
     .set("black", "k")
     .set("brown", "w")
+
+function decodeColor(s: string): Color | undefined {
+    for (const c of ColorUrlCharMapping.keys()) {
+        if (s[0] === ColorUrlCharMapping.get(c)) {
+            return c
+        }
+    }
+    return
+}
+
+// The base string
+type TokenString = "♙♔♕♖♗♘✦●▲▼■◆"
+
+// Recursive type that splits a string into a union of characters
+type StringToUnion<S extends string> =
+    S extends `${infer First}${infer Rest}`
+        ? First | StringToUnion<Rest>
+        : never
+
+// The result: a union of all characters
+export type TokenSymbol = StringToUnion<TokenString>
+
+/** Provides all available token symbols as an Array */
+export const TokenSymbols: Array<TokenSymbol> = "♙♔♕♖♗♘✦●▲▼■◆".split("").map(r => r as TokenSymbol)
+
+/** Maps every TokenSymbol to a single character used to encode the token symbol. The resulting relation must be bijective.  */
+const TokenSymbolUrlCharMapping = new Map<TokenSymbol, string>()
+    .set("♙", "p")
+    .set("♔", "k")
+    .set("♕", "q")
+    .set("♖", "c")
+    .set("♗", "b")
+    .set("♘", "k")
+    .set("✦", "x")
+    .set("●", "o")
+    .set("▲", "a")
+    .set("▼", "v")
+    .set("■", "b")
+    .set("◆", "z")
 
 /**
  * Defines a single token placed on the game grid. A token is a marker
@@ -49,8 +74,7 @@ export class Token {
 
         const [symbolChar, colorChar] = hash.split("")
 
-        let symbol: TokenSymbol = "lines"
-        let color: TokenColor = "grey"
+        let symbol: TokenSymbol = TokenSymbols[0]
 
         for (const s of TokenSymbolUrlCharMapping.keys()) {
             if (symbolChar === TokenSymbolUrlCharMapping.get(s)) {
@@ -58,19 +82,15 @@ export class Token {
             }
         }
 
-        for (const c of TokenColorUrlCharMapping.keys()) {
-            if (colorChar === TokenColorUrlCharMapping.get(c)) {
-                color = c
-            }
-        }
+        const color = decodeColor(colorChar) ?? Colors[0]
 
         return new Token(symbol, color)
     }
 
-    constructor(public readonly symbol: TokenSymbol, public readonly color: TokenColor) { }
+    constructor(public readonly symbol: TokenSymbol, public readonly color: Color) { }
 
     toUrlHash(): string {
-        return (TokenSymbolUrlCharMapping.get(this.symbol) ?? "") + (TokenColorUrlCharMapping.get(this.color) ?? "")
+        return (TokenSymbolUrlCharMapping.get(this.symbol) ?? "") + (ColorUrlCharMapping.get(this.color) ?? "")
     }
 }
 
@@ -110,7 +130,6 @@ export class Wall {
         const [symbolChar, colorChar] = hash.split("")
 
         let symbol: WallSymbol = "wall"
-        let color: TokenColor = "grey"
 
         for (const s of WallSymbolUrlCharMapping.keys()) {
             if (symbolChar === WallSymbolUrlCharMapping.get(s)) {
@@ -118,19 +137,15 @@ export class Wall {
             }
         }
 
-        for (const c of TokenColorUrlCharMapping.keys()) {
-            if (colorChar === TokenColorUrlCharMapping.get(c)) {
-                color = c
-            }
-        }
+        const color = decodeColor(colorChar) ?? Colors[0]
 
         return new Wall(symbol, color)
     }
 
-    constructor(public readonly symbol: WallSymbol, public readonly color: TokenColor) { }
+    constructor(public readonly symbol: WallSymbol, public readonly color: Color) { }
 
     toUrlHash(): string {
-        return (WallSymbolUrlCharMapping.get(this.symbol) ?? "") + (TokenColorUrlCharMapping.get(this.color) ?? "")
+        return (WallSymbolUrlCharMapping.get(this.symbol) ?? "") + (ColorUrlCharMapping.get(this.color) ?? "")
     }
 }
 
@@ -144,7 +159,7 @@ function randomLabel(): string {
  */
 export class GameGrid {
     static fromDescriptor(id: string, label: string, descriptor: string): GameGrid {
-        const [sizeString, tokensString, wallsString] = descriptor.split("/")
+        const [sizeString, backgroundString, tokensString, wallsString] = descriptor.split("/")
         if (!sizeString) {
             throw new Error(`invalid grid descriptor: invalid size string: "${sizeString}"`)
         }
@@ -155,7 +170,10 @@ export class GameGrid {
             throw new Error(`invalid grid descriptor: invalid size: ${cols}x${rows}`)
         }
 
-        return new GameGrid(id, cols, rows, label, GameGrid.parseTokensUrlString(cols, rows, tokensString), GameGrid.parseWallsUrlString(cols, rows, wallsString), "grey", "lines", "wall")    
+        return new GameGrid(id, cols, rows, label,
+            GameGrid.parseBackgroundUrlString(cols, rows, backgroundString),
+            GameGrid.parseTokensUrlString(cols, rows, tokensString),
+            GameGrid.parseWallsUrlString(cols, rows, wallsString))
     }
 
     private static parseTokensUrlString(cols: number, rows: number, tokensString: string): Array<Token | undefined> {
@@ -166,12 +184,12 @@ export class GameGrid {
         for (let i = 0; i < tokensString.length; i++) {
             const c = tokensString.charAt(i)
             if (c === "-") {
-                const count = parseInt(tokensString.substr(i + 1))
+                const count = parseInt(tokensString.substring(i + 1))
                 insertIndex += count
                 i += count.toString().length
             } else {
-                const token = Token.fromUrlHash(tokensString.substr(i, 2))
-                const count = parseInt(tokensString.substr(i + 2))
+                const token = Token.fromUrlHash(tokensString.substring(i, i + 2))
+                const count = parseInt(tokensString.substring(i + 2))
                 i += count.toString().length + 1
                 for (let t = 0; t < count; t++) {
                     tokens[insertIndex + t] = token
@@ -187,6 +205,35 @@ export class GameGrid {
         return tokens
     }
 
+    private static parseBackgroundUrlString(cols: number, rows: number, bgString: string): Array<Color | undefined> {
+        const bg: Array<Color | undefined> = [...range(cols * rows)].map(() => void 0)
+
+        let insertIndex = 0
+
+        for (let i = 0; i < bgString.length; i++) {
+            const c = bgString.charAt(i)
+            if (c === "-") {
+                const count = parseInt(bgString.substring(i + 1))
+                insertIndex += count
+                i += count.toString().length
+            } else {
+                const color = decodeColor(c) ?? Colors[0]
+                const count = parseInt(bgString.substring(i + 1))
+                i += count.toString().length
+                for (let t = 0; t < count; t++) {
+                    bg[insertIndex + t] = color
+                }
+                insertIndex += count
+            }
+
+            if (insertIndex >= bg.length) {
+                break
+            }
+        }
+
+        return bg
+    }
+
     private static parseWallsUrlString(cols: number, rows: number, wallsString: string): Array<Wall | undefined> {
         const walls: Array<Wall | undefined> = [...range(cols * rows * 2)].map(() => void 0)
 
@@ -195,12 +242,12 @@ export class GameGrid {
         for (let i = 0; i < wallsString.length; i++) {
             const c = wallsString.charAt(i)
             if (c === "-") {
-                const count = parseInt(wallsString.substr(i + 1))
+                const count = parseInt(wallsString.substring(i + 1))
                 insertIndex += count
                 i += count.toString().length
             } else {
-                const wall = Wall.fromUrlHash(wallsString.substr(i, 2))
-                const count = parseInt(wallsString.substr(i + 2))
+                const wall = Wall.fromUrlHash(wallsString.substring(i, i + 2))
+                const count = parseInt(wallsString.substring(i + 2))
                 i += count.toString().length + 1
                 for (let t = 0; t < count; t++) {
                     walls[insertIndex + t] = wall
@@ -216,8 +263,25 @@ export class GameGrid {
         return walls
     }
 
-    static createInitial(cols = 20, rows = 10): GameGrid {
-        return new GameGrid(createId(), cols, rows, randomLabel(), [...range(cols * rows)].map(() => void 0), [...range(cols * rows * 2)].map(() => void 0), "grey", "lines", "wall")
+    static createInitial(cols = 30, rows = 20): GameGrid {
+        const gg = new GameGrid(createId(), cols, rows, randomLabel(), 
+            [...range(cols * rows)].map(() => void 0), 
+            [...range(cols * rows)].map(() => void 0), 
+            [...range(cols * rows * 2)].map(() => void 0))
+
+        // Place some useful tokens in the first row for the DM's convenience
+        gg.setTokenAt(0, 0, new Token("♙", "blue"))
+        gg.setTokenAt(1, 0, new Token("♙", "green"))
+        gg.setTokenAt(2, 0, new Token("♙", "red"))
+        gg.setTokenAt(3, 0, new Token("♙", "orange"))
+        gg.setTokenAt(4, 0, new Token("♙", "purple"))
+        
+        gg.setTokenAt(6, 0, new Token("♙", "black"))
+        gg.setTokenAt(7, 0, new Token("♘", "black"))
+        gg.setTokenAt(8, 0, new Token("♖", "black"))
+        gg.setTokenAt(9, 0, new Token("♕", "black"))
+
+        return gg
     }
 
     constructor(
@@ -225,18 +289,16 @@ export class GameGrid {
         public readonly cols: number,
         public readonly rows: number,
         public label: string,
+        public background: Array<Color | undefined>,
         public tokens: Array<Token | undefined>,
         public walls: Array<Wall | undefined>,
-        public color: TokenColor,
-        public tokenSymbol: TokenSymbol,
-        public wallSymbol: WallSymbol,
     ) { }
 
     resize(cols: number, rows: number): GameGrid {
         const tokens = [...range(cols * rows)].map(() => void 0)
         const walls = [...range(cols * rows * 2)].map(() => void 0)
 
-        const result = new GameGrid(this.id, cols, rows, this.label, tokens, walls, this.color, this.tokenSymbol, this.wallSymbol)
+        const result = new GameGrid(this.id, cols, rows, this.label, this.background, tokens, walls)
 
         for (let c = 0; c < Math.min(this.cols, cols); c++) {
             for (let r = 0; r < Math.min(this.rows, rows); r++) {
@@ -268,10 +330,12 @@ export class GameGrid {
         return this
     }
 
-    select(color: TokenColor, tokenSymbol: TokenSymbol, wallSymbol: WallSymbol): GameGrid {
-        this.color = color
-        this.tokenSymbol = tokenSymbol
-        this.wallSymbol = wallSymbol
+    backgroundAt(col: number, row: number): Color | undefined {
+        return this.background[row * this.cols + col]
+    }
+
+    setBackgroundAt(col: number, row: number, color: Color | undefined): GameGrid {
+        this.background[row * this.cols + col] = color
         return this
     }
 
@@ -294,8 +358,8 @@ export class GameGrid {
         return true
     }
 
-    get descriptor (): string {
-        return `${this.cols}:${this.rows}/${this.urlHashTokens()}/${this.urlHashWalls()}`
+    get descriptor(): string {
+        return `${this.cols}:${this.rows}/${this.urlHashBackground()}/${this.urlHashTokens()}/${this.urlHashWalls()}`
     }
 
     private urlHashWalls(): string {
@@ -308,6 +372,36 @@ export class GameGrid {
             let symbol = "-"
             if (typeof wall !== "undefined") {
                 symbol = wall.toUrlHash()
+            }
+            if (lastSymbol === "") {
+                lastSymbol = symbol
+                count = 1
+            } else if (symbol === lastSymbol) {
+                count++
+            } else {
+                result += lastSymbol + count.toString()
+                lastSymbol = symbol
+                count = 1
+            }
+        }
+
+        if (count > 0) {
+            result += lastSymbol + count.toString()
+        }
+
+        return result
+    }
+
+    private urlHashBackground(): string {
+        let result = ""
+
+        let lastSymbol = ""
+        let count = 0
+
+        for (const bg of this.background) {
+            let symbol = "-"
+            if (typeof bg !== "undefined") {
+                symbol = ColorUrlCharMapping.get(bg)!
             }
             if (lastSymbol === "") {
                 lastSymbol = symbol
@@ -359,13 +453,56 @@ export class GameGrid {
     }
 }
 
+export type BackgroundTool = "background"
+export type Tool = TokenSymbol | WallSymbol | BackgroundTool
+
+export function isWallSymbol(tool: Tool): tool is WallSymbol {
+    return !!WallSymbols.find(w => w === tool)
+}
+
+export function isTokenSymbol(tool: Tool): tool is TokenSymbol {
+    return !!TokenSymbols.find(w => w === tool)
+}
+
+export const DefaultZoomLevel = 5
+
 export class Model {
-    constructor (public readonly gameGrid: GameGrid, public readonly zoomLevel: number = 5) {}
+    constructor(
+        public readonly gameGrid: GameGrid,
+        public color: Color = Colors[0],
+        public tool: Tool = TokenSymbols[0],
+        public zoomLevel: number = DefaultZoomLevel) { }
+
+    selectColorAndTool(color: Color, tool: Tool): Model {
+        this.color = color
+        this.tool = tool
+        return this
+    }
+
+    decreaseZoom(): Model {
+        if (this.zoomLevel === 3) {
+            return this
+        }
+
+        this.zoomLevel--
+
+        return this
+    }
+
+    increaseZoom(): Model {
+        if (this.zoomLevel === 15) {
+            return this
+        }
+
+        this.zoomLevel++
+
+        return this
+    }
 }
 
 // --
 
-export function createId (): string {
+export function createId(): string {
     // TODO: Find a real Implement
     return (new Date().getTime() * Math.random()).toString(32).split(".")[0]
 }
@@ -373,5 +510,5 @@ export function createId (): string {
 // --
 
 export class GameGridInfo {
-    constructor (public readonly id: string, public readonly lastUpdate: Date, public readonly label: string, public readonly dimension: string) {}
+    constructor(public readonly id: string, public readonly lastUpdate: Date, public readonly label: string, public readonly dimension: string) { }
 }

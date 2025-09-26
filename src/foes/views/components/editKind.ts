@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
-import { inputField, notEmpty } from "../../../common/components/forms/input"
-import { modal, ModalHandle, ModalHandleBinder } from "../../../common/components/modal-deprecated"
-import { m } from "../../../common/i18n"
+import { inputField, notEmpty } from "d20-tools/common/components/forms/input"
+import { modal, ModalHandle, ModalHandleBinder } from "d20-tools/common/components/modal-deprecated"
+import { m } from "d20-tools/common/i18n"
 import { Attack, Damage, Kind, Roll, SavingThrowKeys } from "../../models"
 
 export interface SaveHandler {

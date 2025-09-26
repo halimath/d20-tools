@@ -70,6 +70,11 @@
     "gameGrid.color.black": "Black",
     "gameGrid.color.brown": "Brown",
 
+    "gameGrid.actions.download": "Download as image",
+    "gameGrid.actions.share": "Share Link",
+    "gameGrid.actions.delete": "Delete grid",
+    "gameGrid.actions.load": "Load previously edited grid",
+
     "gameGrid.loadGrid.loading": "Loading your saved grids...",
     "gameGrid.loadGrid.title": "Loading saved grid",
     "gameGrid.loadGrid.label": "Label",

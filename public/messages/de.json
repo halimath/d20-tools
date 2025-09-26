@@ -68,6 +68,11 @@
     "gameGrid.color.yellow": "Gelb",
     "gameGrid.color.black": "Schwarz",
     "gameGrid.color.brown": "Braun",
+    "gameGrid.actions.download": "Bild herunterladen",
+    "gameGrid.actions.share": "Link kopieren",
+    "gameGrid.actions.delete": "Löschen",
+    "gameGrid.actions.load": "Vorheriges Raster laden",
+
     "gameGrid.loadGrid.loading": "Raster werden geladen...",
     "gameGrid.loadGrid.title": "Raster laden",
     "gameGrid.loadGrid.label": "Bezeichnung",
