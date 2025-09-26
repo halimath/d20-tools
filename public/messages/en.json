@@ -17,6 +17,7 @@
     "diceRoller.result.value": "{{0}}",
     "diceRoller.result.die": "Result of rolling a D{{0}}.",
     "diceRoller.history": "History",
+    "diceRoller.history.clear": "Clear",
 
     "foes.characters": "Characters",
     "foes.pc": "Player Character",
