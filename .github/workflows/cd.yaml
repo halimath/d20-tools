@@ -35,11 +35,11 @@ jobs:
           --build-arg date="$(date --rfc-3339=seconds)" \
           --build-arg vcs_ref=${GITHUB_SHA} \
           --build-arg build_number=${GITHUB_RUN_NUMBER} \
-          -t $IMAGE_NAME:${GITHUB_RUN_NUMBER} \
+          -t $IMAGE_NAME:${GITHUB_REF_NAME#v} \
           --load \
           . 
 
       - name: Push Docker image
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository }}
-          docker push $IMAGE_NAME:${GITHUB_RUN_NUMBER}
+          docker push $IMAGE_NAME:${GITHUB_REF_NAME#v}
