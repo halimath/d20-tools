@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "types": ["jest"],
         "module": "commonjs",
         "noImplicitAny": true,
         "sourceMap": true,
@@ -10,7 +11,7 @@
             "es2016",
             "es2017",
             "ES2020",
-            "dom"
+            "dom",
         ],
         "experimentalDecorators": true,
         "baseUrl": ".",

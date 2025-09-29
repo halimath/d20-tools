@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
 import { Browser } from "../../common/browser"
-import { Color, Colors, DefaultZoomLevel, GameGrid, Model, Token, TokenSymbols, Tool, Wall, WallPosition, WallSymbols } from "../models"
+import { Color, Colors, DefaultZoomLevel, GameGrid, Model, Token, TokenSymbols, Tool, Wall, WallPosition } from "../models"
 import { loadGameGrid, saveGameGrid } from "../store"
 
 export class LoadGrid {

@@ -11,6 +11,11 @@ module.exports = {
     output: {
         filename: "[name].js"
     },
+    performance: {
+        hints: false,
+        maxEntrypointSize: 300000,
+        maxAssetSize: 300000
+    },    
     module: {
         rules: [
             {
@@ -23,7 +28,14 @@ module.exports = {
                 use: [
                     MiniCssExtractPlugin.loader,
                     "css-loader",
-                    "sass-loader",
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sassOptions: {
+                                silenceDeprecations: [ 'color-functions', 'global-builtin', 'import'],
+                            }
+                        }
+                    }
                 ],
             }
         ]

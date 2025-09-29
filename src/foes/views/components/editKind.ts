@@ -250,7 +250,7 @@ const rollValidator = (v: string) => {
     try {
         Roll.parse(v)
         return true                        
-    } catch (e) {
+    } catch {
         return false
     }
 }
