@@ -155,7 +155,7 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
 
 const SVGNamespaceURI = "http://www.w3.org/2000/svg"
 
-function svg(literals: TemplateStringsArray, ...placeholders: Array<any>): wecco.ElementUpdate {
+function svg(literals: TemplateStringsArray, ...placeholders: Array<unknown>): wecco.ElementUpdate {
     let src = ""
     for (let i = 0; i < literals.length; i++) {
         src += literals[i]

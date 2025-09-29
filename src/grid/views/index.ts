@@ -1,4 +1,5 @@
 import * as wecco from "@weccoframework/core"
+import { expandOverlay } from "d20-tools/common/components/expand_overlay"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
 import { ChangeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectTool, UpdateLabel } from "../controller"
@@ -6,7 +7,6 @@ import { Colors, isWallSymbol, Model, TokenSymbols, WallSymbol, WallSymbols } fr
 import { showLoadDialog } from "./dialogs/loadgrid"
 import { showShareDialog } from "./dialogs/shrare"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
-import { expandOverlay } from "d20-tools/common/components/expand_overlay"
 
 export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.ElementUpdate {
     function notifyGridSizeChanged(cols: number, rows: number) {
@@ -15,27 +15,27 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
 
     const body = wecco.html`
         <div class="topnav">
-            <div class="container">
-                <div class="row mt-4 justify-content-center">
-                    <div class="col-4">
+            <div class="container-fluid">
+                <div class="mt-4 d-flex flex-row">
+                    <div class="flex-grow-1 me-2">
                         <input type="text" class="form-control" placeholder="Label" .value=${model.gameGrid.label} @change=${(e: InputEvent) => emit(new UpdateLabel((e.target as HTMLInputElement).value.trim()))}>
                     </div>
-                    
-                    <div class="col-2">
+
+                    <div class="me-2">
                         <div class="input-group">
-                            <input type="number" min="2" max="90" class="form-control" value=${model.gameGrid.cols} @change=${(e: InputEvent) => {
+                            <input type="number" min="2" max="90" class="form-control col-5" value=${model.gameGrid.cols} @change=${(e: InputEvent) => {
                                 const value = (e.target as HTMLInputElement).value
                                 notifyGridSizeChanged(parseInt(value), model.gameGrid.rows)
                             }}>
-                            <span class="input-group-text">x</span>
-                            <input type="number" min="2" max="90" class="form-control" value=${model.gameGrid.rows} @change=${(e: InputEvent) => {
+                            <span class="input-group-text col-2">x</span>
+                            <input type="number" min="2" max="90" class="form-control col-5" value=${model.gameGrid.rows} @change=${(e: InputEvent) => {
                                 const value = (e.target as HTMLInputElement).value
                                 notifyGridSizeChanged(model.gameGrid.cols, parseInt(value))
                             }}>
                         </div>
                     </div>
 
-                    <div class="col-2 d-flex justify-content-center">
+                    <div class="me-2">
                         ${expandOverlay({
                             expanded: wecco.html`
                                 <div class="btn-toolbar flex-nowrap">
@@ -80,7 +80,6 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
 
                                 </div>`
                             })}
-
                             ${expandOverlay({
                                 expanded: wecco.html`
                                     <div class="btn-group ms-1">
@@ -102,7 +101,7 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                             })}
                         </div>                        
 
-                        <div class="col-2">
+                        <div>
                             <div class="btn-group">
                                 <button class="btn btn-outline-secondary" @click=${() => emit(new DecZoom())}><i class="material-icons mr-1">zoom_out</i></button>
                                 <button class="btn btn-outline-secondary" @click=${() => emit(new IncZoom())}><i class="material-icons mr-1">zoom_in</i></button>

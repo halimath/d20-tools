@@ -104,8 +104,8 @@ export class NPC implements Character {
         const hp = hitpoints ?? kind.hitDie.roll().value
 
         return new NPC(label, kind, ini ?? kind.rollIni(), hp, currentHitpoints ?? hp, kind.attacks.map(a => [a, undefined]), 
-            Object.keys(kind.savingThrows).reduce((obj: any, st: any) => {
-                obj[st] = undefined
+            Object.keys(kind.savingThrows).reduce((obj: unknown, st: SavingThrow) => {
+                (obj as Record<SavingThrow, RollResult | undefined>)[st] = undefined
                 return obj
             }, {}) as unknown as Record<SavingThrow, RollResult | undefined>
         )

@@ -1,5 +1,5 @@
 import * as models from "../models"
-import { Kind, Roll, RollResult } from "../models"
+import { Roll, RollResult } from "../models"
 import * as dtos from "./dto"
 
 export function convertCharacter(c: models.Character): dtos.PC | dtos.NPC {
