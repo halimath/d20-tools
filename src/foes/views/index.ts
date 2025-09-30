@@ -1,26 +1,20 @@
 import * as wecco from "@weccoframework/core"
-import { ModalHandle } from "../../common/components/modal-deprecated"
 import { appShell } from "../../common/components/appShell"
-import { Clear, Message, SaveKind, SelectActiveCharacter, SelectTab } from "../controller"
 import { m } from "../../common/i18n"
-import { Model } from "../models"
-import { addCharacterModal } from "./components/addCharacter"
-import { character } from "./components/character"
-import { editKindModal } from "./components/editKind"
+import { Clear, Message, SaveKind, SelectTab } from "../controller"
+import { Kind, Model } from "../models"
+import { showAddNPCDialog, showAddPCDialog } from "./components/addCharacter"
+import { characters } from "./components/character"
+import { showEditKindModal } from "./components/editKind"
 import { kinds } from "./components/kind"
 
 export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.ElementUpdate {
     let content: wecco.ElementUpdate = ""
     
     if (model.tab === "characters") {
-        content = model.characters.map((c, idx) => wecco.html`<div class="col-12" @click=${() => emit(new SelectActiveCharacter(idx))}>${character(emit, c, idx === model.activeCharacterIndex)}</div>`)
+        content = characters(model, emit)
     } else {
-        content = wecco.html`<div class="col card">${kinds(model.kinds, emit)}</div>`        
-    }
-
-    let createModalHandle: ModalHandle
-    const modalHandleBinder = (h: ModalHandle) => {
-        createModalHandle = h
+        content = kinds(model.kinds, emit)
     }
 
     const body = wecco.html`
@@ -34,16 +28,21 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                         </nav>
                     </div>
                     <div class="col text-end">
-                        <button class="btn btn-large btn-primary" @click=${() => {
-                            // if (model.tab === "kinds") {
-                            //     updateKindModal(Kind.empty(), k => emit(new SaveKind(k)), modalHandleBinder)
-                            // }
-                            createModalHandle.show()
-                        }}><i class="material-icons">add</i></button>            
-
-                        ${model.tab !== "characters" ? "" : wecco.html`
-                            <button class="btn btn-large btn-outline-danger" @click=${() => emit(new Clear())}><i class="material-icons">delete</i></button>
-                        `}
+                        ${ model.tab === "kinds"
+                            ? wecco.html`
+                                <button class="btn btn-large btn-outline-primary" @click=${() => {
+                                    showEditKindModal(Kind.empty(), k => emit(new SaveKind(k)))
+                                }}>${m("foes.add.kind")}</button>`
+                            : wecco.html`
+                                <button class="btn btn-large btn-outline-primary" @click=${() => {
+                                    showAddPCDialog(emit)
+                                }}>${m("foes.add.pc")}</button>
+                                <button class="btn btn-large btn-outline-primary" ?disabled=${model.kinds.length === 0} @click=${() => {
+                                    showAddNPCDialog(model.kinds, emit)
+                                }}>${m("foes.add.npc")}</button>
+                                <button class="btn btn-large btn-outline-danger" @click=${() => emit(new Clear())}><i class="material-icons">delete</i></button>
+                            `
+                        }
                     </div>
                 </div>
             </div>
@@ -55,12 +54,7 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
             </div>
         </div>
 
-        ${model.tab === "characters" 
-            ? addCharacterModal(model.kinds, emit, modalHandleBinder)
-            : editKindModal(k => emit(new SaveKind(k)), modalHandleBinder)
-        }
     `
-
     return appShell(body, "foes")
 }
 

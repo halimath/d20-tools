@@ -1,7 +1,16 @@
 import * as wecco from "@weccoframework/core"
-import { Message, PerformAttack, RemoveCharacter, RollSavingThrow, UpdateCurrentHitPoints } from "../../controller"
+import { Message, PerformAttack, RemoveCharacter, RollSavingThrow, SelectActiveCharacter, UpdateCurrentHitPoints } from "../../controller"
 import { m } from "d20-tools/common/i18n"
-import { Attack, Character, Hit, NPC, PC, SavingThrow } from "../../models"
+import { Attack, Character, Hit, Model, NPC, PC, SavingThrow } from "../../models"
+
+
+export function characters(model: Model, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
+    if (model.characters.length === 0) {
+        return wecco.html`<p class="lead text-center mt-4">${m("foes.noCharacters")}</p>`
+    }
+
+    return model.characters.map((c, idx) => wecco.html`<div class="col-12" @click=${() => emit(new SelectActiveCharacter(idx))}>${character(emit, c, idx === model.activeCharacterIndex)}</div>`)
+}
 
 export function character (emit: wecco.MessageEmitter<Message>, character: Character, active: boolean): wecco.ElementUpdate {
     if (character instanceof NPC) {
@@ -39,7 +48,7 @@ function npc (emit: wecco.MessageEmitter<Message>, npc: NPC, active: boolean): w
                         ${m("foes.ini")}: <strong>${npc.ini.value}</strong>
                     </div>
                     <div class="col">
-                        <h5 class="card-title">${npc.label} (${npc.kind.label})</h5>
+                        <h5 class="card-title">${npc.label} <span class="badge text-bg-secondary">${npc.kind.label}</span></h5>
                         ${npc.kind.tags.map(t => wecco.html`<span class="me-1 badge bg-dark">${t}</span>`)}
                     </div>
                     <div class="col text-end">

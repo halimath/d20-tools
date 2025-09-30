@@ -21,6 +21,11 @@ export class Model {
 
     createNPC(label: string, kind: Kind): Model {
         const characters = this.characters.slice()
+        if (!label) {
+            const count = characters.filter(c => (c instanceof NPC) && c.kind === kind).length
+            label = `${kind.label} #${count + 1}`
+        }
+
         characters.push(NPC.create(label, kind))
         characters.sort((a, b) => b.ini.value - a.ini.value)
 
@@ -119,5 +124,14 @@ export class Model {
         const kinds = this.kinds.slice()
         kinds.push(k)
         return new Model(kinds, this.characters, this.activeCharacterIndex, this.tab)
+    }
+
+    removeKind(kind: Kind): Model {
+        const idx = this.kinds.findIndex(k => k === kind)
+        if (idx === -1) {
+            return this
+        }
+        return new Model(this.kinds.slice(0, idx).concat(this.kinds.slice(idx + 1)), 
+            this.characters, this.activeCharacterIndex, this.tab)
     }
 }

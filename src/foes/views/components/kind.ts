@@ -1,39 +1,43 @@
 import * as wecco from "@weccoframework/core"
-import { ModalHandle } from "d20-tools/common/components/modal-deprecated"
-import { Message, SaveKind } from "../../controller"
 import { m } from "d20-tools/common/i18n"
+import { Message, RemoveKind, SaveKind } from "../../controller"
 import { Kind } from "../../models"
-import { editKindModal } from "./editKind"
+import { showEditKindModal } from "./editKind"
 
 export function kinds(kinds: Array<Kind>, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
+    if (kinds.length === 0) {
+        return wecco.html`<p class="lead text-center mt-4">${m("foes.noKinds")}</p>`
+    }
+
     return wecco.html`
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>${m("foes.label")}</th>
-                    <th>${m("foes.ini")}</th>
-                    <th>${m("foes.speed")}</th>
-                    <th>${m("foes.ac")}</th>
-                    <th>${m("foes.hp")}</th>
-                    <th>${m("foes.savingthrow.str")}</th>
-                    <th>${m("foes.savingthrow.dex")}</th>
-                    <th>${m("foes.savingthrow.con")}</th>
-                    <th>${m("foes.savingthrow.int")}</th>
-                    <th>${m("foes.savingthrow.wis")}</th>
-                    <th>${m("foes.savingthrow.cha")}</th>
-                    <th>${m("foes.attacks")}</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                ${kinds.map(kindRow.bind(null, emit))}
-            </tbody>
-        </table>
+        <div class="col card">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>${m("foes.label")}</th>
+                        <th>${m("foes.ini")}</th>
+                        <th>${m("foes.speed")}</th>
+                        <th>${m("foes.ac")}</th>
+                        <th>${m("foes.hp")}</th>
+                        <th>${m("foes.savingthrow.str")}</th>
+                        <th>${m("foes.savingthrow.dex")}</th>
+                        <th>${m("foes.savingthrow.con")}</th>
+                        <th>${m("foes.savingthrow.int")}</th>
+                        <th>${m("foes.savingthrow.wis")}</th>
+                        <th>${m("foes.savingthrow.cha")}</th>
+                        <th>${m("foes.attacks")}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${kinds.map(kindRow.bind(null, emit))}
+                </tbody>
+            </table>
+        </div>
     `
 }
 
 function kindRow(emit: wecco.MessageEmitter<Message>, k: Kind, idx: number): wecco.ElementUpdate {
-    let modalHandle: ModalHandle
     return wecco.html`
         <tr>
             <td>
@@ -59,9 +63,8 @@ function kindRow(emit: wecco.MessageEmitter<Message>, k: Kind, idx: number): wec
                 </ul>
             </td>
             <td>
-                ${editKindModal(k => emit(new SaveKind(k, idx)), mh => modalHandle = mh, k)}
-                <button class="btn btn-link"><i class="material-icons" @click=${() => modalHandle.show()}>edit</i></button>                
-                <button class="btn btn-link text-danger"><i class="material-icons">delete</i></button>                
+                <button class="btn btn-link"><i class="material-icons" @click=${() => showEditKindModal(k, k => emit(new SaveKind(k, idx)))}>edit</i></button>
+                <button class="btn btn-link text-danger" @click=${() => emit(new RemoveKind(k))}><i class="material-icons">delete</i></button>
             </td>
         </tr>
     `
