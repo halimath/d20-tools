@@ -1,5 +1,6 @@
 {
     "close": "Close",
+    "save": "Save",
 
     "nav.title": "D20 Tools",
     "nav.diceRoller": "Dice Roller",
@@ -19,10 +20,19 @@
     "diceRoller.history": "History",
     "diceRoller.history.clear": "Clear",
 
-    "foes.characters": "Characters",
+    "foes.noKinds": "You don't have any kinds. Start creating kinds to add NPCs to your combat.",
+    "foes.noCharacters": "Add characters - either PCs or NPCs - to start an encounter.",
+    "foes.add.pc": "Add PC",
+    "foes.add.npc": "Add NPC",
+    "foes.add.kind": "Add Kind",
+    "foes.edit.pc": "Edit PC",
+    "foes.edit.npc": "Edit NPC",
+    "foes.edit.kind": "Edit Kind",
+
+    "foes.characters": "Encounter",
     "foes.pc": "Player Character",
     "foes.npc": "Non-player Character",
-    "foes.kinds": "Kinds",
+    "foes.kinds": "NPCs",
     "foes.ini": "Ini",
     "foes.speed": "Speed",
     "foes.fields.1": "1 field",
@@ -39,7 +49,6 @@
     "foes.savingthrow.int": "INT",
     "foes.savingthrow.wis": "WIS",
     "foes.savingthrow.cha": "CHA",
-    "foes.createCharacter": "Create Character",
     "foes.edit.title": "Edit Kind",
     "foes.edit.save": "Save Kind",
     "foes.attacks": "Attacks",

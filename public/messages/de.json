@@ -1,5 +1,6 @@
 {
     "close": "Schließen",
+    "save": "Speichern",
 
     "nav.title": "D20 Tools",
     "nav.diceRoller": "Würfel",
@@ -19,8 +20,17 @@
     "diceRoller.history": "Geworfene Würfel",
     "diceRoller.history.clear": "Löschen",
 
-    "foes.characters": "Charaktere",
-    "foes.kinds": "Arten",
+    "foes.noKinds": "Du hast noch keine Arten angelegt. Lege eine Art an, um einen NSC hinzuzufügen.",
+    "foes.noCharacters": "Füge Charaktere hinzu - SCs oder NSCs - um eine Begegnung zu starten.",
+    "foes.add.pc": "Neuer SC",
+    "foes.add.npc": "Neuer NSC",
+    "foes.add.kind": "Neue Art",
+    "foes.edit.pc": "SC bearbeiten",
+    "foes.edit.npc": "NSC bearbeiten",
+    "foes.edit.kind": "Art bearbeiten",
+
+    "foes.characters": "Begegnung",
+    "foes.kinds": "NSCs",
     "foes.speed": "Geschwindigkeit",
     "foes.ac": "RK",
     "foes.hp": "TP",
@@ -31,7 +41,6 @@
     "foes.savingthrow.int": "IN",
     "foes.savingthrow.wis": "WE",
     "foes.savingthrow.cha": "CH",
-    "foes.createCharacter": "Charakter hinzufügen",
     "foes.label": "Bezeichnung",
     "foes.kind": "Art",
     "foes.kindEditor.attack": "Angriff",

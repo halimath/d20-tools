@@ -26,7 +26,7 @@ export class CreateNPC {
 export class CreatePC {
     readonly command = "create-pc"
 
-    constructor (public readonly label: string, public readonly ini: number, public readonly iniModifier: number) {}
+    constructor (public readonly label: string, public readonly ini: number) {}
 }
 
 export class RemoveCharacter {
@@ -65,7 +65,15 @@ export class SaveKind {
     constructor(public readonly kind: Kind, public readonly index?: number) {}
 }
 
-export type Message = Nop | Clear | SelectTab | CreateNPC | CreatePC | RemoveCharacter | PerformAttack | RollSavingThrow | UpdateCurrentHitPoints | SelectActiveCharacter | SaveKind
+export class RemoveKind {
+    readonly command = "remove-kind"
+
+    constructor(public readonly kind: Kind) {}
+}
+
+export type Message = Nop | Clear | SelectTab | CreateNPC | CreatePC | RemoveCharacter | PerformAttack 
+    | RollSavingThrow | UpdateCurrentHitPoints | SelectActiveCharacter 
+    | SaveKind | RemoveKind
 
 export function update({model, message}: wecco.UpdaterContext<Model, Message>): Model | Promise<Model> {
     switch (message.command) {
@@ -83,7 +91,7 @@ export function update({model, message}: wecco.UpdaterContext<Model, Message>): 
             return save(model.createNPC(message.label, message.kind))
 
         case "create-pc":
-            return save(model.createPC(message.label, new RollResult(message.ini - message.iniModifier, message.iniModifier)))
+            return save(model.createPC(message.label, new RollResult(message.ini, 0)))
 
         case "remove-character":
             return save(model.removeCharacter(message.character))
@@ -105,6 +113,10 @@ export function update({model, message}: wecco.UpdaterContext<Model, Message>): 
                 return save(model.updateKind(message.index, message.kind))
             }
             return save(model.appendKind(message.kind))
+
+        case "remove-kind":
+            return save(model.removeKind(message.kind))
+
     }
 }
 

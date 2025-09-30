@@ -1,11 +1,9 @@
 import * as wecco from "@weccoframework/core"
 import { versionLabel } from "../../../package.json"
 import { m } from "../i18n"
-import { modal, ModalHandle } from "./modal-deprecated"
+import { modal, ModalHandle } from "./modal"
 
 export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "grid" | "foes"): wecco.ElementUpdate {
-    let aboutDialog: ModalHandle
-
     return wecco.html`
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
@@ -19,16 +17,19 @@ export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "
                     <li class="nav-item"><a class="nav-link ${activePage === "foes" ? "active" : ""}" href="/foes/">${m("nav.foes")}</a></li>
                 </ul>
                 <ul class="navbar-nav me-auto">                    
-                    <li class="nav-item"><a class="nav-link" @click=${()=> aboutDialog.show()}>${m("nav.about")}</a></li>                    
+                    <li class="nav-item"><a class="nav-link" @click=${()=> showAboutDialog()}>${m("nav.about")}</a></li>                    
                 </ul>
             </div>
         </nav>
         
         <main>
             ${main}
-        </main>
-    
-        ${modal(wecco.html`
+        </main>    
+    `
+}
+
+function showAboutDialog () {
+    modal(wecco.html`
             <div class="modal-header">
                 <h5 class="modal-title">${m("about.title")}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -41,7 +42,6 @@ export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${m("close")}</button>
             </div>`, {
-                binder: m => aboutDialog = m,            
-        })}
-    `
+                show: true,
+        })
 }

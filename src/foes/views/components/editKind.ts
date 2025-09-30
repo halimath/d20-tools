@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
 import { inputField, notEmpty } from "d20-tools/common/components/forms/input"
-import { modal, ModalHandle, ModalHandleBinder } from "d20-tools/common/components/modal-deprecated"
+import { modal, ModalHandle } from "d20-tools/common/components/modal"
 import { m } from "d20-tools/common/i18n"
 import { Attack, Damage, Kind, Roll, SavingThrowKeys } from "../../models"
 
@@ -10,9 +10,7 @@ export interface SaveHandler {
 
 let editKindDialogIndex = 0
 
-export function editKindModal (saveHandler: SaveHandler, binder: ModalHandleBinder, kind?: Kind): wecco.ElementUpdate {
-    let modalHandle: ModalHandle
-
+export function showEditKindModal (kind: Kind, saveHandler: SaveHandler): void {
     const editorData: KindEditorData = {
         idPrefix: `edit-kind-${editKindDialogIndex++}-`,
         kind: kind,
@@ -37,13 +35,12 @@ export function editKindModal (saveHandler: SaveHandler, binder: ModalHandleBind
                 damage: a.damage[0].damage.toString(),
             }
         }) ?? [],
-        modalBinder: binder,
-        onSave: k => { modalHandle.hide(); saveHandler(k) },
+        onSave: saveHandler,
     }
 
-    return modal(kindEditor(editorData), {
+    modal(kindEditor(editorData), {
         size: "lg",
-        binder: (h: ModalHandle) => { modalHandle = h; binder(h)},
+        show: true,
     })    
 }
 
@@ -74,7 +71,6 @@ interface KindEditorData {
     editForm?: EditFormData
     attacks?: Array<AttackData>
     onSave: (kind: Kind) => void
-    modalBinder?: ModalHandleBinder
 }
 
 const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.RenderContext<KindEditorData>) => {
@@ -227,7 +223,7 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">${m("close")}</button>
-            <button type="button" class="btn btn-primary" @click=${onCreate}>${m("foes.edit.save")}</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click=${onCreate}>${m("foes.edit.save")}</button>
         </div>
     `
 })
