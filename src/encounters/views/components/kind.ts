@@ -6,7 +6,7 @@ import { showEditKindModal } from "./editKind"
 
 export function kinds(kinds: Array<Kind>, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
     if (kinds.length === 0) {
-        return wecco.html`<p class="lead text-center mt-4">${m("foes.noKinds")}</p>`
+        return wecco.html`<p class="lead text-center mt-4">${m("encounters.noKinds")}</p>`
     }
 
     return wecco.html`
@@ -14,18 +14,18 @@ export function kinds(kinds: Array<Kind>, emit: wecco.MessageEmitter<Message>): 
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>${m("foes.label")}</th>
-                        <th>${m("foes.ini")}</th>
-                        <th>${m("foes.speed")}</th>
-                        <th>${m("foes.ac")}</th>
-                        <th>${m("foes.hp")}</th>
-                        <th>${m("foes.savingthrow.str")}</th>
-                        <th>${m("foes.savingthrow.dex")}</th>
-                        <th>${m("foes.savingthrow.con")}</th>
-                        <th>${m("foes.savingthrow.int")}</th>
-                        <th>${m("foes.savingthrow.wis")}</th>
-                        <th>${m("foes.savingthrow.cha")}</th>
-                        <th>${m("foes.attacks")}</th>
+                        <th>${m("encounters.label")}</th>
+                        <th>${m("encounters.ini")}</th>
+                        <th>${m("encounters.speed")}</th>
+                        <th>${m("encounters.ac")}</th>
+                        <th>${m("encounters.hp")}</th>
+                        <th>${m("encounters.savingthrow.str")}</th>
+                        <th>${m("encounters.savingthrow.dex")}</th>
+                        <th>${m("encounters.savingthrow.con")}</th>
+                        <th>${m("encounters.savingthrow.int")}</th>
+                        <th>${m("encounters.savingthrow.wis")}</th>
+                        <th>${m("encounters.savingthrow.cha")}</th>
+                        <th>${m("encounters.attacks")}</th>
                         <th></th>
                     </tr>
                 </thead>

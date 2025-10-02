@@ -3,7 +3,7 @@ import { versionLabel } from "../../../package.json"
 import { m } from "../i18n"
 import { modal, ModalHandle } from "./modal"
 
-export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "grid" | "foes"): wecco.ElementUpdate {
+export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "grid" | "encounters"): wecco.ElementUpdate {
     return wecco.html`
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
@@ -14,7 +14,7 @@ export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "
                 <ul class="navbar-nav me-auto flex-grow-1">
                     <li class="nav-item"><a class="nav-link ${activePage === "diceroller" ? "active" : ""}" href="/">${m("nav.diceRoller")}</a></li>
                     <li class="nav-item"><a class="nav-link ${activePage === "grid" ? "active" : ""}" href="/grid/">${m("nav.gameGrid")}</a></li>
-                    <li class="nav-item"><a class="nav-link ${activePage === "foes" ? "active" : ""}" href="/foes/">${m("nav.foes")}</a></li>
+                    <li class="nav-item"><a class="nav-link ${activePage === "encounters" ? "active" : ""}" href="/encounters/">${m("nav.encounters")}</a></li>
                 </ul>
                 <ul class="navbar-nav me-auto">                    
                     <li class="nav-item"><a class="nav-link" @click=${()=> showAboutDialog()}>${m("nav.about")}</a></li>                    

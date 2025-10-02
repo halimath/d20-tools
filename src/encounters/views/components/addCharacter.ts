@@ -19,13 +19,13 @@ const AddPCDialog = wecco.define<AddPCDialogData>("add-pc", ({ data }) => {
     }
     return wecco.html`
         <div class="modal-header">
-            <h5 class="modal-title">${m("foes.add.pc")}</h5>
+            <h5 class="modal-title">${m("encounters.add.pc")}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
             <div class="mb-2">
-                <label for="create-character-label">${m("foes.label")}</label>
+                <label for="create-character-label">${m("encounters.label")}</label>
                 ${inputField({
         id: "create-character-label",
         validator: notEmpty,
@@ -35,7 +35,7 @@ const AddPCDialog = wecco.define<AddPCDialogData>("add-pc", ({ data }) => {
             </div>
 
             <div class="mb-2">
-                <label for="create-character-ini">${m("foes.ini")}</label>
+                <label for="create-character-ini">${m("encounters.ini")}</label>
                 ${inputField({
         type: "number",
         id: "create-character-ini",
@@ -74,12 +74,12 @@ const AddNPCDialog = wecco.define<AddNPCDialogData>("add-npc", ({ data }) => {
 
     return wecco.html`
         <div class="modal-header">
-            <h5 class="modal-title">${m("foes.add.npc")}</h5>
+            <h5 class="modal-title">${m("encounters.add.npc")}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <div class="mb-2">
-                <label for="create-character-label">${m("foes.label")}</label>
+                <label for="create-character-label">${m("encounters.label")}</label>
                 ${inputField({
                     id: "create-character-label",
                     validator: notEmpty,
@@ -89,7 +89,7 @@ const AddNPCDialog = wecco.define<AddNPCDialogData>("add-npc", ({ data }) => {
             </div>
 
             <div class="mb-2">
-                <label for="create-character-kind">${m("foes.kind")}</label>
+                <label for="create-character-kind">${m("encounters.kind")}</label>
                 ${select({
                     options: data.kinds.map(k => k.label),
                     onChange: (k) => data.kind = data.kinds[k],

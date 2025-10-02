@@ -6,7 +6,7 @@ module.exports = {
     entry: {
         diceroller: "./src/diceroller/index.ts",
         grid: "./src/grid/index.ts",
-        foes: "./src/foes/index.ts",
+        encounters: "./src/encounters/index.ts",
     },
     output: {
         filename: "[name].js"

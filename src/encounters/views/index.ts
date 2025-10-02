@@ -23,8 +23,8 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                 <div class="row mt-2">
                     <div class="col-8">
                         <nav class="nav nav-pills">
-                            <a href="#" class="nav-link ${model.tab === "characters" ? "active" : ""}" @click=${() => emit(new SelectTab("characters"))}>${m("foes.characters")}</a>
-                            <a href="#" class="nav-link ${model.tab === "kinds" ? "active" : ""}" @click=${() => emit(new SelectTab("kinds"))}>${m("foes.kinds")}</a>
+                            <a href="#" class="nav-link ${model.tab === "characters" ? "active" : ""}" @click=${() => emit(new SelectTab("characters"))}>${m("encounters.characters")}</a>
+                            <a href="#" class="nav-link ${model.tab === "kinds" ? "active" : ""}" @click=${() => emit(new SelectTab("kinds"))}>${m("encounters.kinds")}</a>
                         </nav>
                     </div>
                     <div class="col text-end">
@@ -32,14 +32,14 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                             ? wecco.html`
                                 <button class="btn btn-large btn-outline-primary" @click=${() => {
                                     showEditKindModal(Kind.empty(), k => emit(new SaveKind(k)))
-                                }}>${m("foes.add.kind")}</button>`
+                                }}>${m("encounters.add.kind")}</button>`
                             : wecco.html`
                                 <button class="btn btn-large btn-outline-primary" @click=${() => {
                                     showAddPCDialog(emit)
-                                }}>${m("foes.add.pc")}</button>
+                                }}>${m("encounters.add.pc")}</button>
                                 <button class="btn btn-large btn-outline-primary" ?disabled=${model.kinds.length === 0} @click=${() => {
                                     showAddNPCDialog(model.kinds, emit)
-                                }}>${m("foes.add.npc")}</button>
+                                }}>${m("encounters.add.npc")}</button>
                                 <button class="btn btn-large btn-outline-danger" @click=${() => emit(new Clear())}><i class="material-icons">delete</i></button>
                             `
                         }
@@ -55,6 +55,6 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
         </div>
 
     `
-    return appShell(body, "foes")
+    return appShell(body, "encounters")
 }
 
