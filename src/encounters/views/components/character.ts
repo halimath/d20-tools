@@ -6,7 +6,7 @@ import { Attack, Character, Hit, Model, NPC, PC, SavingThrow } from "../../model
 
 export function characters(model: Model, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
     if (model.characters.length === 0) {
-        return wecco.html`<p class="lead text-center mt-4">${m("foes.noCharacters")}</p>`
+        return wecco.html`<p class="lead text-center mt-4">${m("encounters.noCharacters")}</p>`
     }
 
     return model.characters.map((c, idx) => wecco.html`<div class="col-12" @click=${() => emit(new SelectActiveCharacter(idx))}>${character(emit, c, idx === model.activeCharacterIndex)}</div>`)
@@ -26,7 +26,7 @@ function pc(emit: wecco.MessageEmitter<Message>, pc: PC, active: boolean): wecco
             <div class="card-body">
                 <div class="row">
                     <div class="col">
-                        ${m("foes.ini")}: <strong>${pc.ini.value}</strong>
+                        ${m("encounters.ini")}: <strong>${pc.ini.value}</strong>
                     </div>
                     <div class="col-6">
                         <h5 class="card-title">${pc.label}</h5>
@@ -45,7 +45,7 @@ function npc (emit: wecco.MessageEmitter<Message>, npc: NPC, active: boolean): w
             <div class="card-body">                
                 <div class="row">
                     <div class="col">
-                        ${m("foes.ini")}: <strong>${npc.ini.value}</strong>
+                        ${m("encounters.ini")}: <strong>${npc.ini.value}</strong>
                     </div>
                     <div class="col">
                         <h5 class="card-title">${npc.label} <span class="badge text-bg-secondary">${npc.kind.label}</span></h5>
@@ -63,7 +63,7 @@ function npc (emit: wecco.MessageEmitter<Message>, npc: NPC, active: boolean): w
                         </div>
                         <div class="mt-2 attribute hp">${npc.currentHitpoints}</div>
                         <div class="mt-2 d-flex align-items-center justify-content-center">
-                            ${m("foes.hp")}:
+                            ${m("encounters.hp")}:
                             <strong class=${npc.currentHitpoints <= 0 ? "text-danger" : ""}>${npc.currentHitpoints}</strong> / ${npc.hitpoints} (${npc.kind.hitDie})
                         </div>
                         <div class="mt-2 d-flex align-items-center justify-content-center">
@@ -80,7 +80,7 @@ function npc (emit: wecco.MessageEmitter<Message>, npc: NPC, active: boolean): w
                             ${Object.keys(npc.kind.savingThrows).map((savingThrow: SavingThrow) => wecco.html`
                             <div class="mt-2 me-2 w-auto text-center d-inline-block">
                                 <button class="btn ${npc.savingThrows[savingThrow] ? "btn-secondary" : "btn-outline-secondary"}" @click+stopPropagation=${() => emit(new RollSavingThrow(npc, savingThrow))}>
-                                    ${m(`foes.savingthrow.${savingThrow}`)}
+                                    ${m(`encounters.savingthrow.${savingThrow}`)}
                                     ${npc.savingThrows[savingThrow] ? ` = ${npc.savingThrows[savingThrow]?.value}` : `: ${modifier(npc.kind.savingThrows[savingThrow])}`}                                
                                 </button>
                             </div>
@@ -112,7 +112,7 @@ function hit(hit: Hit | undefined): wecco.ElementUpdate {
     }
 
     return wecco.html`
-        <span class="badge ac ${acBg}">${m("foes.ac")} ${hit.ac.value}</span>
+        <span class="badge ac ${acBg}">${m("encounters.ac")} ${hit.ac.value}</span>
         ${hit.damage.map(d => wecco.html`<span class="badge hp me-1">${d.label ? `${d.label}: ${d.result.value}` : d.result.value}</span>`)}
     `
 }

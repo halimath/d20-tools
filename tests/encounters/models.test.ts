@@ -1,6 +1,6 @@
 import {expect, describe, test} from "@jest/globals"
 
-import { DieRoll, Roll } from "d20-tools/foes/models/index"
+import { DieRoll, Roll } from "d20-tools/encounters/models/index"
 
 describe("models", () => {
     describe("DieRoll", () => {

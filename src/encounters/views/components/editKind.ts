@@ -111,12 +111,12 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
 
     return wecco.html`
         <div class="modal-header">
-            <h5 class="modal-title">${m("foes.edit.title")}</h5>
+            <h5 class="modal-title">${m("encounters.edit.title")}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <div class="mb-2">
-                <label for="${data.idPrefix}label">${m("foes.label")}</label>
+                <label for="${data.idPrefix}label">${m("encounters.label")}</label>
                 ${inputField({
                     id: `${data.idPrefix}label`,
                     value: data.editForm.label,
@@ -126,7 +126,7 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
                 })}
             </div>
             <div class="mb-2">
-                <label for="${data.idPrefix}tags">${m("foes.tags")}</label>
+                <label for="${data.idPrefix}tags">${m("encounters.tags")}</label>
                 ${inputField({
                     id: `${data.idPrefix}tags`,
                     value: data.editForm.tags,
@@ -137,7 +137,7 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
             
             <div class="row mb-2">
                 <div class="col">
-                    <label for="${data.idPrefix}ini">${m("foes.ini")}</label>
+                    <label for="${data.idPrefix}ini">${m("encounters.ini")}</label>
                     ${inputField({
                         type: "number",
                         id: `${data.idPrefix}ini`,
@@ -148,7 +148,7 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
                     })}                                
                 </div>
                 <div class="col">
-                    <label for="${data.idPrefix}ac">${m("foes.ac")}</label>
+                    <label for="${data.idPrefix}ac">${m("encounters.ac")}</label>
                     ${inputField({
                         type: "number",
                         id: `${data.idPrefix}ac`,
@@ -159,7 +159,7 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
                     })}                                
                 </div>
                 <div class="col">
-                    <label for="${data.idPrefix}speed">${m("foes.speed")}</label>
+                    <label for="${data.idPrefix}speed">${m("encounters.speed")}</label>
                     ${inputField({
                         type: "number",
                         id: `${data.idPrefix}speed`,
@@ -171,7 +171,7 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
 
                 </div>        
                 <div class="col">
-                    <label for="${data.idPrefix}hp">${m("foes.hp")}</label>
+                    <label for="${data.idPrefix}hp">${m("encounters.hp")}</label>
                     ${inputField({
                         id: `${data.idPrefix}hp`,
                         value: data.editForm.hitDie,
@@ -182,12 +182,12 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
                 </div>        
             </div>
 
-            <h5>${m("foes.savingthrows")}</h5>
+            <h5>${m("encounters.savingthrows")}</h5>
             <div class="row mb-2">
                 ${
                     SavingThrowKeys.map(st => wecco.html`
                         <div class="col">
-                            <label for="${data.idPrefix}${st}">${m(`foes.savingthrow.${st}`)}</label>
+                            <label for="${data.idPrefix}${st}">${m(`encounters.savingthrow.${st}`)}</label>
                             ${inputField({
                                 type: "number",
                                 id: `${data.idPrefix}${st}`,
@@ -202,13 +202,13 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
             </div>
 
             <div class="mb-2">
-                <h5>${m("foes.attacks")}</h5>
+                <h5>${m("encounters.attacks")}</h5>
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>${m("foes.attack")}</th>
-                            <th>${m("foes.modifier")}</th>
-                            <th>${m("foes.damage")}</th>
+                            <th>${m("encounters.attack")}</th>
+                            <th>${m("encounters.modifier")}</th>
+                            <th>${m("encounters.damage")}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -223,7 +223,7 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">${m("close")}</button>
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click=${onCreate}>${m("foes.edit.save")}</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click=${onCreate}>${m("encounters.edit.save")}</button>
         </div>
     `
 })
