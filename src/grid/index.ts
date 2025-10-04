@@ -1,9 +1,9 @@
 import * as wecco from "@weccoframework/core"
 import { load } from "src/common/i18n"
 import { Browser } from "../common/browser"
-import { update } from "./controller"
+import { update } from "./controller/controller"
 import "./index.sass"
-import { createId, GameGrid, Model } from "./models"
+import { createId, GameGrid, Model } from "./models/models"
 import { loadGameGrid } from "./store"
 import { root } from "./views"
 

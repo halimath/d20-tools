@@ -321,6 +321,11 @@ export class GameGrid {
         return this
     }
 
+    removeTokenAt(col: number, row: number): GameGrid {
+        this.tokens[row * this.cols + col] = undefined
+        return this
+    }
+
     wallAt(col: number, row: number, position: WallPosition): Wall | undefined {
         return this.walls[row * this.cols * 2 + col * 2 + (position === "top" ? 1 : 0)]
     }
@@ -330,12 +335,22 @@ export class GameGrid {
         return this
     }
 
+    removeWallAt(col: number, row: number, position: WallPosition): GameGrid {
+        this.walls[row * this.cols * 2 + col * 2 + (position === "top" ? 1 : 0)] = undefined
+        return this
+    }
+
     backgroundAt(col: number, row: number): Color | undefined {
         return this.background[row * this.cols + col]
     }
 
-    setBackgroundAt(col: number, row: number, color: Color | undefined): GameGrid {
+    setBackgroundAt(col: number, row: number, color: Color): GameGrid {
         this.background[row * this.cols + col] = color
+        return this
+    }
+
+    removeBackgroundAt(col: number, row: number): GameGrid {
+        this.background[row * this.cols + col] = undefined
         return this
     }
 
@@ -466,12 +481,26 @@ export function isTokenSymbol(tool: Tool): tool is TokenSymbol {
 
 export const DefaultZoomLevel = 5
 
+export type Location = [number, number]
+
 export class Model {
     constructor(
         public readonly gameGrid: GameGrid,
         public color: Color = Colors[0],
         public tool: Tool = TokenSymbols[0],
-        public zoomLevel: number = DefaultZoomLevel) { }
+        public zoomLevel: number = DefaultZoomLevel,
+        public lastRemovedToken: Location | undefined = undefined,
+    ) { }
+
+    setLastRemovedToken(loc: Location): Model {
+        this.lastRemovedToken = loc
+        return this
+    }
+
+    clearLastRemovedToken(): Model {
+        this.lastRemovedToken = undefined
+        return this
+    }
 
     selectColorAndTool(color: Color, tool: Tool): Model {
         this.color = color

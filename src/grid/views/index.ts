@@ -2,8 +2,8 @@ import * as wecco from "@weccoframework/core"
 import { expandOverlay } from "d20-tools/common/components/expand_overlay"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
-import { ChangeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectTool, UpdateLabel } from "../controller"
-import { Colors, isWallSymbol, Model, TokenSymbols, WallSymbol, WallSymbols } from "../models"
+import { ChangeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectTool, UpdateLabel } from "../controller/controller"
+import { Colors, isWallSymbol, Model, TokenSymbols, WallSymbol, WallSymbols } from "../models/models"
 import { showLoadDialog } from "./dialogs/loadgrid"
 import { showShareDialog } from "./dialogs/shrare"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
@@ -96,7 +96,7 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
                                     </div>                                
                                 `,
                                 collapsed: wecco.html`
-                                    <div class="btn btn-outline-secondary color-selector ${model.color} selected">&nbsp;x&nbsp;</div>
+                                    <div class="btn btn-outline-secondary color-selector ${model.color} selected">&nbsp;&nbsp;&nbsp;</div>
                                 `
                             })}
                         </div>                        

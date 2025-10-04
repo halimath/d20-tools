@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
-import { Message, PlaceBackground, PlaceToken, PlaceWall } from "../controller"
-import { Color, isTokenSymbol, Model, Token, Wall, WallSymbol } from "../models"
+import { Message, PlaceBackground, PlaceToken, PlaceWall } from "../controller/controller"
+import { Color, isTokenSymbol, Model, Token, Wall, WallSymbol } from "../models/models"
 
 const WallSnapSize = 0.2
 const GridCellSize = 10
@@ -116,7 +116,6 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
         }
     }
 
-
     // Walls
     for (let col = 0; col < model.gameGrid.cols; col++) {
         for (let row = 0; row < model.gameGrid.rows; row++) {
@@ -142,6 +141,26 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
     }
 
     svgContent.push(svg`<path d="${gridPath.join(" ")}" class="grid-line"/>`)
+
+    if (model.lastRemovedToken) {
+        svgContent.push(svg`
+         <path d="M ${(model.lastRemovedToken[0] - 6) * 10} ${model.lastRemovedToken[1] * 10} 
+            v -10 h 10 v -10 h 10 v -20 h 20 v -10 h 10 v -10 h 10
+            h 20 
+            v 10 h 10 v 10 h 20 v 20 h 10 v 10 h 10 v 10
+            v 10
+            v 10 h -10 v 10 h -10 v 20 h -20 v 10 h -10 v 10 h -10
+            h -20
+            v -10 h -10 v -10 h -20 v -20 h -10 v -10 h -10 v -20
+            Z" class="distance-meter"/>
+         <path d="M ${model.lastRemovedToken[0] * 10} ${model.lastRemovedToken[1] * 10} h 10 v 10 h -10 z" class="distance-meter center"/>
+        `)
+    }
+
+    svgContent.push(svg`
+        <path d="M ${5 * 10} ${5 * 10} h 10 v 10 h -10 Z" class="distance-meter"/>
+    `)
+
 
 
     return wecco.html`

@@ -1,8 +1,8 @@
 import * as wecco from "@weccoframework/core"
 import { modal } from "src/common/components/modal"
 import { m } from "../../../common/i18n"
-import { LoadGrid, Message } from "../../controller"
-import { GameGridInfo } from "../../models"
+import { LoadGrid, Message } from "../../controller/controller"
+import { GameGridInfo } from "../../models/models"
 import { deleteGameGrid, loadSummaries } from "../../store"
 
 interface LoadDialogModel {
