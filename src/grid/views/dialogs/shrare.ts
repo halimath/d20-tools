@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
 import { modal } from "src/common/components/modal"
 import { m } from "../../../common/i18n"
-import { GameGrid } from "../../models"
+import { GameGrid } from "../../models/models"
 
 const ShareDialog = wecco.define("share-dialog", ({data}: wecco.RenderContext<{ grid: GameGrid }>) => {
     const url = document.location.href.replace(/#.*/, "#" + data.grid.descriptor)

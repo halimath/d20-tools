@@ -1,4 +1,4 @@
-import { GameGrid, GameGridInfo } from "../models"
+import { GameGrid, GameGridInfo } from "../models/models"
 
 const LocalStorageKey = "game-grids"
 

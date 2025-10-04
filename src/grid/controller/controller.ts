@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
 import { Browser } from "../../common/browser"
-import { Color, Colors, DefaultZoomLevel, GameGrid, Model, Token, TokenSymbols, Tool, Wall, WallPosition } from "../models"
+import { Color, Colors, DefaultZoomLevel, GameGrid, Model, Token, TokenSymbols, Tool, Wall, WallPosition } from "../models/models"
 import { loadGameGrid, saveGameGrid } from "../store"
 
 export class LoadGrid {
@@ -30,7 +30,7 @@ export class SelectTool {
 export class PlaceToken {
     readonly command = "place-token"
 
-    constructor(public readonly col: number, public readonly row: number, public readonly token?: Token) { }
+    constructor(public readonly col: number, public readonly row: number, public readonly token: Token) { }
 }
 
 export class PlaceWall {
@@ -61,31 +61,25 @@ export class DecZoom {
 
 export type Message = LoadGrid | ChangeGrid | UpdateLabel | PlaceToken | PlaceWall | PlaceBackground | SelectTool | ClearGrid | IncZoom | DecZoom 
 
-export function update({model, message}: wecco.UpdaterContext<Model, Message>): Model | Promise<Model> {
-    const updated = applyUpdate(model, message)
+export async function update({model, message}: wecco.UpdaterContext<Model, Message>): Promise<Model> {
+    const updated = await applyUpdate(model, message)
     
-    if (updated instanceof Model) {
-        if (updated.gameGrid.isEmpty) {
-            Browser.urlHash = ""
-        } else {
-            saveGameGrid(updated.gameGrid)
-                .catch(e => {
-                    // TODO: Emit error message
-                    console.error(e)
-                })
-            Browser.urlHash = updated.gameGrid.id
-        }
+    if (updated.gameGrid.isEmpty) {
+        Browser.urlHash = ""
+        return updated
     }
+    
+    await saveGameGrid(updated.gameGrid)
+    Browser.urlHash = `edit:${updated.gameGrid.id}`
     
     return updated
 }
 
-function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
+async function applyUpdate(model: Model, message: Message): Promise<Model> {
     switch (message.command) {
         case "load-grid":
             return loadGameGrid(message.id)
                 .then(g => {
-                    Browser.urlHash = g.id
                     return new Model(g, Colors[0], TokenSymbols[0], DefaultZoomLevel)
                 })
 
@@ -99,12 +93,14 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
         case "place-token": {
             const t = model.gameGrid.tokenAt(message.col, message.row)
             if (typeof t !== "undefined") {                
-                model.gameGrid
-                    .setTokenAt(message.col, message.row, undefined)
                 model
                     .selectColorAndTool(t.color, t.symbol)
+                    .setLastRemovedToken([message.col, message.row])
+                    .gameGrid.removeTokenAt(message.col, message.row)
             } else {
-                model.gameGrid.setTokenAt(message.col, message.row, message.token)
+                model
+                    .clearLastRemovedToken()
+                    .gameGrid.setTokenAt(message.col, message.row, message.token)
             }
 
             break                       
@@ -113,10 +109,9 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
         case "place-wall": {
             const w = model.gameGrid.wallAt(message.col, message.row, message.position)
             if (typeof w !== "undefined") {                
-                model.gameGrid
-                    .setWallAt(message.col, message.row, message.position, undefined)
                 model
                     .selectColorAndTool(w.color, w.symbol)
+                    .gameGrid.removeWallAt(message.col, message.row, message.position)
             } else {
                 model.gameGrid.setWallAt(message.col, message.row, message.position, message.wall)
             }
@@ -127,10 +122,9 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
         case "place-background": {
             const bg = model.gameGrid.backgroundAt(message.col, message.row)
             if (typeof bg !== "undefined") {                
-                model.gameGrid
-                    .setBackgroundAt(message.col, message.row, undefined)
                 model
                     .selectColorAndTool(bg, "background")
+                    .gameGrid.removeBackgroundAt(message.col, message.row)
             } else {
                 model.gameGrid.setBackgroundAt(message.col, message.row, message.color)
             }
@@ -138,10 +132,10 @@ function applyUpdate(model: Model, message: Message): Model | Promise<Model> {
             break
         }
 
-
         case "select-tool":
-            return model.selectColorAndTool(message.color, message.tool)
-            
+            return model
+                .selectColorAndTool(message.color, message.tool)
+                .clearLastRemovedToken()
 
         case "clear-grid":
             return new Model(GameGrid.createInitial(model.gameGrid.cols, model.gameGrid.rows), Colors[0], TokenSymbols[0], DefaultZoomLevel)

@@ -1,5 +1,5 @@
 import {expect, describe, test} from "@jest/globals"
-import { GameGrid, Token } from "d20-tools/grid/models/index"
+import { GameGrid, Token } from "d20-tools/grid/models/models"
 
 describe("Token", () => {
     describe("fromUrlHash", () => {
