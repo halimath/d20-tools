@@ -1,8 +1,9 @@
-FROM node:24-alpine
+FROM node:24-alpine AS frontendbuild
 
 WORKDIR /workdir
 
-COPY package*.json ./
+COPY frontend .
+
 RUN npm i
 
 ARG version
@@ -13,11 +14,6 @@ ARG build_number
 RUN node -e "const p = require('./package.json'); p.version = '${version}'; p.versionLabel = '${version} (${build_number}; ${vcs_ref})'; console.log(JSON.stringify(p));" > package.json.mod
 RUN mv package.json.mod package.json
 
-COPY tsconfig.json .
-COPY webpack.config.js .
-COPY public ./public
-COPY src ./src
-
 RUN npm run dist
 
 RUN for f in $(ls dist/*.css); do mv $f "dist/$(basename $f ".css").${build_number}.css"; done
@@ -27,7 +23,22 @@ RUN for f in $(find dist -name "*.html"); do mv $f $f~; cat $f~ | sed -Ee "s/\"\
 RUN mv dist/serviceworker.js dist/serviceworker.js~; cat dist/serviceworker.js~ | sed -Ee "s/^const CacheVersion =.*$/const CacheVersion = ${build_number};/" > dist/serviceworker.js
 RUN rm -rf dist/*~
 
-FROM nginx:alpine
+FROM golang:1.25-alpine AS backendbuild
+
+WORKDIR /workdir
+
+COPY backend .
+COPY --from=frontendbuild /workdir/dist .
+
+ARG version
+ARG date 
+ARG vcs_ref
+ARG build_number
+
+ENV CGO_ENABLED=0
+RUN go build -ldflags "-X main.Version=${version} -X main.BuildDate=${date} -X main.VCSRef=${vcs_ref} -X main.BuildDate=${build_number}" .
+
+FROM scratch
 
 ARG version
 ARG date 
@@ -44,6 +55,6 @@ LABEL org.label-schema.vendor="Alexander Metzner"
 LABEL org.label-schema.version="${version}" 
 LABEL org.label-schema.schema-version="1.0"
 
-COPY *.conf /etc/nginx/conf.d
+COPY --from=backendbuild /workdir/d20-tools /d20-tools
 
-COPY --from=0 /workdir/dist/ /usr/share/nginx/html/
+ENTRYPOINT [ "/d20-tools" ]
