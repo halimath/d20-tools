@@ -1,5 +1,7 @@
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin")
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const TerserPlugin = require("terser-webpack-plugin")
+const HtmlWebpackPlugin = require("html-webpack-plugin")
 
 module.exports = {
     mode: "development",
@@ -9,13 +11,21 @@ module.exports = {
         encounters: "./src/encounters/index.ts",
     },
     output: {
-        filename: "[name].js"
+        filename: "[name].[contenthash].js"
     },
     performance: {
         hints: false,
         maxEntrypointSize: 300000,
         maxAssetSize: 300000
-    },    
+    },
+    optimization: {
+        minimize: true,
+        minimizer: [
+            new TerserPlugin({
+                extractComments: false
+            }),
+        ],
+    },
     module: {
         rules: [
             {
@@ -41,7 +51,25 @@ module.exports = {
         ]
     },
     plugins: [
-        new MiniCssExtractPlugin()
+        new MiniCssExtractPlugin({
+            filename: '[name].[contenthash].css',
+
+        }),
+        new HtmlWebpackPlugin({
+            template: './src/common/index.html',
+            filename: 'index.html',
+            chunks: ['diceroller'],
+        }),
+        new HtmlWebpackPlugin({
+            template: './src/common/index.html',
+            filename: 'encounters/index.html',
+            chunks: ['encounters'],
+        }),
+        new HtmlWebpackPlugin({
+            template: './src/common/index.html',
+            filename: 'grid/index.html',
+            chunks: ['grid'],
+        }),
     ],
     resolve: {
         extensions: [".ts", ".js", ".html"],

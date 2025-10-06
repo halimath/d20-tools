@@ -157,12 +157,6 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
         `)
     }
 
-    svgContent.push(svg`
-        <path d="M ${5 * 10} ${5 * 10} h 10 v 10 h -10 Z" class="distance-meter"/>
-    `)
-
-
-
     return wecco.html`
     <svg xmlns="http://www.w3.org/2000/svg" id="game-grid" width="${model.gameGrid.cols * GridCellSize * model.zoomLevel}" height="${model.gameGrid.rows * GridCellSize * model.zoomLevel}" @update=${(e: Event) => setTimeout(() => updateSvg(e.target as SVGElement), 1)} @click=${onSvgClick}>
         <g>

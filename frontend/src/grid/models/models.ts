@@ -532,12 +532,12 @@ export class Model {
 // --
 
 export function createId(): string {
-    // TODO: Find a real Implement
-    return (new Date().getTime() * Math.random()).toString(32).split(".")[0]
+    return crypto.randomUUID().replaceAll("-", "")
 }
 
 // --
 
 export class GameGridInfo {
-    constructor(public readonly id: string, public readonly lastUpdate: Date, public readonly label: string, public readonly dimension: string) { }
+    constructor(public readonly id: string, public readonly lastUpdate: Date, public readonly label: string, 
+        public readonly dimension: string) { }
 }
