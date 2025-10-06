@@ -6,15 +6,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/halimath/httputils/response"
 	"github.com/halimath/kvlog"
 )
 
 var (
-	Version     string
-	BuildDate   string
-	VCSRef      string
-	BuildNumber string
+	Version     string = "0.0.0"
+	BuildDate   string = time.Now().Format(time.RFC3339)
+	VCSRef      string = "local"
+	BuildNumber string = "0"
 )
 
 func main() {
@@ -25,7 +27,8 @@ func main() {
 		kvlog.WithKV("vcs_ref", VCSRef), kvlog.WithKV("build_number", BuildNumber))
 
 	mux := http.NewServeMux()
-	mux.Handle("/", frontendHandler())
+	mux.Handle("/.well-known/version-info.json", createVersionInfoHandler())
+	mux.Handle("/", createFrontendHandler())
 
 	logger.Logs("starting http", kvlog.WithKV("address", "localhost:8080"))
 
@@ -34,10 +37,34 @@ func main() {
 	}
 }
 
+// --
+
+type BuildInfo struct {
+	Version     string `json:"version"`
+	BuildDate   string `json:"build_date"`
+	VCSRef      string `json:"vcs_ref"`
+	BuildNumber string `json:"build_number"`
+}
+
+func createVersionInfoHandler() http.Handler {
+	buildInfo := BuildInfo{
+		Version:     Version,
+		BuildDate:   BuildDate,
+		VCSRef:      VCSRef,
+		BuildNumber: BuildDate,
+	}
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		response.JSON(w, r, buildInfo)
+	})
+}
+
+// --
+
 //go:embed dist
 var frontend embed.FS
 
-func frontendHandler() http.Handler {
+func createFrontendHandler() http.Handler {
 	// Create a sub-filesystem pointing to the embedded "dist" folder
 	distFS, err := fs.Sub(frontend, "dist")
 	if err != nil {

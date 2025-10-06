@@ -6,29 +6,14 @@ COPY frontend .
 
 RUN npm i
 
-ARG version
-ARG date
-ARG vcs_ref
-ARG build_number
-
-RUN node -e "const p = require('./package.json'); p.version = '${version}'; p.versionLabel = '${version} (${build_number}; ${vcs_ref})'; console.log(JSON.stringify(p));" > package.json.mod
-RUN mv package.json.mod package.json
-
 RUN npm run dist
-
-RUN for f in $(ls dist/*.css); do mv $f "dist/$(basename $f ".css").${build_number}.css"; done
-RUN for f in $(ls dist/*.js | grep -v serviceworker); do mv $f "dist/$(basename $f ".js").${build_number}.js"; done
-
-RUN for f in $(find dist -name "*.html"); do mv $f $f~; cat $f~ | sed -Ee "s/\"\/([^/.]+)\\.(css|js)\"/\"\/\1.${build_number}.\2\"/" > $f; done
-RUN mv dist/serviceworker.js dist/serviceworker.js~; cat dist/serviceworker.js~ | sed -Ee "s/^const CacheVersion =.*$/const CacheVersion = ${build_number};/" > dist/serviceworker.js
-RUN rm -rf dist/*~
 
 FROM golang:1.25-alpine AS backendbuild
 
 WORKDIR /workdir
 
-COPY backend .
-COPY --from=frontendbuild /workdir/dist .
+COPY backend/* .
+COPY --from=frontendbuild /workdir/dist ./dist
 
 ARG version
 ARG date 

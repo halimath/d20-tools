@@ -1,7 +1,6 @@
 import * as wecco from "@weccoframework/core"
-import { versionLabel } from "../../../package.json"
 import { m } from "../i18n"
-import { modal, ModalHandle } from "./modal"
+import { modal } from "./modal"
 
 export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "grid" | "encounters"): wecco.ElementUpdate {
     return wecco.html`
@@ -28,14 +27,34 @@ export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "
     `
 }
 
-function showAboutDialog () {
+interface VersionInfo {
+    version: string
+    build_date: string
+    vcs_ref: string
+}
+
+async function showAboutDialog () {
+    const versionInfo = await fetch("/.well-known/version-info.js")
+        .then(r => r.json())
+        .catch(e => {
+            console.error(`Error fetching version info: ${e}`)
+            return {
+                version: "unknown",
+                build_date: new Date().toISOString(),
+                vcs_ref: "unknown"
+            }
+        }) as VersionInfo
+
     modal(wecco.html`
             <div class="modal-header">
                 <h5 class="modal-title">${m("about.title")}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>${m("about.version", versionLabel)}</p>
+                <p>
+                    Version ${versionInfo?.version ?? "local"}<br>
+                    <small class="text-secondary"><code>${versionInfo.vcs_ref ?? "local"}</code>, built ${versionInfo.build_date ?? new Date().toISOString()}</small>
+                </p>
                 <p>${m("about.copyright")}</p>
                 <p><a href="https://github.com/halimath/d20-tools">https://github.com/halimath/d20-tools</a></p>
             </div>

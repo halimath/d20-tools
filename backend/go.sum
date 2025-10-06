@@ -1,2 +1,4 @@
+github.com/halimath/httputils v0.0.0-20240503201106-9c153efc728b h1:QnXtSdBDDLUv+9vBgYWZImn4XYzRuoLfyKhDRpxEERA=
+github.com/halimath/httputils v0.0.0-20240503201106-9c153efc728b/go.mod h1:uBSBsya4JfjMivBDrdiL2vCnCD29lFZN+F0MElkNkRI=
 github.com/halimath/kvlog v0.11.1 h1:8YOjRraHkF2qNp/1lDCGE46KcZe061FOQEm+wlmSr3o=
 github.com/halimath/kvlog v0.11.1/go.mod h1:nx6CljvZ02fQiDeQNXbhLwe0wy6kTBc4lX1KhLXAUNU=
