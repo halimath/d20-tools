@@ -14,37 +14,54 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+        
+      - run: npm install
+        working-directory: frontend
       
-    - name: Setup node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 24
+      - run: npm run build
+        working-directory: frontend
       
-    - run: npm install
-      working-directory: frontend
-    
-    - run: npm run build
-      working-directory: frontend
-    
-    - run: npm test
-      working-directory: frontend
+      - run: npm test
+        working-directory: frontend
 
   backend:
     name: build and run tests for backend
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
-      
-    - name: Setup golang
-      uses: actions/setup-go@v6
-      with:
-        go-version: '^1.25.1'
+      - uses: actions/checkout@v4
+        
+      - name: Setup golang
+        uses: actions/setup-go@v6
+        with:
+          go-version: '^1.25.1'
 
-    - run: touch dist
-      name: Create empty frontend assets folder for compilation
-      working-directory: backend
+      - run: touch dist
+        name: Create empty frontend assets folder for compilation
+        working-directory: backend
 
-    - run: go build
-      working-directory: backend
+      - run: go build
+        working-directory: backend
+
+  container_build:
+    name: build container image (do not push)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository }}
+          docker buildx build \
+          --build-arg version=${GITHUB_REF_NAME#v} \
+          --build-arg date="$(date "+%Y-%m-%dT%H:%M:%S")" \
+          --build-arg vcs_ref=${GITHUB_SHA} \
+          --build-arg build_number=${GITHUB_RUN_NUMBER} \
+          -t $IMAGE_NAME:${GITHUB_REF_NAME#v} \
+          . 
