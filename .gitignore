@@ -1,3 +1,4 @@
 node_modules
 dist
 d20-tools*.tgz
+.env

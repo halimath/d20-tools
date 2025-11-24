@@ -1,0 +1,51 @@
+
+@session_id = iDSAn6sCdUuKA5s13DUyVmNfguoUAOadfGyi8kulBb0
+
+###
+
+# @no-cookie-jar
+POST http://localhost:8080/api/grid/
+Cookie: _session={{session_id}}
+Content-Type: application/json
+
+{
+    "label": "Test",
+    "descriptor": "30:20/-600/pb1pg1pr1po1pp1-2kk1ck1qk1-120pk1-469/-1200"
+}
+
+###
+
+# @no-cookie-jar
+GET http://localhost:8080/api/grid/
+Cookie: _session={{session_id}}
+
+###
+
+# @no-cookie-jar
+GET http://localhost:8080/api/grid/foobar:ARjufKU2idwNesoQDmuispe6
+
+###
+
+# @no-cookie-jar
+GET http://localhost:8080/api/grid/123456789/subscribe
+
+###
+
+# @no-cookie-jar
+GET https://auth.wilanthaou.de/application/o/d20-tools/.well-known/openid-configuration
+
+###
+
+# @no-cookie-jar
+GET http://localhost:8080/auth/return?code=e2744277b78a49d2802982c884150650&state=uHFBrgnQdh7ACwJYrCnQ3pksVyaToQyZfJRxaEVRUYY
+
+###
+
+# @no-cookie-jar
+GET http://localhost:8080/auth/info.js
+Cookie: _session={{session_id}}
+
+###
+
+# @no-cookie-jar
+GET http://localhost:8080/api/grid/3c6a297e3500958d8594c326f2f005123161ef1489ff5ad58b36a0a154c06ad6:uSJVb0lnMis4nW7BjKrb9xRg/subscribe

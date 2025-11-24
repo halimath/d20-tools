@@ -1,5 +1,5 @@
 import * as wecco from "@weccoframework/core"
-import { Browser } from "src/common/browser"
+import { setUrlHash, urlHash } from "src/common/browser"
 import { load } from "src/common/i18n"
 import { update } from "./controller"
 import "./index.sass"
@@ -14,11 +14,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function loadModel(): Promise<Model> {
     let tab: Tab = "characters"
-    const hash = Browser.urlHash
+    const hash = urlHash()
     if (hash === "kinds") {
         tab = "kinds"
     }
-    Browser.urlHash = tab
+    setUrlHash(tab)
 
     const kinds = await loadKinds()
     const characters = await loadCharacters(kinds)

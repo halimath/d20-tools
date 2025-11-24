@@ -2,18 +2,57 @@ import * as wecco from "@weccoframework/core"
 import { expandOverlay } from "d20-tools/common/components/expand_overlay"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
-import { ChangeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectTool, UpdateLabel } from "../controller/controller"
-import { Colors, isWallSymbol, Model, TokenSymbols, WallSymbol, WallSymbols } from "../models/models"
+import { ResizeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectTool, UpdateLabel } from "../controller/controller"
+import { Colors, Editor, isWallSymbol, Model, TokenSymbols, Viewer, WallSymbol, WallSymbols } from "../models/models"
 import { showLoadDialog } from "./dialogs/loadgrid"
 import { showShareDialog } from "./dialogs/shrare"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
+import { isAuthenticated } from "d20-tools/common/components/auth"
 
 export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.ElementUpdate {
-    function notifyGridSizeChanged(cols: number, rows: number) {
-        emit(new ChangeGrid(cols, rows))
+    let body: wecco.ElementUpdate
+
+    if (model instanceof Editor) {
+        body = editor(model, emit)
+    } else {
+        body = viewer(model, emit)
     }
 
-    const body = wecco.html`
+    return appShell(body, "grid")
+}
+
+function viewer(model: Viewer, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
+    return wecco.html`
+        <div class="topnav">
+            <div class="container-fluid">
+                <div class="mt-4 d-flex flex-row">
+                    <div class="flex-grow-1 me-2">
+                        <h1>${model.gameGrid.label}</h1>
+                    </div>
+
+                    <div class="me-2">
+                        <div>
+                            <div class="btn-group">
+                                ${zoomActions(emit)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-wrapper">
+            ${gridContent(emit, model)}
+        </div>
+    `    
+}
+
+function editor(model: Editor, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
+    function notifyGridSizeChanged(cols: number, rows: number) {
+        emit(new ResizeGrid(cols, rows))
+    }
+
+    return wecco.html`
         <div class="topnav">
             <div class="container-fluid">
                 <div class="mt-4 d-flex flex-row">
@@ -103,18 +142,8 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
 
                         <div>
                             <div class="btn-group">
-                                <button class="btn btn-outline-secondary" @click=${() => emit(new DecZoom())}><i class="material-icons mr-1">zoom_out</i></button>
-                                <button class="btn btn-outline-secondary" @click=${() => emit(new IncZoom())}><i class="material-icons mr-1">zoom_in</i></button>
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="material-icons">more_horiz</i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" @click=${downloadGridAsPNG}><i class="material-icons mr-1">downloading</i> ${m("gameGrid.actions.download")}</a></li>
-                                    <li><a class="dropdown-item" @click=${() => showShareDialog(model.gameGrid)}><i class="material-icons mr-1">link</i> ${m("gameGrid.actions.share")}</a></li>
-                                    <li><a class="dropdown-item" @click=${() => emit(new ClearGrid())}><i class="material-icons" >delete</i> ${m("gameGrid.actions.delete")}</a></li>
-                                    <li><a class="dropdown-item" @click=${showLoadDialog.bind(null, emit)}><i class="material-icons mr-1">file_open</i> ${m("gameGrid.actions.load")}</a></li>
-                                </ul>
-                            </div>                                
+                                ${zoomActions(emit)}
+                                ${actionsMenu(model, emit)}
                             </div>
                         </div>
                     </div>
@@ -126,8 +155,38 @@ export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.El
             ${gridContent(emit, model)}
         </div>
     `
+}
 
-    return appShell(body, "grid")
+function zoomActions(emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
+    return wecco.html`
+        <button class="btn" @click=${() => emit(new DecZoom())}><i class="material-icons mr-1">zoom_out</i></button>
+        <button class="btn" @click=${() => emit(new IncZoom())}><i class="material-icons mr-1">zoom_in</i></button>    
+    `
+}
+
+function actionsMenu(model: Model, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
+    let actions = [
+        wecco.html`<button class="btn" @click=${() => emit(new ClearGrid())} title=${m("gameGrid.actions.delete")}><span class="material-icons">add</span></button>`,
+        wecco.html`<button class="btn" @click=${downloadGridAsPNG} title=${m("gameGrid.actions.download")}><span class="material-icons mr-1">image</span></button>`
+    ]
+    
+    if (isAuthenticated()) {
+        actions = actions.concat(
+            wecco.html`<button class="btn" @click=${() => showShareDialog(model.gameGrid)} title=${m("gameGrid.actions.share")}><span class="material-icons mr-1">share</span></button>`,
+            wecco.html`<button class="btn" @click=${showLoadDialog.bind(null, emit)} title=${m("gameGrid.actions.load")}><span class="material-icons mr-1">file_open</span></button>`,
+        )
+    }
+
+    return actions
+
+    return wecco.html`
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="material-icons">more_horiz</i>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" @click=${showLoadDialog.bind(null, emit)}><i class="material-icons mr-1">file_open</i> ${m("gameGrid.actions.load")}</a></li>
+        </ul>    
+    `
 }
 
 function wallSymbolButtonLabel(s: WallSymbol): wecco.ElementUpdate {

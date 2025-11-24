@@ -1,5 +1,5 @@
 import * as wecco from "@weccoframework/core"
-import { Browser } from "src/common/browser"
+import { setUrlHash } from "src/common/browser"
 import { Attack, Character, Kind, Model, RollResult, SavingThrow, Tab } from "../models"
 import { saveCharacters, saveKinds } from "../store"
 
@@ -84,7 +84,7 @@ export function update({model, message}: wecco.UpdaterContext<Model, Message>): 
             return save(model.clear())
 
         case "select-tab":
-            Browser.urlHash = message.tab
+            setUrlHash(message.tab)
             return new Model(model.kinds, model.characters, model.activeCharacterIndex, message.tab)
 
         case "create-npc":

@@ -12,7 +12,7 @@ FROM golang:1.25-alpine AS backendbuild
 
 WORKDIR /workdir
 
-COPY backend/* .
+COPY backend .
 COPY --from=frontendbuild /workdir/dist ./dist
 
 ARG version
@@ -41,5 +41,8 @@ LABEL org.label-schema.version="${version}"
 LABEL org.label-schema.schema-version="1.0"
 
 COPY --from=backendbuild /workdir/d20-tools /d20-tools
+
+VOLUME [ "/data" ]
+ENV GRID_DB_PATH=/data/grid.db
 
 ENTRYPOINT [ "/d20-tools" ]

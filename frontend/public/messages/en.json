@@ -1,6 +1,8 @@
 {
     "close": "Close",
     "save": "Save",
+    "login": "Login",
+    "logout": "Logout",
 
     "nav.title": "D20 Tools",
     "nav.diceRoller": "Dice Roller",

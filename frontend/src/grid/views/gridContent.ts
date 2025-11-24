@@ -1,6 +1,6 @@
 import * as wecco from "@weccoframework/core"
 import { Message, PlaceBackground, PlaceToken, PlaceWall } from "../controller/controller"
-import { Color, isTokenSymbol, Model, Token, Wall, WallSymbol } from "../models/models"
+import { Color, Editor, isTokenSymbol, Model, Token, Wall, WallSymbol } from "../models/models"
 
 const WallSnapSize = 0.2
 const GridCellSize = 10
@@ -26,6 +26,10 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
     }
 
     function onSvgClick(e: MouseEvent) {
+        if (!(model instanceof Editor)) {
+            return
+        }
+
         // Calculate the target (=clicked) grid cell by calculating the coordinates
         // based on the mouse event's x/y coordinates and the relative positioning
         // of the svg element, which is read from the bounding box.
@@ -101,7 +105,7 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
 
             svgContent.push(e);
         }
-    }    
+    }
 
     // Tokens
     // Paint tokens first to allow painting the grid and coordinates over the tokens
@@ -140,9 +144,9 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
         gridPath.push(`M 0 ${(row * 10)} l ${model.gameGrid.cols * 10} 0`)
     }
 
-    svgContent.push(svg`<path d="${gridPath.join(" ")}" class="grid-line"/>`)
+    svgContent.push(svg`<path d="${gridPath.join(" ")}" class="grid-line"/>`)    
 
-    if (model.lastRemovedToken) {
+    if (model instanceof Editor && model.lastRemovedToken) {
         svgContent.push(svg`
          <path d="M ${(model.lastRemovedToken[0] - 6) * 10} ${model.lastRemovedToken[1] * 10} 
             v -10 h 10 v -10 h 10 v -20 h 20 v -10 h 10 v -10 h 10
@@ -209,7 +213,7 @@ function createTokenElement(token: Token): SVGElement {
     return e
 }
 
-function createBackgroundElement (color: Color): SVGElement {
+function createBackgroundElement(color: Color): SVGElement {
     const e = document.createElementNS(SVGNamespaceURI, "use")
     e.setAttribute("width", "10")
     e.setAttribute("height", "10")

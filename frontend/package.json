@@ -7,32 +7,27 @@
         "email": "alexander.metzner@gmail.com"
     },
     "devDependencies": {
-        "typescript": "5.9.2",
-
-        "@weccoframework/core": "0.26.0",
+        "@types/jest": "30.0.0",
+        "@typescript-eslint/eslint-plugin": "8.44.1",
+        "@typescript-eslint/parser": "8.44.1",
+        "@weccoframework/core": "0.27.2",
         "@weccoframework/i18n": "0.4.0",
         "bootstrap": "5.3.8",
-
         "css-loader": "7.1.2",
+        "eslint": "9.36.0",
+        "html-webpack-plugin": "5.6.4",
+        "jest": "30.2.0",
         "mini-css-extract-plugin": "2.9.4",
         "sass": "1.93.2",
         "sass-loader": "16.0.5",
-
-        "jest": "30.2.0",
         "ts-jest": "29.4.4",
-        "@types/jest": "30.0.0",
-        
-        "webpack": "5.101.3",
-        "webpack-cli": "6.0.1",
-        "webpack-dev-server": "5.2.2",
         "ts-loader": "9.5.4",
         "ts-node": "10.9.2",
         "tsconfig-paths-webpack-plugin": "4.2.0",
-        "html-webpack-plugin": "5.6.4",
-
-        "eslint": "9.36.0",
-        "@typescript-eslint/eslint-plugin": "8.44.1",
-        "@typescript-eslint/parser": "8.44.1"
+        "typescript": "5.9.2",
+        "webpack": "5.101.3",
+        "webpack-cli": "6.0.1",
+        "webpack-dev-server": "5.2.2"
     },
     "scripts": {
         "start": "webpack serve",
