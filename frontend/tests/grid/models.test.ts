@@ -17,7 +17,7 @@ describe("Token", () => {
 describe("GameGrid", () => {
     describe("fromDescriptor", () => {
         describe("should parse example descriptor", () => {
-            const gameGrid = GameGrid.fromDescriptor("1", "test", "30:20/-10e4-586/pb1pg1pr1po1pp1-1pk1kk1-592/-30le1-1le1-1de1-1165")
+            const gameGrid = GameGrid.fromDescriptor("test", "30x20:-10e4-586:pb1pg1pr1po1pp1-1pk1kk1-592:-30le1-1le1-1de1-1165", "1")
 
             test("should have id set", () => {
                 expect(gameGrid.id).toStrictEqual("1")

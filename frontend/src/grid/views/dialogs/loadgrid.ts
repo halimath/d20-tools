@@ -2,18 +2,18 @@ import * as wecco from "@weccoframework/core"
 import { modal } from "src/common/components/modal"
 import { m } from "../../../common/i18n"
 import { LoadGrid, Message } from "../../controller/controller"
-import { GameGridInfo } from "../../models/models"
-import { deleteGameGrid, loadSummaries } from "../../store"
+import { GameGrid } from "d20-tools/grid/models/models"
+import { loadGridIndex } from "d20-tools/grid/api/api"
 
 interface LoadDialogModel {
     onLoad: (id: string) => void
-    infos?: Array<GameGridInfo>
+    infos?: Array<GameGrid>
 }
 
 const LoadDialog = wecco.define("load-dialog", ({data, requestUpdate, once}: wecco.RenderContext<LoadDialogModel>) => {
     if (!data.infos) {
         once("load", async () => {
-            data.infos = await loadSummaries()
+            data.infos = await loadGridIndex()
             requestUpdate()
         })
 
@@ -39,13 +39,13 @@ const LoadDialog = wecco.define("load-dialog", ({data, requestUpdate, once}: wec
                     ${data.infos.map((i, idx) => wecco.html`
                         <tr>
                             <td>${i.label}</td>
-                            <td>${i.dimension}</td>
-                            <td>${m("$relativeTime", i.lastUpdate.getTime() - new Date().getTime())}</td>
+                            <td>${i.cols} x ${i.rows}</td>
+                            <td>${m("$relativeTime", i.lastModified!.getTime() - new Date().getTime())}</td>
                             <td>
-                                <button class="btn btn-outline-primary btn-small" data-bs-dismiss="modal" @click=${() => data.onLoad(i.id)}><i class="material-icons">edit</i></button>
+                                <button class="btn btn-outline-primary btn-small" data-bs-dismiss="modal" @click=${() => data.onLoad(i.id!)}><i class="material-icons">edit</i></button>
                                 <button class="btn btn-outline-danger btn-small"><i class="material-icons" @click=${() => {
                                     data.infos?.splice(idx, 1)
-                                    deleteGameGrid(i.id)
+                                    // deleteGameGrid(i.id)
                                     requestUpdate()
                                 }}>delete</i></button>
                             </td>

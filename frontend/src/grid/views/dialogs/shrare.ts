@@ -4,7 +4,7 @@ import { m } from "../../../common/i18n"
 import { GameGrid } from "../../models/models"
 
 const ShareDialog = wecco.define("share-dialog", ({data}: wecco.RenderContext<{ grid: GameGrid }>) => {
-    const url = document.location.href.replace(/#.*/, "#" + data.grid.descriptor)
+    const url = document.location.href.replace(/edit:.*$/, `view:${data.grid.id}`)
     return wecco.html`
         <div class="modal-header">
             <h5 class="modal-title">${m("gameGrid.share.title")}</h5>

@@ -1,6 +1,7 @@
 import * as wecco from "@weccoframework/core"
 import { m } from "../i18n"
 import { modal } from "./modal"
+import { loginLogoutLink } from "./auth"
 
 export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "grid" | "encounters"): wecco.ElementUpdate {
     return wecco.html`
@@ -16,7 +17,8 @@ export function appShell(main: wecco.ElementUpdate, activePage: "diceroller" | "
                     <li class="nav-item"><a class="nav-link ${activePage === "encounters" ? "active" : ""}" href="/encounters/">${m("nav.encounters")}</a></li>
                 </ul>
                 <ul class="navbar-nav me-auto">                    
-                    <li class="nav-item"><a class="nav-link" @click=${()=> showAboutDialog()}>${m("nav.about")}</a></li>                    
+                    <li class="nav-item"><a class="nav-link" @click=${()=> showAboutDialog()}>${m("nav.about")}</a></li>
+                    <li class="nav-item">${loginLogoutLink()}</li>
                 </ul>
             </div>
         </nav>
@@ -34,7 +36,7 @@ interface VersionInfo {
 }
 
 async function showAboutDialog () {
-    const versionInfo = await fetch("/.well-known/version-info.js")
+    const versionInfo = await fetch("/.well-known/version-info.json")
         .then(r => r.json())
         .catch(e => {
             console.error(`Error fetching version info: ${e}`)

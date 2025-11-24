@@ -42,7 +42,7 @@ module.exports = {
                         loader: 'sass-loader',
                         options: {
                             sassOptions: {
-                                silenceDeprecations: [ 'color-functions', 'global-builtin', 'import'],
+                                silenceDeprecations: ['color-functions', 'global-builtin', 'import'],
                             }
                         }
                     }
@@ -80,8 +80,30 @@ module.exports = {
             directory: "./public",
             serveIndex: true,
         },
+        proxy: [
+            {
+                context: ['/api', '/auth', '/.well-known'],
+                target: 'http://localhost:8080',
+                ws: false,                // ensure WebSocket handling is off
+                headers: {
+                    Connection: 'keep-alive',
+                },
+                onProxyRes: (proxyRes) => {
+                    // Disable buffering
+                    proxyRes.headers['X-Accel-Buffering'] = 'no';
+                    proxyRes.headers['Connection'] = 'keep-alive';
+                },
+                // 👇 Critical for SSE: disable response body buffering
+                selfHandleResponse: false,
+            },
+        ],
+        historyApiFallback: {
+            rewrites: [
+                { from: /^\/grid\/.*$/, to: '/grid/' },
+            ],
+        },
         host: "0.0.0.0",
-        compress: true,
+        compress: false,
         port: 9999,
     }
 }

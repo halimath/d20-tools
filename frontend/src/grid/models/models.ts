@@ -158,22 +158,22 @@ function randomLabel(): string {
  * GrameGrid defines a grid with contained Tokens and Walls.
  */
 export class GameGrid {
-    static fromDescriptor(id: string, label: string, descriptor: string): GameGrid {
-        const [sizeString, backgroundString, tokensString, wallsString] = descriptor.split("/")
+    static fromDescriptor(label: string, descriptor: string, id?: string, lastModified?: Date): GameGrid {
+        const [sizeString, backgroundString, tokensString, wallsString] = descriptor.split(":")
         if (!sizeString) {
             throw new Error(`invalid grid descriptor: invalid size string: "${sizeString}"`)
         }
-        const [colsString, rowsString] = sizeString.split(":")
+        const [colsString, rowsString] = sizeString.split("x")
         const cols = parseInt(colsString)
         const rows = parseInt(rowsString)
         if (isNaN(cols) || isNaN(rows)) {
             throw new Error(`invalid grid descriptor: invalid size: ${cols}x${rows}`)
         }
 
-        return new GameGrid(id, cols, rows, label,
+        return new GameGrid(cols, rows, label,
             GameGrid.parseBackgroundUrlString(cols, rows, backgroundString),
             GameGrid.parseTokensUrlString(cols, rows, tokensString),
-            GameGrid.parseWallsUrlString(cols, rows, wallsString))
+            GameGrid.parseWallsUrlString(cols, rows, wallsString), id, lastModified)
     }
 
     private static parseTokensUrlString(cols: number, rows: number, tokensString: string): Array<Token | undefined> {
@@ -264,7 +264,7 @@ export class GameGrid {
     }
 
     static createInitial(cols = 30, rows = 20): GameGrid {
-        const gg = new GameGrid(createId(), cols, rows, randomLabel(), 
+        const gg = new GameGrid(cols, rows, randomLabel(), 
             [...range(cols * rows)].map(() => void 0), 
             [...range(cols * rows)].map(() => void 0), 
             [...range(cols * rows * 2)].map(() => void 0))
@@ -285,20 +285,21 @@ export class GameGrid {
     }
 
     constructor(
-        public readonly id: string,
         public readonly cols: number,
         public readonly rows: number,
         public label: string,
         public background: Array<Color | undefined>,
         public tokens: Array<Token | undefined>,
         public walls: Array<Wall | undefined>,
+        public id?: string,
+        public lastModified?: Date, 
     ) { }
 
     resize(cols: number, rows: number): GameGrid {
         const tokens = [...range(cols * rows)].map(() => void 0)
         const walls = [...range(cols * rows * 2)].map(() => void 0)
 
-        const result = new GameGrid(this.id, cols, rows, this.label, this.background, tokens, walls)
+        const result = new GameGrid(cols, rows, this.label, this.background, tokens, walls, this.id)
 
         for (let c = 0; c < Math.min(this.cols, cols); c++) {
             for (let r = 0; r < Math.min(this.rows, rows); r++) {
@@ -374,7 +375,7 @@ export class GameGrid {
     }
 
     get descriptor(): string {
-        return `${this.cols}:${this.rows}/${this.urlHashBackground()}/${this.urlHashTokens()}/${this.urlHashWalls()}`
+        return `${this.cols}x${this.rows}:${this.urlHashBackground()}:${this.urlHashTokens()}:${this.urlHashWalls()}`
     }
 
     private urlHashWalls(): string {
@@ -483,61 +484,53 @@ export const DefaultZoomLevel = 5
 
 export type Location = [number, number]
 
-export class Model {
+export class Viewer {
     constructor(
         public readonly gameGrid: GameGrid,
-        public color: Color = Colors[0],
-        public tool: Tool = TokenSymbols[0],
         public zoomLevel: number = DefaultZoomLevel,
-        public lastRemovedToken: Location | undefined = undefined,
     ) { }
 
-    setLastRemovedToken(loc: Location): Model {
-        this.lastRemovedToken = loc
-        return this
-    }
-
-    clearLastRemovedToken(): Model {
-        this.lastRemovedToken = undefined
-        return this
-    }
-
-    selectColorAndTool(color: Color, tool: Tool): Model {
-        this.color = color
-        this.tool = tool
-        return this
-    }
-
-    decreaseZoom(): Model {
+    decreaseZoom(){
         if (this.zoomLevel === 3) {
-            return this
+            return
         }
 
         this.zoomLevel--
-
-        return this
     }
 
-    increaseZoom(): Model {
+    increaseZoom(){
         if (this.zoomLevel === 15) {
-            return this
+            return
         }
 
         this.zoomLevel++
+    }    
+}
 
-        return this
+export class Editor extends Viewer {
+    constructor(        
+        gameGrid: GameGrid,
+        zoomLevel: number = DefaultZoomLevel,
+        public color: Color = Colors[0],
+        public tool: Tool = TokenSymbols[0],
+        public lastRemovedToken: Location | undefined = undefined,
+        public showShareDialog: boolean = false,
+    ) { 
+        super(gameGrid, zoomLevel)
+    }
+
+    setLastRemovedToken(loc: Location) {
+        this.lastRemovedToken = loc
+    }
+
+    clearLastRemovedToken(){
+        this.lastRemovedToken = undefined
+    }
+
+    selectColorAndTool(color: Color, tool: Tool){
+        this.color = color
+        this.tool = tool
     }
 }
 
-// --
-
-export function createId(): string {
-    return crypto.randomUUID().replaceAll("-", "")
-}
-
-// --
-
-export class GameGridInfo {
-    constructor(public readonly id: string, public readonly lastUpdate: Date, public readonly label: string, 
-        public readonly dimension: string) { }
-}
+export type Model = Viewer | Editor
