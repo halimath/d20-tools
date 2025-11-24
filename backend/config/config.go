@@ -7,8 +7,8 @@ import (
 )
 
 type OAuthConfig struct {
-	ProviderURL  string `env:"PROVIDER_URL, default=https://auth.wilanthaou.de/application/o/d20-tools/"`
-	ClientID     string `env:"CLIENT_ID, default=w4MUlbBTvCPkXx5HeXSeGrj6ewN3Ng5pwNKYXU0D"`
+	ProviderURL  string `env:"PROVIDER_URL"`
+	ClientID     string `env:"CLIENT_ID"`
 	ClientSecret string `env:"CLIENT_SECRET"`
 	RedirectURL  string `env:"REDIRECT_URL"`
 }
