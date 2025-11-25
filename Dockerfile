@@ -10,6 +10,8 @@ RUN npm run dist
 
 FROM golang:1.25-alpine AS backendbuild
 
+RUN apk add --no-cache ca-certificates
+
 WORKDIR /workdir
 
 COPY backend .
@@ -40,6 +42,7 @@ LABEL org.label-schema.vendor="Alexander Metzner"
 LABEL org.label-schema.version="${version}" 
 LABEL org.label-schema.schema-version="1.0"
 
+COPY --from=backendbuild /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=backendbuild /workdir/d20-tools /d20-tools
 
 VOLUME [ "/data" ]
