@@ -64,10 +64,6 @@ export class ScrollTo {
     constructor (public readonly position: ScrollPosition) {}
 }
 
-export class ShareGrid {
-    readonly command = "share-grid"
-}
-
 export class GridRemoteUpdate {
     readonly command = "grid-remote-update"
 
@@ -77,7 +73,7 @@ export class GridRemoteUpdate {
 // --
 
 export type Message = LoadGrid | ResizeGrid | UpdateLabel | PlaceToken | PlaceWall | PlaceBackground 
-    | SelectTool | ClearGrid | IncZoom | DecZoom | ScrollTo | ShareGrid | GridRemoteUpdate
+    | SelectTool | ClearGrid | IncZoom | DecZoom | ScrollTo | GridRemoteUpdate
 
 export async function update({ model, message }: wecco.UpdaterContext<Model, Message>): Promise<Model> {
     console.debug("handle message", message)
@@ -207,9 +203,6 @@ async function applyUpdate(model: Model, message: Message): Promise<Model> {
             model.scrollPosition = message.position
             return model
 
-        case "share-grid":
-            return shareGrid(model)
-
         case "grid-remote-update":
             if (!(model instanceof Viewer)) {
                 return model
@@ -218,10 +211,5 @@ async function applyUpdate(model: Model, message: Message): Promise<Model> {
             return new Viewer(message.grid, model.zoomLevel)
     }
 
-    return model
-}
-
-function shareGrid(model: Model): Model {
-    // FIXME Implement
     return model
 }

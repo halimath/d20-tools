@@ -1,10 +1,9 @@
 import * as wecco from "@weccoframework/core"
-import { select } from "d20-tools/common/components/forms/select"
 import { inputField, notEmpty } from "d20-tools/common/components/forms/input"
+import { select } from "d20-tools/common/components/forms/select"
 import { modal } from "d20-tools/common/components/modal"
-import { tabs } from "d20-tools/common/components/tabs"
-import { CreateNPC, CreatePC, Message } from "../../controller"
 import { m } from "d20-tools/common/i18n"
+import { CreateNPC, CreatePC, Message } from "../../controller"
 import { Kind } from "../../models"
 
 interface AddPCDialogData {

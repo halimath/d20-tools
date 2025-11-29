@@ -48,7 +48,9 @@ function viewer(model: Viewer, emit: wecco.MessageEmitter<Message>): wecco.Eleme
 function gridWithWrapper(model: Editor | Viewer, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
     const onScroll = (e: Event) => {
         const t = e.target! as HTMLElement
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((t as any).programmaticScroll) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (t as any).programmaticScroll = false
             return
         }
@@ -60,6 +62,7 @@ function gridWithWrapper(model: Editor | Viewer, emit: wecco.MessageEmitter<Mess
         <div class="grid-wrapper" @scrollend=${onScroll} @update=${(e: Event) => {
             requestAnimationFrame(() => {
                 const t = e.target! as HTMLElement
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (t as any).programmaticScroll = true
                 t.scrollTo({
                     ...model.scrollPosition,
