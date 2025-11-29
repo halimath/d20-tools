@@ -2,8 +2,8 @@ import * as wecco from "@weccoframework/core"
 import { expandOverlay } from "d20-tools/common/components/expand_overlay"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
-import { ResizeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectTool, UpdateLabel } from "../controller/controller"
-import { Colors, Editor, isWallSymbol, Model, TokenSymbols, Viewer, WallSymbol, WallSymbols } from "../models/models"
+import { ResizeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectTool, UpdateLabel, ScrollTo } from "../controller/controller"
+import { Colors, Editor, isWallSymbol, Model, ScrollPosition, TokenSymbols, Viewer, WallSymbol, WallSymbols } from "../models/models"
 import { showLoadDialog } from "./dialogs/loadgrid"
 import { showShareDialog } from "./dialogs/shrare"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
@@ -41,10 +41,35 @@ function viewer(model: Viewer, emit: wecco.MessageEmitter<Message>): wecco.Eleme
             </div>
         </div>
 
-        <div class="grid-wrapper">
+        ${gridWithWrapper(model, emit)}
+    `
+}
+
+function gridWithWrapper(model: Editor | Viewer, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
+    const onScroll = (e: Event) => {
+        const t = e.target! as HTMLElement
+        if ((t as any).programmaticScroll) {
+            (t as any).programmaticScroll = false
+            return
+        }
+        
+        emit(new ScrollTo(new ScrollPosition(t.scrollTop, t.scrollLeft)))
+    }
+
+    return wecco.html`
+        <div class="grid-wrapper" @scrollend=${onScroll} @update=${(e: Event) => {
+            requestAnimationFrame(() => {
+                const t = e.target! as HTMLElement
+                (t as any).programmaticScroll = true
+                t.scrollTo({
+                    ...model.scrollPosition,
+                    behavior: "instant",
+                })
+            })
+        }}>
             ${gridContent(emit, model)}
-        </div>
-    `    
+        </div>    
+    `
 }
 
 function editor(model: Editor, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
@@ -151,9 +176,7 @@ function editor(model: Editor, emit: wecco.MessageEmitter<Message>): wecco.Eleme
             </div>
         </div>
 
-        <div class="grid-wrapper">
-            ${gridContent(emit, model)}
-        </div>
+        ${gridWithWrapper(model, emit)}
     `
 }
 
@@ -178,15 +201,6 @@ function actionsMenu(model: Model, emit: wecco.MessageEmitter<Message>): wecco.E
     }
 
     return actions
-
-    return wecco.html`
-        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="material-icons">more_horiz</i>
-        </button>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item" @click=${showLoadDialog.bind(null, emit)}><i class="material-icons mr-1">file_open</i> ${m("gameGrid.actions.load")}</a></li>
-        </ul>    
-    `
 }
 
 function wallSymbolButtonLabel(s: WallSymbol): wecco.ElementUpdate {
