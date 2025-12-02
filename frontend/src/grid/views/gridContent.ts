@@ -2,14 +2,14 @@ import * as wecco from "@weccoframework/core"
 import { Message, PlaceBackground, PlaceToken, PlaceWall } from "../controller/controller"
 import { Color, Editor, isTokenSymbol, Model, Token, Wall, WallSymbol } from "../models/models"
 
-const WallSnapSize = 0.2
+const WallSnapSize = 0.4
 const GridCellSize = 10
 
 export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): wecco.ElementUpdate {
     let svgElement: SVGElement
 
     function updateSvgTransform(svg: SVGElement) {
-        svg.querySelector("g")?.setAttribute("transform", `translate(10, 10), scale(${model.zoomLevel}, ${model.zoomLevel})`)
+        svg.querySelector("g")?.setAttribute("transform", `scale(${model.zoomLevel}, ${model.zoomLevel})`)
     }
 
     function updateSvg(e: SVGElement) {
@@ -69,6 +69,9 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
 
         const wallSymbol = model.tool as WallSymbol
 
+        // Determine where to place the wall by looking at all four sides taking
+        // WallSnapSize into account.
+        
         if (distanceX < WallSnapSize) {
             emit(new PlaceWall(targetCol, targetRow, "left", new Wall(wallSymbol, model.color)))
             return
