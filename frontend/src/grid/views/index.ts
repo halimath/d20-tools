@@ -52,19 +52,15 @@ function gridWithWrapper(model: Editor | Viewer, emit: wecco.MessageEmitter<Mess
         e.stopPropagation()
         e.stopImmediatePropagation()
 
-        console.log("on scrollend", e)
-
         const t = e.target! as HTMLElement
         
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((t as any).programmaticScroll) {
-            console.log("not handling scroll event as scrolling is programmatic");
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (t as any).programmaticScroll = false
             return
         }
 
-        console.log("handling scroll event");
         emit(new ScrollTo(new ScrollPosition(t.scrollTop, t.scrollLeft)))
     }
 
@@ -88,7 +84,6 @@ function gridWithWrapper(model: Editor | Viewer, emit: wecco.MessageEmitter<Mess
                 return
             }
 
-            console.log("grid updated; scrolling to last position")
             requestAnimationFrame(() => {
                 const t = e.target! as HTMLElement
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any

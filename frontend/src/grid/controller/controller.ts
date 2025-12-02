@@ -76,7 +76,6 @@ export type Message = LoadGrid | ResizeGrid | UpdateLabel | PlaceToken | PlaceWa
     | SelectTool | ClearGrid | IncZoom | DecZoom | ScrollTo | GridRemoteUpdate
 
 export async function update({ model, message }: wecco.UpdaterContext<Model, Message>): Promise<Model> {
-    console.debug("handle message", message)
     const updated = await applyUpdate(model, message)
 
     if (updated.gameGrid.isEmpty) {
