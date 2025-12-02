@@ -485,6 +485,10 @@ export const DefaultZoomLevel = 5
 export type Location = [number, number]
 export class ScrollPosition {
     constructor (public readonly top: number, public readonly left: number) {}
+
+    get isZero(): boolean {
+        return this.top === 0 && this.left === 0
+    }
 }
 
 export class Viewer {

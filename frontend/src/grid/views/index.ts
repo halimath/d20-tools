@@ -8,6 +8,7 @@ import { showLoadDialog } from "./dialogs/loadgrid"
 import { showShareDialog } from "./dialogs/shrare"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
 import { isAuthenticated } from "d20-tools/common/components/auth"
+import { isSafari } from "d20-tools/common/browser"
 
 export function root({model, emit}: wecco.ViewContext<Model, Message>): wecco.ElementUpdate {
     let body: wecco.ElementUpdate
@@ -46,24 +47,52 @@ function viewer(model: Viewer, emit: wecco.MessageEmitter<Message>): wecco.Eleme
 }
 
 function gridWithWrapper(model: Editor | Viewer, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
-    const onScroll = (e: Event) => {
+    const onScrollEnd = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+        e.stopImmediatePropagation()
+
+        console.log("on scrollend", e)
+
         const t = e.target! as HTMLElement
+        
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((t as any).programmaticScroll) {
+            console.log("not handling scroll event as scrolling is programmatic");
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (t as any).programmaticScroll = false
             return
         }
-        
+
+        console.log("handling scroll event");
         emit(new ScrollTo(new ScrollPosition(t.scrollTop, t.scrollLeft)))
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let onScroll = (e:Event) => {}
+
+    if (isSafari()) {
+        console.log("safari detected: polyfilling scrollend")
+        // polyfill the scrollend event
+        let timer: number
+
+        onScroll = (e:Event) => {
+            clearTimeout(timer)
+            timer = setTimeout(() => e.target?.dispatchEvent(new Event("scrollend")), 120)
+        }
+    }
+
     return wecco.html`
-        <div class="grid-wrapper" @scrollend=${onScroll} @update=${(e: Event) => {
+        <div class="grid-wrapper" @scrollend=${onScrollEnd} @scroll=${onScroll} @update=${(e: Event) => {
+            if (model.scrollPosition.isZero) {
+                return
+            }
+
+            console.log("grid updated; scrolling to last position")
             requestAnimationFrame(() => {
                 const t = e.target! as HTMLElement
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (t as any).programmaticScroll = true
+                (t as any).programmaticScroll = true                
                 t.scrollTo({
                     ...model.scrollPosition,
                     behavior: "instant",

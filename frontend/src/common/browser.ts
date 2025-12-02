@@ -39,3 +39,11 @@ export function setLastPathElement(pathElement: string) {
     elements[elements.length - 1] = pathElement
     history.replaceState(null, "", elements.join("/"))
 }
+
+export function isSafari() {
+  const ua = navigator.userAgent;
+
+  return (
+    /^((?!chrome|android).)*safari/i.test(ua)
+  )
+}

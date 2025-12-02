@@ -2,7 +2,7 @@ import * as wecco from "@weccoframework/core"
 import { Message, PlaceBackground, PlaceToken, PlaceWall } from "../controller/controller"
 import { Color, Editor, isTokenSymbol, Model, Token, Wall, WallSymbol } from "../models/models"
 
-const WallSnapSize = 0.2
+const WallSnapSize = 0.4
 const GridCellSize = 10
 
 export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): wecco.ElementUpdate {
@@ -69,6 +69,9 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
 
         const wallSymbol = model.tool as WallSymbol
 
+        // TODO: Refactor this to calculate distances to all four surrounding
+        // walls and pick the closest.
+        
         if (distanceX < WallSnapSize) {
             emit(new PlaceWall(targetCol, targetRow, "left", new Wall(wallSymbol, model.color)))
             return
