@@ -207,7 +207,7 @@ async function applyUpdate(model: Model, message: Message): Promise<Model> {
                 return model
             }
             console.log(`Updating viewed grid on remote update`)
-            return new Viewer(message.grid, model.zoomLevel)
+            return new Viewer(message.grid, model.zoomLevel, model.scrollPosition)
     }
 
     return model
