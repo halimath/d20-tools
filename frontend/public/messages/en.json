@@ -34,6 +34,7 @@
     "encounters.pc": "Player Character",
     "encounters.npc": "Non-player Character",
     "encounters.kinds": "NPCs",
+    "encounters.staticIni": "Static Ini.",
     "encounters.ini": "Ini",
     "encounters.speed": "Speed",
     "encounters.fields.1": "1 field",

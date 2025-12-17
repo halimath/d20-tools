@@ -9,24 +9,24 @@ export function characters(model: Model, emit: wecco.MessageEmitter<Message>): w
         return wecco.html`<p class="lead text-center mt-4">${m("encounters.noCharacters")}</p>`
     }
 
-    return model.characters.map((c, idx) => wecco.html`<div class="col-12" @click=${() => emit(new SelectActiveCharacter(idx))}>${character(emit, c, idx === model.activeCharacterIndex)}</div>`)
+    return model.characters.map((c, idx) => wecco.html`<div class="col-12" @click=${() => emit(new SelectActiveCharacter(idx))}>${character(emit, model, c, idx === model.activeCharacterIndex)}</div>`)
 }
 
-export function character (emit: wecco.MessageEmitter<Message>, character: Character, active: boolean): wecco.ElementUpdate {
+export function character (emit: wecco.MessageEmitter<Message>, model: Model, character: Character, active: boolean): wecco.ElementUpdate {
     if (character instanceof NPC) {
-        return npc(emit, character, active)
+        return npc(emit, model, character, active)
     }
 
-    return pc(emit, character, active)
+    return pc(emit, model, character as PC, active)
 }
 
-function pc(emit: wecco.MessageEmitter<Message>, pc: PC, active: boolean): wecco.ElementUpdate {
+function pc(emit: wecco.MessageEmitter<Message>, model: Model, pc: PC, active: boolean): wecco.ElementUpdate {
     return wecco.html`
         <div class="mt-2 mb-2 card character pc shadow-sm ${active ? "active" : ""}">
             <div class="card-body">
                 <div class="row">
                     <div class="col">
-                        ${m("encounters.ini")}: <strong>${pc.ini.value}</strong>
+                        ${m("encounters.ini")}: <strong>${pc.ini.value(model.initiativeKind)}</strong>
                     </div>
                     <div class="col-6">
                         <h5 class="card-title">${pc.label}</h5>
@@ -39,13 +39,13 @@ function pc(emit: wecco.MessageEmitter<Message>, pc: PC, active: boolean): wecco
         </div>`
 }
 
-function npc (emit: wecco.MessageEmitter<Message>, npc: NPC, active: boolean): wecco.ElementUpdate {
+function npc (emit: wecco.MessageEmitter<Message>, model: Model, npc: NPC, active: boolean): wecco.ElementUpdate {
     return wecco.html`
         <div class="mt-2 mb-2 card character npc shadow-sm ${active ? "active" : ""} ${npc.isDead ? "dead": ""}">
             <div class="card-body">                
                 <div class="row">
                     <div class="col">
-                        ${m("encounters.ini")}: <strong>${npc.ini.value}</strong>
+                        ${m("encounters.ini")}: <strong>${npc.ini.value(model.initiativeKind)}</strong>
                     </div>
                     <div class="col">
                         <h5 class="card-title">${npc.label} <span class="badge text-bg-secondary">${npc.kind.label}</span></h5>
