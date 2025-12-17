@@ -18,7 +18,7 @@ function convertPC (pc: models.PC): dtos.PC {
     return {
         type: "pc",
         label: pc.label,
-        ini: convertIni(pc.ini),
+        ini: pc.iniValue
     }
 }
 
@@ -29,13 +29,13 @@ function convertNPC (npc: models.NPC): dtos.NPC {
         kind: npc.kind.label,
         hp: npc.hitpoints,
         chp: npc.currentHitpoints,
-        ini: convertIni(npc.ini),
+        ini: convertIni(npc.ini.rollResult),
     }
 }
 
 export function reconstructCharacter(dto: dtos.PC | dtos.NPC, kinds: Array<models.Kind>): models.Character {
     if (dto.type === "pc") {
-        return new models.PC(dto.label, new RollResult(dto.ini.dieResult, dto.ini.modifier))
+        return new models.PC(dto.label, dto.ini)
     }
 
     const kind = kinds.find(k => k.label === dto.kind)

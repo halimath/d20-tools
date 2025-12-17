@@ -2,21 +2,22 @@ export * from "./character"
 export * from "./npc"
 export * from "./roll"
 
-import { Character, PC } from "./character"
+import { Character, InitiativeKind, PC } from "./character"
 import { Attack, Kind, NPC, SavingThrow } from "./npc"
-import { RollResult } from "./roll"
 
 export type Tab = "characters" | "kinds"
+
 
 export class Model {
     constructor(
         public readonly kinds: Array<Kind>,
         public readonly characters: Array<Character>,
-        public readonly activeCharacterIndex: number = 0,
-        public readonly tab: Tab = "characters",
+        public readonly activeCharacterIndex: number,
+        public readonly tab: Tab,
+        public readonly initiativeKind: InitiativeKind,
     ) { 
         this.kinds.sort((a, b) => a.label.localeCompare(b.label))
-        this.characters.sort((a, b) => b.ini.value - a.ini.value)
+        this.sortCharacters(this.characters, this.initiativeKind)
     }
 
     createNPC(label: string, kind: Kind): Model {
@@ -27,17 +28,21 @@ export class Model {
         }
 
         characters.push(NPC.create(label, kind))
-        characters.sort((a, b) => b.ini.value - a.ini.value)
+        this.sortCharacters(characters, this.initiativeKind)
 
-        return new Model(this.kinds, characters, this.activeCharacterIndex)
+        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
     }
 
-    createPC(label: string, ini: RollResult): Model {
+    createPC(label: string, ini: number): Model {
         const characters = this.characters.slice()
         characters.push(new PC(label, ini))
-        characters.sort((a, b) => b.ini.value - a.ini.value)
+        this.sortCharacters(characters, this.initiativeKind)
 
-        return new Model(this.kinds, characters, this.activeCharacterIndex)
+        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
+    }
+
+    private sortCharacters(characters: Array<Character>, kind: InitiativeKind) {
+        characters.sort((a, b) => b.ini.value(kind) - a.ini.value(kind))
     }
 
     removeCharacter(character: Character): Model {
@@ -48,7 +53,7 @@ export class Model {
         const characters = this.characters.slice()
         characters.splice(idx, 1)
 
-        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab)
+        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
     }
 
     rollSavingThrow(character: Character, savingThrow: SavingThrow): Model {
@@ -65,7 +70,7 @@ export class Model {
         characters.push(character.rollSavingThrow(savingThrow))
         characters = characters.concat(this.characters.slice(idx + 1))
 
-        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab)
+        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
     }
 
     performAttach(character: Character, attack: Attack): Model {
@@ -82,7 +87,7 @@ export class Model {
         characters.push(character.performAttack(attack))
         characters = characters.concat(this.characters.slice(idx + 1))
 
-        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab)
+        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
     }
 
     updateCurrentHitPoints(character: Character, delta: number): Model {
@@ -99,31 +104,31 @@ export class Model {
         characters.push(character.updateCurrentHitPoints(delta))
         characters = characters.concat(this.characters.slice(idx + 1))
 
-        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab)
+        return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
     }
 
     selectActiveCharacter(index: number): Model {
         if (index < 0 || index >= this.characters.length) {
             return this
         }
-        return new Model(this.kinds, this.characters, index, this.tab)
+        return new Model(this.kinds, this.characters, index, this.tab, this.initiativeKind)
     }
 
     clear(): Model {
-        return new Model(this.kinds, [], 0, this.tab)
+        return new Model(this.kinds, [], 0, this.tab, this.initiativeKind)
     }
 
     updateKind(index: number, k: Kind): Model {
         const kinds = this.kinds.slice()
         kinds[index] = k
         // TODO: Check if we need to upgrade characters
-        return new Model(kinds, this.characters, this.activeCharacterIndex, this.tab)
+        return new Model(kinds, this.characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
     }
 
     appendKind(k: Kind): Model {
         const kinds = this.kinds.slice()
         kinds.push(k)
-        return new Model(kinds, this.characters, this.activeCharacterIndex, this.tab)
+        return new Model(kinds, this.characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
     }
 
     removeKind(kind: Kind): Model {
@@ -132,6 +137,14 @@ export class Model {
             return this
         }
         return new Model(this.kinds.slice(0, idx).concat(this.kinds.slice(idx + 1)), 
-            this.characters, this.activeCharacterIndex, this.tab)
+            this.characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
+    }
+
+    switchInitiativeKind(initiativeKind: InitiativeKind): Model {
+        if (initiativeKind === this.initiativeKind) {
+            return this
+        }
+
+        return new Model(this.kinds, this.characters, this.activeCharacterIndex, this.tab, initiativeKind)
     }
 }

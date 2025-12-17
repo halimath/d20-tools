@@ -1,4 +1,4 @@
-import { Character } from "./character"
+import { Character, InitiativeKind, InitiativeResult } from "./character"
 import { DieRoll, Roll, RollResult } from "./roll"
 
 export class HitDamage {
@@ -99,11 +99,23 @@ export class Kind {
     }
 }
 
+export class IniRollResult implements InitiativeResult {
+    constructor (public readonly rollResult: RollResult) {}
+
+    value(initiativeKind: InitiativeKind): number {
+        if (initiativeKind === "roll") {
+            return this.rollResult.value
+        }
+
+        return 10 + this.rollResult.modifier
+    }
+}
+
 export class NPC implements Character {
     static create (label: string, kind: Kind, hitpoints?: number, currentHitpoints?: number, ini?: RollResult): NPC {
         const hp = hitpoints ?? kind.hitDie.roll().value
 
-        return new NPC(label, kind, ini ?? kind.rollIni(), hp, currentHitpoints ?? hp, kind.attacks.map(a => [a, undefined]), 
+        return new NPC(label, kind, new IniRollResult(ini ?? kind.rollIni()), hp, currentHitpoints ?? hp, kind.attacks.map(a => [a, undefined]), 
             Object.keys(kind.savingThrows).reduce((obj: unknown, st: SavingThrow) => {
                 (obj as Record<SavingThrow, RollResult | undefined>)[st] = undefined
                 return obj
@@ -114,7 +126,7 @@ export class NPC implements Character {
     constructor(
         public readonly label: string, 
         public readonly kind: Kind, 
-        public readonly ini: RollResult,
+        public readonly ini: IniRollResult,
         public readonly hitpoints: number, 
         public readonly currentHitpoints: number,
         public readonly attacks: Array<[Attack, Hit | undefined]>,

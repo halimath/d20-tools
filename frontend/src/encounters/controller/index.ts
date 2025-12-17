@@ -1,6 +1,5 @@
 import * as wecco from "@weccoframework/core"
-import { setUrlHash } from "src/common/browser"
-import { Attack, Character, Kind, Model, RollResult, SavingThrow, Tab } from "../models"
+import { Attack, Character, InitiativeKind, Kind, Model, SavingThrow, Tab } from "../models"
 import { saveCharacters, saveKinds } from "../store"
 
 export class Nop {
@@ -71,9 +70,15 @@ export class RemoveKind {
     constructor(public readonly kind: Kind) {}
 }
 
+export class SwitchInitiativeKind {
+    readonly command = "switch-initiative-kind"
+
+    constructor (public readonly kind: InitiativeKind) {}
+}
+
 export type Message = Nop | Clear | SelectTab | CreateNPC | CreatePC | RemoveCharacter | PerformAttack 
     | RollSavingThrow | UpdateCurrentHitPoints | SelectActiveCharacter 
-    | SaveKind | RemoveKind
+    | SaveKind | RemoveKind | SwitchInitiativeKind
 
 export function update({model, message}: wecco.UpdaterContext<Model, Message>): Model | Promise<Model> {
     switch (message.command) {
@@ -84,14 +89,13 @@ export function update({model, message}: wecco.UpdaterContext<Model, Message>): 
             return save(model.clear())
 
         case "select-tab":
-            setUrlHash(message.tab)
-            return new Model(model.kinds, model.characters, model.activeCharacterIndex, message.tab)
+            return new Model(model.kinds, model.characters, model.activeCharacterIndex, message.tab, model.initiativeKind)
 
         case "create-npc":
             return save(model.createNPC(message.label, message.kind))
 
         case "create-pc":
-            return save(model.createPC(message.label, new RollResult(message.ini, 0)))
+            return save(model.createPC(message.label, message.ini))
 
         case "remove-character":
             return save(model.removeCharacter(message.character))
@@ -116,6 +120,9 @@ export function update({model, message}: wecco.UpdaterContext<Model, Message>): 
 
         case "remove-kind":
             return save(model.removeKind(message.kind))
+
+        case "switch-initiative-kind":
+            return model.switchInitiativeKind(message.kind)
 
     }
 }

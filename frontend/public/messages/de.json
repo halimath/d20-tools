@@ -47,6 +47,7 @@
     "encounters.kindEditor.damage": "Schaden",
     "encounters.pc": "SC",
     "encounters.npc": "NSC",
+    "encounters.staticIni": "fixe Ini.",
     "encounters.ini": "Ini",
     "encounters.tags": "Tags",
     "encounters.edit.title": "Art bearbeiten",
