@@ -9,8 +9,8 @@ import (
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/halimath/d20-tools/config"
-	"github.com/halimath/d20-tools/infra/session"
 	"github.com/halimath/httputils/response"
+	"github.com/halimath/httputils/session"
 	"github.com/halimath/kvlog"
 	"golang.org/x/oauth2"
 )

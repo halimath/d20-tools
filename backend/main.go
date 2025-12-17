@@ -16,9 +16,10 @@ import (
 	"github.com/halimath/d20-tools/auth"
 	"github.com/halimath/d20-tools/config"
 	"github.com/halimath/d20-tools/grid"
-	"github.com/halimath/d20-tools/infra/session"
 	"github.com/halimath/d20-tools/infra/shelf"
 	"github.com/halimath/httputils/response"
+	"github.com/halimath/httputils/securityheader"
+	"github.com/halimath/httputils/session"
 	"github.com/halimath/kvlog"
 )
 
@@ -94,10 +95,17 @@ func runService(ctx context.Context) int {
 	mux.Handle("/api/grid/", sessionMW(http.StripPrefix("/api/grid", grid.Handler(gridSrv))))
 	mux.Handle("/auth/", sessionMW(http.StripPrefix("/auth", authHandler)))
 
+	handler := securityheader.Middleware(
+		securityheader.ContentSecurityPolicy(),
+		securityheader.StrictTransportSecurity(),
+		securityheader.XContentTypeOptions,
+		securityheader.XFrameOptions(securityheader.XFrameOptionsDirectiveDeny),
+	)(kvlog.Middleware(logger, true)(mux))
+
 	logger.Logs("starting http", kvlog.WithKV("port", cfg.HTTPPort))
 	httpServer := http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.HTTPPort),
-		Handler: kvlog.Middleware(logger, true)(mux),
+		Handler: handler,
 	}
 
 	termChan := make(chan int, 1)
