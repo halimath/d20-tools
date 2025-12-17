@@ -1,7 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/triple-slash-reference
-/// <reference path="./bootstrap.d.ts" />
-
 import * as wecco from "@weccoframework/core"
+import * as bootstrap from "bootstrap"
 
 export interface ModalHandle {
     show(): void

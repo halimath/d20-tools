@@ -117,7 +117,7 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
             const token = model.gameGrid.tokenAt(col, row)
             if (typeof token !== "undefined") {
                 const e = createTokenElement(token)
-                e.setAttribute("transform", `translate(${(col * 10) + 5} ${(row * 10) + 5})`)
+                e.setAttribute("transform", `translate(${(col * 10) + 5} ${(row * 10) + 5.5})`)
                 svgContent.push(e)
             }
         }

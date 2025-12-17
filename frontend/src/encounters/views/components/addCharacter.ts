@@ -19,7 +19,9 @@ const AddPCDialog = wecco.define<AddPCDialogData>("add-pc", ({ data }) => {
     return wecco.html`
         <div class="modal-header">
             <h5 class="modal-title">${m("encounters.add.pc")}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <span class="material-icons">close</span>
+            </button>
         </div>
 
         <div class="modal-body">
@@ -74,7 +76,9 @@ const AddNPCDialog = wecco.define<AddNPCDialogData>("add-npc", ({ data }) => {
     return wecco.html`
         <div class="modal-header">
             <h5 class="modal-title">${m("encounters.add.npc")}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <span class="material-icons">close</span>
+            </button>
         </div>
         <div class="modal-body">
             <div class="mb-2">
