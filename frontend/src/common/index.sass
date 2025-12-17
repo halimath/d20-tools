@@ -6,8 +6,13 @@ $dark: #263238
 
 $light-grey: #f8f8f8
 
-    
 @import "../../node_modules/bootstrap/scss/bootstrap"
+@import "material-icons/iconfont/material-icons.css"
+@import "roboto-fontface/css/roboto/roboto-fontface.css"
+
+.btn-close
+    // Reset the background set to an inline SVG which violates content security policy
+    background: none
 
 .material-icons
     vertical-align: middle

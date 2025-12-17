@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     svgStencils.classList.add("hidden")
     document.body.appendChild(svgStencils)
     wecco.updateElement(svgStencils, wecco.html`
-        <svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden; display: none;"
+        <svg aria-hidden="true" class="svg-stencil"
             xmlns="http://www.w3.org/2000/svg" id="svg-defs">
             <symbol id="wall-top-wall">
                 <path d="M 0 0 l 10 0" />

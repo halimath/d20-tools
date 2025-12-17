@@ -80,7 +80,12 @@ $background-colors: ("grey": #b1b1b1, "green": #739f81, "blue": #7091ec, "red": 
             fill: none
 
 svg
-    // width: 100%
+    &.svg-stencil
+        position: absolute
+        width: 0
+        height: 0
+        overflow: hidden
+        display: none
     
     &#game-grid
         background-color: $light-grey

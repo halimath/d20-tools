@@ -13,7 +13,9 @@ const ShareDialog = wecco.define("share-dialog", ({data}: wecco.RenderContext<{ 
         <div class="modal-body">
             <div class="input-group">
                 <input type="text" class="form-control" value=${url}>
-                <button class="btn btn-primary" @click=${() => navigator.clipboard.writeText(url)}><i class="material-icons">content_copy</i></button>
+                <button class="btn btn-primary" @click=${() => navigator.clipboard.writeText(url)}><i class="material-icons">content_copy</i>
+                    <span class="material-icons">close</span>
+                </button>
             </div>
         </div>`
 })

@@ -112,7 +112,9 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
     return wecco.html`
         <div class="modal-header">
             <h5 class="modal-title">${m("encounters.edit.title")}</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                <span class="material-icons">close</span>
+            </button>
         </div>
         <div class="modal-body">
             <div class="mb-2">
