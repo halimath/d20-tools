@@ -34,7 +34,7 @@ export function modal (content: wecco.ElementUpdate, opts?: Partial<ModalOptions
     }
 
     wecco.updateElement(outlet, wecco.html`
-        <div class="modal fade" tabindex="-1" aria-hidden="true" @update=${onUpdate}>
+        <div class="modal fade" tabindex="-1" aria-hidden="true" @updateend=${onUpdate}>
             <div class="modal-dialog ${options.size ? "modal-" + options.size : ""}">
                 <div class="modal-content">
                     ${content}
