@@ -1,8 +1,8 @@
 import * as wecco from "@weccoframework/core"
-import { setLastPathElement } from "../../common/browser"
-import { Color, Colors, DefaultZoomLevel, Editor, GameGrid, Model, ScrollPosition, Token, TokenSymbols, Tool, Viewer, Wall, WallPosition } from "../models/models"
 import { isAuthenticated } from "d20-tools/common/components/auth"
+import { setLastPathElement } from "../../common/browser"
 import { createGrid, loadGrid, updateGrid } from "../api/api"
+import { Color, Colors, DefaultZoomLevel, Editor, GameGrid, Model, Token, TokenSymbols, Tool, Viewer, Wall, WallPosition } from "../models/models"
 
 export class LoadGrid {
     readonly command = "load-grid"
@@ -58,12 +58,6 @@ export class DecZoom {
     readonly command = "dec-zoom"
 }
 
-export class ScrollTo {
-    readonly command = "scroll-to"
-
-    constructor (public readonly position: ScrollPosition) {}
-}
-
 export class GridRemoteUpdate {
     readonly command = "grid-remote-update"
 
@@ -73,7 +67,7 @@ export class GridRemoteUpdate {
 // --
 
 export type Message = LoadGrid | ResizeGrid | UpdateLabel | PlaceToken | PlaceWall | PlaceBackground 
-    | SelectTool | ClearGrid | IncZoom | DecZoom | ScrollTo | GridRemoteUpdate
+    | SelectTool | ClearGrid | IncZoom | DecZoom | GridRemoteUpdate
 
 export async function update({ model, message }: wecco.UpdaterContext<Model, Message>): Promise<Model> {
     const updated = await applyUpdate(model, message)
@@ -106,7 +100,7 @@ async function applyUpdate(model: Model, message: Message): Promise<Model> {
         case "load-grid":
             return loadGrid(message.id)
                 .then(g => {
-                    return new Editor(g, DefaultZoomLevel, new ScrollPosition(0, 0), Colors[0], TokenSymbols[0])
+                    return new Editor(g, DefaultZoomLevel, Colors[0], TokenSymbols[0])
                 })
 
         case "resize-grid":
@@ -114,7 +108,7 @@ async function applyUpdate(model: Model, message: Message): Promise<Model> {
                 return model
             }
 
-            return new Editor(model.gameGrid.resize(message.cols, message.rows), model.zoomLevel, model.scrollPosition, model.color, model.tool)
+            return new Editor(model.gameGrid.resize(message.cols, message.rows), model.zoomLevel, model.color, model.tool)
 
         case "update-label":
             if (!(model instanceof Editor)) {
@@ -188,7 +182,7 @@ async function applyUpdate(model: Model, message: Message): Promise<Model> {
                 return model
             }
 
-            return new Editor(GameGrid.createInitial(model.gameGrid.cols, model.gameGrid.rows), DefaultZoomLevel, new ScrollPosition(0, 0), Colors[0], TokenSymbols[0])
+            return new Editor(GameGrid.createInitial(model.gameGrid.cols, model.gameGrid.rows), DefaultZoomLevel, Colors[0], TokenSymbols[0])
 
         case "dec-zoom":
             model.decreaseZoom()
@@ -198,16 +192,12 @@ async function applyUpdate(model: Model, message: Message): Promise<Model> {
             model.increaseZoom()
             return model
 
-        case "scroll-to":
-            model.scrollPosition = message.position
-            return model
-
         case "grid-remote-update":
             if (!(model instanceof Viewer)) {
                 return model
             }
             console.log(`Updating viewed grid on remote update`)
-            return new Viewer(message.grid, model.zoomLevel, model.scrollPosition)
+            return new Viewer(message.grid, model.zoomLevel)
     }
 
     return model
