@@ -483,19 +483,11 @@ export function isTokenSymbol(tool: Tool): tool is TokenSymbol {
 export const DefaultZoomLevel = 5
 
 export type Location = [number, number]
-export class ScrollPosition {
-    constructor (public readonly top: number, public readonly left: number) {}
-
-    get isZero(): boolean {
-        return this.top === 0 && this.left === 0
-    }
-}
 
 export class Viewer {
     constructor(
         public readonly gameGrid: GameGrid,
         public zoomLevel: number = DefaultZoomLevel,
-        public scrollPosition: ScrollPosition = new ScrollPosition(0, 0),
     ) { }
 
     decreaseZoom(){
@@ -519,13 +511,12 @@ export class Editor extends Viewer {
     constructor(        
         gameGrid: GameGrid,
         zoomLevel: number = DefaultZoomLevel,
-        scrollPosition: ScrollPosition = new ScrollPosition(0, 0),
         public color: Color = Colors[0],
         public tool: Tool = TokenSymbols[0],
         public lastRemovedToken: Location | undefined = undefined,
         public showShareDialog: boolean = false,
     ) { 
-        super(gameGrid, zoomLevel, scrollPosition)
+        super(gameGrid, zoomLevel)
     }
 
     setLastRemovedToken(loc: Location) {

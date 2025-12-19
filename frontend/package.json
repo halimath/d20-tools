@@ -10,7 +10,7 @@
         "@types/jest": "30.0.0",
         "@typescript-eslint/eslint-plugin": "8.44.1",
         "@typescript-eslint/parser": "8.44.1",
-        "@weccoframework/core": "0.27.2",
+        "@weccoframework/core": "0.28.0",
         "@weccoframework/i18n": "0.4.0",
         "bootstrap": "5.3.8",
         "@types/bootstrap": "5.2.10",
