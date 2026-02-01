@@ -19,5 +19,12 @@ export const expandOverlay = wecco.define<ExpandOverlayOpts>("d20tools-exand_ove
     }
 
     data.position = data.position ?? [100, 100]
-    return wecco.html`${data.collapsed}<div class="expand-overlay shadow border z-3" style="left: ${data.position[0]}px; top: ${data.position[1]}px">${data.expanded}</div>`
+
+    const onUpdateEnd = (evt: CustomEvent) => {
+        const elm = evt.target as HTMLElement
+        elm.style.left = data.position![0] + "px" 
+        elm.style.top = data.position![1] + "px"
+    }
+
+    return wecco.html`${data.collapsed}<div class="expand-overlay shadow border z-3" @updateEnd=${onUpdateEnd}>${data.expanded}</div>`
 })
