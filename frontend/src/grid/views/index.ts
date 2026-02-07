@@ -66,14 +66,15 @@ function gridWithWrapper(model: Editor | Viewer, emit: wecco.MessageEmitter<Mess
             return
         }
 
-        requestAnimationFrame(() => {
-            const t = e.target as HTMLElement
-            
-            t.scrollTo({
-                ...lastScrollPosition,
-                behavior: "instant",
+        setTimeout(() => {
+            requestAnimationFrame(() => {
+                const t = e.target as HTMLElement
+                t.scrollTo({
+                    ...lastScrollPosition,
+                    behavior: "instant",
+                })
             })
-        })
+        }, 2)
     }
 
     return wecco.html`
