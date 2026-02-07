@@ -81,6 +81,8 @@
     "gameGrid.color.yellow": "Yellow",
     "gameGrid.color.black": "Black",
     "gameGrid.color.brown": "Brown",
+    "gameGrid.tools": "Tools",
+    "gameGrid.colors": "Colors",
 
     "gameGrid.actions.download": "Download as image",
     "gameGrid.actions.share": "Share Link",
