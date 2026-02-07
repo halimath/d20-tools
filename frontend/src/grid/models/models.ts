@@ -269,18 +269,6 @@ export class GameGrid {
             [...range(cols * rows)].map(() => void 0), 
             [...range(cols * rows * 2)].map(() => void 0))
 
-        // Place some useful tokens in the first row for the DM's convenience
-        gg.setTokenAt(0, 0, new Token("♙", "blue"))
-        gg.setTokenAt(1, 0, new Token("♙", "green"))
-        gg.setTokenAt(2, 0, new Token("♙", "red"))
-        gg.setTokenAt(3, 0, new Token("♙", "orange"))
-        gg.setTokenAt(4, 0, new Token("♙", "purple"))
-        
-        gg.setTokenAt(6, 0, new Token("♙", "black"))
-        gg.setTokenAt(7, 0, new Token("♘", "black"))
-        gg.setTokenAt(8, 0, new Token("♖", "black"))
-        gg.setTokenAt(9, 0, new Token("♕", "black"))
-
         return gg
     }
 

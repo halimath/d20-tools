@@ -78,6 +78,8 @@
     "gameGrid.color.yellow": "Gelb",
     "gameGrid.color.black": "Schwarz",
     "gameGrid.color.brown": "Braun",
+    "gameGrid.tools": "Werkzeuge",
+    "gameGrid.colors": "Farben",
     "gameGrid.actions.download": "Bild herunterladen",
     "gameGrid.actions.share": "Link kopieren",
     "gameGrid.actions.delete": "Löschen",

@@ -5,40 +5,180 @@ import { Color, Editor, isTokenSymbol, Model, Token, Wall, WallSymbol } from "..
 const WallSnapSize = 0.4
 const GridCellSize = 10
 
-export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): wecco.ElementUpdate {
-    let svgElement: SVGElement
+// Color mappings from CSS
+const tokenColors: Record<Color, string> = {
+    "grey": "#aaa",
+    "green": "#02551d",
+    "blue": "#001f75",
+    "red": "#900018",
+    "orange": "#c54f00",
+    "purple": "#750075",
+    "yellow": "#b8a500",
+    "black": "#222",
+    "brown": "#5d2a00"
+}
 
-    function updateSvgTransform(svg: SVGElement) {
-        svg.querySelector("g")?.setAttribute("transform", `scale(${model.zoomLevel}, ${model.zoomLevel})`)
+const backgroundColors: Record<Color, string> = {
+    "grey": "#b1b1b1",
+    "green": "#739f81",
+    "blue": "#7091ec",
+    "red": "#c88c96",
+    "orange": "#eea366",
+    "purple": "#cd7ecd",
+    "yellow": "#e6e0a5",
+    "black": "#c5c5c5",
+    "brown": "#b07d5b"
+}
+
+function lightenColor(color: string, percent: number): string {
+    const num = parseInt(color.replace("#", ""), 16)
+    const r = Math.min(255, (num >> 16) + percent * 255)
+    const g = Math.min(255, ((num >> 8) & 0x00FF) + percent * 255)
+    const b = Math.min(255, (num & 0x0000FF) + percent * 255)
+    return `#${Math.round(r).toString(16).padStart(2, "0")}${Math.round(g).toString(16).padStart(2, "0")}${Math.round(b).toString(16).padStart(2, "0")}`
+}
+
+export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): wecco.ElementUpdate {
+    let canvasElement: HTMLCanvasElement
+    let resizeHandler: (() => void) | null = null
+    let hoverTarget: HoverTarget | null = null
+
+    function drawCanvas(canvas: HTMLCanvasElement) {
+        canvasElement = canvas
+        const ctx = canvas.getContext("2d")
+        if (!ctx) return
+
+        const baseWidth = model.gameGrid.cols * GridCellSize
+        const baseHeight = model.gameGrid.rows * GridCellSize
+        const scaledWidth = baseWidth * model.zoomLevel
+        const scaledHeight = baseHeight * model.zoomLevel
+
+        // Set canvas size
+        canvas.width = scaledWidth
+        canvas.height = scaledHeight
+        canvas.style.width = `${scaledWidth}px`
+        canvas.style.height = `${scaledHeight}px`
+
+        // Scale context for zoom
+        ctx.save()
+        ctx.scale(model.zoomLevel, model.zoomLevel)
+
+        // Clear canvas with background color
+        ctx.fillStyle = "#f8f8f8" // $light-grey
+        ctx.fillRect(0, 0, baseWidth, baseHeight)
+
+        // Draw backgrounds
+        for (let col = 0; col < model.gameGrid.cols; col++) {
+            for (let row = 0; row < model.gameGrid.rows; row++) {
+                const bgColor = model.gameGrid.backgroundAt(col, row)
+                if (typeof bgColor !== "undefined") {
+                    drawBackground(ctx, col, row, bgColor)
+                }
+            }
+        }
+
+        // Draw tokens
+        for (let col = 0; col < model.gameGrid.cols; col++) {
+            for (let row = 0; row < model.gameGrid.rows; row++) {
+                const token = model.gameGrid.tokenAt(col, row)
+                if (typeof token !== "undefined") {
+                    drawToken(ctx, col, row, token)
+                }
+            }
+        }
+
+        // Draw walls
+        for (let col = 0; col < model.gameGrid.cols; col++) {
+            for (let row = 0; row < model.gameGrid.rows; row++) {
+                const leftWall = model.gameGrid.wallAt(col, row, "left")
+                if (typeof leftWall !== "undefined") {
+                    drawWall(ctx, col, row, "left", leftWall)
+                }
+                const topWall = model.gameGrid.wallAt(col, row, "top")
+                if (typeof topWall !== "undefined") {
+                    drawWall(ctx, col, row, "top", topWall)
+                }
+            }
+        }
+
+        // Draw hover preview for editors
+        if (model instanceof Editor && hoverTarget) {
+            ctx.save()
+            ctx.globalAlpha = 0.55
+            if (hoverTarget.kind === "cell") {
+                if (isTokenSymbol(model.tool)) {
+                    drawToken(ctx, hoverTarget.col, hoverTarget.row, new Token(model.tool, model.color))
+                } else if (model.tool === "background") {
+                    drawBackground(ctx, hoverTarget.col, hoverTarget.row, model.color)
+                }
+            } else if (!isTokenSymbol(model.tool) && model.tool !== "background") {
+                const wallSymbol = model.tool as WallSymbol
+                drawWall(ctx, hoverTarget.col, hoverTarget.row, hoverTarget.position, new Wall(wallSymbol, model.color))
+            }
+            ctx.restore()
+        }
+
+        // Draw grid lines
+        ctx.strokeStyle = "black"
+        ctx.lineWidth = 0.1
+        for (let col = 1; col < model.gameGrid.cols; col++) {
+            ctx.beginPath()
+            ctx.moveTo(col * GridCellSize, 0)
+            ctx.lineTo(col * GridCellSize, baseHeight)
+            ctx.stroke()
+        }
+        for (let row = 1; row < model.gameGrid.rows; row++) {
+            ctx.beginPath()
+            ctx.moveTo(0, row * GridCellSize)
+            ctx.lineTo(baseWidth, row * GridCellSize)
+            ctx.stroke()
+        }
+
+        // Draw distance meter if needed
+        if (model instanceof Editor && model.lastRemovedToken) {
+            drawDistanceMeter(ctx, model.lastRemovedToken[0], model.lastRemovedToken[1])
+        }
+
+        ctx.restore()
     }
 
-    function updateSvg(e: SVGElement) {
-        svgElement = e
+    function updateCanvas(canvas: HTMLCanvasElement) {
+        // Remove old resize handler if it exists
+        if (resizeHandler) {
+            window.removeEventListener("resize", resizeHandler)
+            resizeHandler = null
+        }
 
-        window.addEventListener("resize", () => {
-            if (!svgElement.isConnected) {
+        // Draw the canvas
+        drawCanvas(canvas)
+
+        // Add new resize handler
+        resizeHandler = () => {
+            if (!canvasElement || !canvasElement.isConnected) {
+                if (resizeHandler) {
+                    window.removeEventListener("resize", resizeHandler)
+                    resizeHandler = null
+                }
                 return
             }
-            updateSvgTransform(svgElement)
-        })
-
-        updateSvgTransform(svgElement)
+            drawCanvas(canvasElement)
+        }
+        window.addEventListener("resize", resizeHandler)
     }
 
-    function onSvgClick(e: MouseEvent) {
+    function onCanvasClick(e: MouseEvent) {
         if (!(model instanceof Editor)) {
             return
         }
 
-        // Calculate the target (=clicked) grid cell by calculating the coordinates
-        // based on the mouse event's x/y coordinates and the relative positioning
-        // of the svg element, which is read from the bounding box.
-        // Note that the bounding box' left and top values also compensate for
-        // any inner scrolling from overflow: auto.
-        const bcr = svgElement.getBoundingClientRect()
+        const canvas = e.target as HTMLCanvasElement
+        if (!canvas) {
+            return
+        }
 
-        const relX = (e.clientX - bcr.left) / 10 / model.zoomLevel
-        const relY = (e.clientY - bcr.top) / 10 / model.zoomLevel
+        const bcr = canvas.getBoundingClientRect()
+        const relX = (e.clientX - bcr.left) / GridCellSize / model.zoomLevel
+        const relY = (e.clientY - bcr.top) / GridCellSize / model.zoomLevel
 
         const targetCol = Math.floor(relX)
         const targetRow = Math.floor(relY)
@@ -49,29 +189,21 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
 
         // check if currently selected tool is a token
         if (isTokenSymbol(model.tool)) {
-            // if yes, either place or remove a token
             emit(new PlaceToken(targetCol, targetRow, new Token(model.tool, model.color)))
-            // and we're done here
             return
         }
 
         if (model.tool === "background") {
-            // If selected tool is background, just place the currently selected color as the background
             emit(new PlaceBackground(targetCol, targetRow, model.color))
             return
         }
 
         // If we reach this point, the currently selected tool is a wall.
-        // Determine which direction of the wall should be used by looking
-        // at the distance to both x and y grid lanes.
         const distanceX = relX - targetCol
         const distanceY = relY - targetRow
 
         const wallSymbol = model.tool as WallSymbol
 
-        // Determine where to place the wall by looking at all four sides taking
-        // WallSnapSize into account.
-        
         if (distanceX < WallSnapSize) {
             emit(new PlaceWall(targetCol, targetRow, "left", new Wall(wallSymbol, model.color)))
             return
@@ -93,173 +225,308 @@ export function gridContent(emit: wecco.MessageEmitter<Message>, model: Model): 
         }
     }
 
-    const svgContent = []
+    function updateHoverTarget(nextTarget: HoverTarget | null) {
+        if (hoverTarget?.kind === nextTarget?.kind &&
+            hoverTarget?.col === nextTarget?.col &&
+            hoverTarget?.row === nextTarget?.row &&
+            (hoverTarget?.kind !== "wall" || hoverTarget?.position === (nextTarget as WallHoverTarget | null)?.position)) {
+            return
+        }
 
-    // Backgrounds
-    for (let col = 0; col < model.gameGrid.cols; col++) {
-        for (let row = 0; row < model.gameGrid.rows; row++) {
-            const bgColor = model.gameGrid.backgroundAt(col, row)
-            if (typeof bgColor === "undefined") {
-                continue
-            }
+        hoverTarget = nextTarget
 
-            const e = createBackgroundElement(bgColor);
-            e.setAttribute("transform", `translate(${(col * 10)} ${(row * 10)})`)
-
-            svgContent.push(e);
+        if (canvasElement && canvasElement.isConnected) {
+            drawCanvas(canvasElement)
         }
     }
 
-    // Tokens
-    // Paint tokens first to allow painting the grid and coordinates over the tokens
-    for (let col = 0; col < model.gameGrid.cols; col++) {
-        for (let row = 0; row < model.gameGrid.rows; row++) {
-            const token = model.gameGrid.tokenAt(col, row)
-            if (typeof token !== "undefined") {
-                const e = createTokenElement(token)
-                e.setAttribute("transform", `translate(${(col * 10) + 5} ${(row * 10) + 5.5})`)
-                svgContent.push(e)
-            }
+    function onCanvasHover(e: MouseEvent) {
+        if (!(model instanceof Editor)) {
+            return
         }
-    }
 
-    // Walls
-    for (let col = 0; col < model.gameGrid.cols; col++) {
-        for (let row = 0; row < model.gameGrid.rows; row++) {
-            const leftWall = model.gameGrid.wallAt(col, row, "left")
-            if (typeof leftWall !== "undefined") {
-                svgContent.push(renderWall(leftWall, `translate(${col * 10} ${row * 10}) rotate(90)`))
-            }
-            const topWall = model.gameGrid.wallAt(col, row, "top")
-            if (typeof topWall !== "undefined") {
-                svgContent.push(renderWall(topWall, `translate(${col * 10} ${row * 10})`))
-            }
+        const canvas = e.target as HTMLCanvasElement
+        if (!canvas) {
+            return
         }
+
+        const bcr = canvas.getBoundingClientRect()
+        const relX = (e.clientX - bcr.left) / GridCellSize / model.zoomLevel
+        const relY = (e.clientY - bcr.top) / GridCellSize / model.zoomLevel
+
+        const targetCol = Math.floor(relX)
+        const targetRow = Math.floor(relY)
+
+        if (targetCol < 0 || targetCol >= model.gameGrid.cols || targetRow < 0 || targetRow >= model.gameGrid.rows) {
+            updateHoverTarget(null)
+            return
+        }
+
+        if (isTokenSymbol(model.tool) || model.tool === "background") {
+            updateHoverTarget({ kind: "cell", col: targetCol, row: targetRow })
+            return
+        }
+
+        const distanceX = relX - targetCol
+        const distanceY = relY - targetRow
+
+        if (distanceX < WallSnapSize) {
+            updateHoverTarget({ kind: "wall", col: targetCol, row: targetRow, position: "left" })
+            return
+        }
+
+        if (distanceX > 1 - WallSnapSize) {
+            updateHoverTarget({ kind: "wall", col: targetCol + 1, row: targetRow, position: "left" })
+            return
+        }
+
+        if (distanceY < WallSnapSize) {
+            updateHoverTarget({ kind: "wall", col: targetCol, row: targetRow, position: "top" })
+            return
+        }
+
+        if (distanceY > 1 - WallSnapSize) {
+            updateHoverTarget({ kind: "wall", col: targetCol, row: targetRow + 1, position: "top" })
+            return
+        }
+
+        updateHoverTarget(null)
     }
 
-    // Grid
-    const gridPath = []
-
-    for (let col = 1; col < model.gameGrid.cols; col++) {
-        gridPath.push(`M ${(col * 10)} 0 l 0 ${model.gameGrid.rows * 10}`)
-    }
-    for (let row = 1; row < model.gameGrid.rows; row++) {
-        gridPath.push(`M 0 ${(row * 10)} l ${model.gameGrid.cols * 10} 0`)
-    }
-
-    svgContent.push(svg`<path d="${gridPath.join(" ")}" class="grid-line"/>`)    
-
-    if (model instanceof Editor && model.lastRemovedToken) {
-        svgContent.push(svg`
-         <path d="M ${(model.lastRemovedToken[0] - 6) * 10} ${model.lastRemovedToken[1] * 10} 
-            v -10 h 10 v -10 h 10 v -20 h 20 v -10 h 10 v -10 h 10
-            h 20 
-            v 10 h 10 v 10 h 20 v 20 h 10 v 10 h 10 v 10
-            v 10
-            v 10 h -10 v 10 h -10 v 20 h -20 v 10 h -10 v 10 h -10
-            h -20
-            v -10 h -10 v -10 h -20 v -20 h -10 v -10 h -10 v -20
-            Z" class="distance-meter"/>
-         <path d="M ${model.lastRemovedToken[0] * 10} ${model.lastRemovedToken[1] * 10} h 10 v 10 h -10 z" class="distance-meter center"/>
-        `)
+    function onCanvasLeave() {
+        updateHoverTarget(null)
     }
 
     return wecco.html`
-    <svg xmlns="http://www.w3.org/2000/svg" id="game-grid" width="${model.gameGrid.cols * GridCellSize * model.zoomLevel}" height="${model.gameGrid.rows * GridCellSize * model.zoomLevel}" @updateend=${(e: Event) => setTimeout(() => updateSvg(e.target as SVGElement), 1)} @click=${onSvgClick}>
-        <g>
-            ${svgContent}
-        </g>
-    </svg>
+    <canvas id="game-grid" @updateend=${(e: Event) => setTimeout(() => updateCanvas(e.target as HTMLCanvasElement), 1)} @click=${onCanvasClick} @mousemove=${onCanvasHover} @mouseleave=${onCanvasLeave}></canvas>
     `
 }
 
-const SVGNamespaceURI = "http://www.w3.org/2000/svg"
+type CellHoverTarget = { kind: "cell", col: number, row: number }
+type WallHoverTarget = { kind: "wall", col: number, row: number, position: "left" | "top" }
+type HoverTarget = CellHoverTarget | WallHoverTarget
 
-function svg(literals: TemplateStringsArray, ...placeholders: Array<unknown>): wecco.ElementUpdate {
-    let src = ""
-    for (let i = 0; i < literals.length; i++) {
-        src += literals[i]
-        if (i < placeholders.length) {
-            src += placeholders[i]
+function drawBackground(ctx: CanvasRenderingContext2D, col: number, row: number, color: Color) {
+    const x = col * GridCellSize
+    const y = row * GridCellSize
+    const bgColor = backgroundColors[color]
+    const lightBgColor = lightenColor(bgColor, 0.1)
+
+    // Fill background
+    ctx.fillStyle = lightBgColor
+    ctx.strokeStyle = lightBgColor
+    ctx.lineWidth = 1
+    ctx.lineCap = "round"
+    ctx.lineJoin = "round"
+    ctx.fillRect(x, y, GridCellSize, GridCellSize)
+
+    // Draw diagonal pattern (matching SVG pattern)
+    ctx.strokeStyle = lightBgColor
+    ctx.beginPath()
+    ctx.moveTo(x + 2, y + 3)
+    ctx.lineTo(x + 3, y + 2)
+    ctx.moveTo(x + 2, y + 5)
+    ctx.lineTo(x + 5, y + 2)
+    ctx.moveTo(x + 2, y + 7)
+    ctx.lineTo(x + 7, y + 2)
+    ctx.moveTo(x + 3, y + 8)
+    ctx.lineTo(x + 8, y + 3)
+    ctx.moveTo(x + 5, y + 8)
+    ctx.lineTo(x + 8, y + 5)
+    ctx.moveTo(x + 7, y + 8)
+    ctx.lineTo(x + 8, y + 7)
+    ctx.stroke()
+}
+
+function drawToken(ctx: CanvasRenderingContext2D, col: number, row: number, token: Token) {
+    const x = col * GridCellSize + 5
+    const y = row * GridCellSize + 5.5
+    const tokenColor = tokenColors[token.color]
+    const lightTokenColor = lightenColor(tokenColor, 0.15)
+
+    ctx.font = "10px system-ui, Arial, sans-serif"
+    ctx.textAlign = "center"
+    ctx.textBaseline = "middle"
+    ctx.lineWidth = 0.3
+
+    // Draw stroke
+    ctx.strokeStyle = tokenColor
+    ctx.strokeText(token.symbol, x, y)
+
+    // Draw fill
+    ctx.fillStyle = lightTokenColor
+    ctx.fillText(token.symbol, x, y)
+}
+
+function drawWall(ctx: CanvasRenderingContext2D, col: number, row: number, position: "left" | "top", wall: Wall) {
+    const x = col * GridCellSize
+    const y = row * GridCellSize
+    const wallColor = tokenColors[wall.color]
+
+    ctx.strokeStyle = wallColor
+    ctx.lineWidth = 1.5
+    ctx.lineCap = "round"
+    ctx.lineJoin = "round"
+
+    if (position === "top") {
+        switch (wall.symbol) {
+            case "door":
+                ctx.beginPath()
+                ctx.moveTo(x, y)
+                ctx.lineTo(x + 2, y)
+                ctx.moveTo(x + 8, y)
+                ctx.lineTo(x + 10, y)
+                ctx.stroke()
+                break
+            case "wall":
+                ctx.beginPath()
+                ctx.moveTo(x, y)
+                ctx.lineTo(x + 10, y)
+                ctx.stroke()
+                break
+            case "window":
+                ctx.beginPath()
+                ctx.moveTo(x, y)
+                ctx.lineTo(x + 1, y)
+                ctx.moveTo(x + 3, y)
+                ctx.lineTo(x + 4, y)
+                ctx.moveTo(x + 6, y)
+                ctx.lineTo(x + 7, y)
+                ctx.moveTo(x + 9, y)
+                ctx.lineTo(x + 10, y)
+                ctx.stroke()
+                break
+        }
+    } else { // left
+        switch (wall.symbol) {
+            case "door":
+                ctx.beginPath()
+                ctx.moveTo(x, y)
+                ctx.lineTo(x, y + 2)
+                ctx.moveTo(x, y + 8)
+                ctx.lineTo(x, y + 10)
+                ctx.stroke()
+                break
+            case "wall":
+                ctx.beginPath()
+                ctx.moveTo(x, y)
+                ctx.lineTo(x, y + 10)
+                ctx.stroke()
+                break
+            case "window":
+                ctx.beginPath()
+                ctx.moveTo(x, y)
+                ctx.lineTo(x, y + 1)
+                ctx.moveTo(x, y + 3)
+                ctx.lineTo(x, y + 4)
+                ctx.moveTo(x, y + 6)
+                ctx.lineTo(x, y + 7)
+                ctx.moveTo(x, y + 9)
+                ctx.lineTo(x, y + 10)
+                ctx.stroke()
+                break
         }
     }
-
-    return (host: wecco.UpdateTarget, insertBefore?: Node) => {
-        const el = document.createElementNS(SVGNamespaceURI, "svg")
-        el.innerHTML = src
-        while (el.childNodes.length > 0) {
-            host.insertBefore(el.removeChild(el.childNodes[0]), insertBefore ?? null)
-        }
-    }
 }
 
-function renderWall(wall: Wall, transform: string): wecco.ElementUpdate {
-    let path: string
-    switch (wall.symbol) {
-        case "door":
-            path = "M 0 0 L 2 0 M 10 0 l -2 0"
-            break
-        case "wall":
-            path = "M 0 0 L 10 0"
-            break
-        case "window":
-            path = "M 0 0 l 1 0 m 2 0 l 1 0 m 2 0 l 1 0 m 2 0 l 1 0"
-            break
-    }
-    return svg`<path d="${path}" class="wall ${wall.color}" transform="${transform}"/>`
-}
+function drawDistanceMeter(ctx: CanvasRenderingContext2D, col: number, row: number) {
+    const startX = (col - 6) * GridCellSize
+    const startY = row * GridCellSize
 
-function createTokenElement(token: Token): SVGElement {
-    const e = document.createElementNS(SVGNamespaceURI, "text")
-    e.setAttribute("class", `token ${token.color}`)
-    e.appendChild(document.createTextNode(token.symbol))
-    return e
-}
+    ctx.strokeStyle = "#0078a7"
+    ctx.fillStyle = "rgba(101, 190, 225, 0.1)"
+    ctx.lineWidth = 1.0
+    ctx.lineCap = "round"
+    ctx.lineJoin = "round"
+    ctx.setLineDash([6, 2])
 
-function createBackgroundElement(color: Color): SVGElement {
-    const e = document.createElementNS(SVGNamespaceURI, "use")
-    e.setAttribute("width", "10")
-    e.setAttribute("height", "10")
-    e.setAttribute("href", "#background")
-    e.classList.add("background")
-    e.classList.add(color)
+    // Draw outer shape - tracing the SVG path exactly
+    ctx.beginPath()
+    let x = startX
+    let y = startY
+    ctx.moveTo(x, y)
+    
+    // v -10 h 10 v -10 h 10 v -20 h 20 v -10 h 10 v -10 h 10
+    y -= 10; ctx.lineTo(x, y)
+    x += 10; ctx.lineTo(x, y)
+    y -= 10; ctx.lineTo(x, y)
+    x += 10; ctx.lineTo(x, y)
+    y -= 20; ctx.lineTo(x, y)
+    x += 20; ctx.lineTo(x, y)
+    y -= 10; ctx.lineTo(x, y)
+    x += 10; ctx.lineTo(x, y)
+    y -= 10; ctx.lineTo(x, y)
+    x += 10; ctx.lineTo(x, y)
+    
+    // h 20
+    x += 20; ctx.lineTo(x, y)
+    
+    // v 10 h 10 v 10 h 20 v 20 h 10 v 10 h 10 v 10
+    y += 10; ctx.lineTo(x, y)
+    x += 10; ctx.lineTo(x, y)
+    y += 10; ctx.lineTo(x, y)
+    x += 20; ctx.lineTo(x, y)
+    y += 20; ctx.lineTo(x, y)
+    x += 10; ctx.lineTo(x, y)
+    y += 10; ctx.lineTo(x, y)
+    x += 10; ctx.lineTo(x, y)
+    y += 10; ctx.lineTo(x, y)
+    
+    // v 10 (redundant but in original)
+    y += 10; ctx.lineTo(x, y)
+    
+    // v 10 h -10 v 10 h -10 v 20 h -20 v 10 h -10 v 10 h -10
+    y += 10; ctx.lineTo(x, y)
+    x -= 10; ctx.lineTo(x, y)
+    y += 10; ctx.lineTo(x, y)
+    x -= 10; ctx.lineTo(x, y)
+    y += 20; ctx.lineTo(x, y)
+    x -= 20; ctx.lineTo(x, y)
+    y += 10; ctx.lineTo(x, y)
+    x -= 10; ctx.lineTo(x, y)
+    y += 10; ctx.lineTo(x, y)
+    x -= 10; ctx.lineTo(x, y)
+    
+    // h -20
+    x -= 20; ctx.lineTo(x, y)
+    
+    // v -10 h -10 v -10 h -20 v -20 h -10 v -10 h -10 v -20
+    y -= 10; ctx.lineTo(x, y)
+    x -= 10; ctx.lineTo(x, y)
+    y -= 10; ctx.lineTo(x, y)
+    x -= 20; ctx.lineTo(x, y)
+    y -= 20; ctx.lineTo(x, y)
+    x -= 10; ctx.lineTo(x, y)
+    y -= 10; ctx.lineTo(x, y)
+    x -= 10; ctx.lineTo(x, y)
+    y -= 20; ctx.lineTo(x, y)
+    
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
 
-    return e
+    // Draw center square
+    ctx.setLineDash([])
+    ctx.lineWidth = 1.5
+    ctx.fillStyle = "transparent"
+    ctx.strokeStyle = "#0078a7"
+    ctx.beginPath()
+    ctx.rect(col * GridCellSize, row * GridCellSize, GridCellSize, GridCellSize)
+    ctx.stroke()
 }
 
 export function downloadGridAsPNG(): void {
-    const defs = document.querySelector("#svg-defs")?.innerHTML ?? ""
-    const svg = document.querySelector("#game-grid")
-    let src = svg?.outerHTML ?? ""
-    let styleRules = ""
-
-    const styleSheet = Array.from(document.styleSheets).find(s => s?.href?.match(/^.*grid.*$/))
-    if (styleSheet) {
-        styleRules = Array.from(styleSheet.cssRules).map(r => r.cssText).join("\n")
+    const canvas = document.querySelector("#game-grid") as HTMLCanvasElement
+    if (!canvas) {
+        return
     }
 
-    src = src.replace(/^\s*(<svg[^>]*?>)(.*)$/mi, `$1<style>${styleRules}</style><defs>${defs}</defs>$2`)
-
-    const blob = new Blob([src], { type: "image/svg+xml;charset=utf-8" })
-    const dataUrl = URL.createObjectURL(blob)
-
-    const canvas = document.createElement("canvas")
-    canvas.width = svg?.getBoundingClientRect().width ?? 0
-    canvas.height = svg?.getBoundingClientRect().height ?? 0
-    const ctx = canvas.getContext("2d")
-
-    const img = new Image()
-    img.onload = function () {
-        ctx?.drawImage(img, 0, 0)
-        URL.revokeObjectURL(dataUrl)
-        const pngUrl = canvas.toDataURL()
-        const el = document.createElement("a");
-        el.setAttribute("href", pngUrl)
-        el.setAttribute("download", "gamegrid.png")
-        el.style.display = "none"
-        document.body.appendChild(el)
-        el.click()
-        document.body.removeChild(el)
-    }
-    img.src = dataUrl
+    const pngUrl = canvas.toDataURL("image/png")
+    const el = document.createElement("a")
+    el.setAttribute("href", pngUrl)
+    el.setAttribute("download", "gamegrid.png")
+    el.style.display = "none"
+    document.body.appendChild(el)
+    el.click()
+    document.body.removeChild(el)
 }

@@ -1,9 +1,8 @@
 import * as wecco from "@weccoframework/core"
-import { expandOverlay } from "d20-tools/common/components/expand_overlay"
 import { appShell } from "../../common/components/appShell"
 import { m } from "../../common/i18n"
 import { ResizeGrid, ClearGrid, DecZoom, IncZoom, Message, SelectTool, UpdateLabel } from "../controller/controller"
-import { Colors, Editor, isWallSymbol, Model, TokenSymbols, Viewer, WallSymbol, WallSymbols } from "../models/models"
+import { Colors, Editor, Model, TokenSymbols, Viewer, WallSymbol, WallSymbols } from "../models/models"
 import { showLoadDialog } from "./dialogs/loadgrid"
 import { showShareDialog } from "./dialogs/share"
 import { downloadGridAsPNG, gridContent } from "./gridContent"
@@ -66,14 +65,15 @@ function gridWithWrapper(model: Editor | Viewer, emit: wecco.MessageEmitter<Mess
             return
         }
 
-        requestAnimationFrame(() => {
-            const t = e.target as HTMLElement
-            
-            t.scrollTo({
-                ...lastScrollPosition,
-                behavior: "instant",
+        setTimeout(() => {
+            requestAnimationFrame(() => {
+                const t = e.target as HTMLElement
+                t.scrollTo({
+                    ...lastScrollPosition,
+                    behavior: "instant",
+                })
             })
-        })
+        }, 2)
     }
 
     return wecco.html`
@@ -111,71 +111,6 @@ function editor(model: Editor, emit: wecco.MessageEmitter<Message>): wecco.Eleme
                     </div>
 
                     <div class="me-2">
-                        ${expandOverlay({
-                            expanded: wecco.html`
-                                <div class="btn-toolbar flex-nowrap">
-                                    <div class="btn-group">
-                                        ${TokenSymbols.map(s => wecco.html`
-                                            <button 
-                                                @click=${() => emit(new SelectTool(model.color, s))} 
-                                                class="btn ${s === model.tool ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
-                                                ${s}
-                                            </button>
-                                        `)}
-                                    </div>
-
-                                    <div class="btn-group ms-1">
-                                        ${WallSymbols.map(s => wecco.html`
-                                            <button 
-                                                @click=${() => emit(new SelectTool(model.color, s))} 
-                                                class="btn ${s === model.tool ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
-                                                ${wallSymbolButtonLabel(s)}
-                                            </button>
-                                        `)}
-                                    </div>
-
-                                    <div class="btn-group ms-1">
-                                        <button 
-                                                @click=${() => emit(new SelectTool(model.color, "background"))} 
-                                                class="btn ${model.tool === "background" ? "btn-secondary" : "btn-outline-secondary"} symbol-selector background">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
-                                                    <use href="#background" class="token wall-symbol"/>
-                                                </svg>
-                                            </button>
-                                    </div>
-                                </div>`,
-                                collapsed: wecco.html`<div class="btn btn-outline-secondary symbol-selector selected">
-                                    ${
-                                        model.tool === "background"
-                                        ? wecco.html`<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10"><use href="#background" class="token wall-symbol"/></svg>`
-                                        : isWallSymbol(model.tool)
-                                            ? wallSymbolButtonLabel(model.tool)
-                                            : model.tool
-                                    }
-
-                                </div>`
-                            })}
-                            ${expandOverlay({
-                                expanded: wecco.html`
-                                    <div class="btn-group ms-1">
-                                    ${
-                                        Colors.map(c => wecco.html`
-                                        <button 
-                                            @click=${() => emit(new SelectTool(c, model.tool))} 
-                                            class="btn btn-outline-secondary color-selector ${c} ${c === model.color ? "selected" : ""}"
-                                            aria-label="${m("gameGrid.color." + c)}">
-                                            &nbsp;x&nbsp;
-                                        </button>
-                                        `)
-                                    }
-                                    </div>                                
-                                `,
-                                collapsed: wecco.html`
-                                    <div class="btn btn-outline-secondary color-selector ${model.color} selected">&nbsp;&nbsp;&nbsp;</div>
-                                `
-                            })}
-                        </div>                        
-
                         <div>
                             <div class="btn-group">
                                 ${zoomActions(emit)}
@@ -187,7 +122,59 @@ function editor(model: Editor, emit: wecco.MessageEmitter<Message>): wecco.Eleme
             </div>
         </div>
 
-        ${gridWithWrapper(model, emit)}
+        <div class="grid-editor">
+            ${gridWithWrapper(model, emit)}
+            ${editorPanel(model, emit)}
+        </div>
+    `
+}
+
+function editorPanel(model: Editor, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
+    return wecco.html`
+        <aside class="grid-editor-panel">
+            <div class="panel-section">
+                <div class="panel-title">${m("gameGrid.tools")}</div>
+                <div class="panel-buttons">
+                    ${TokenSymbols.map(s => wecco.html`
+                        <button 
+                            @click=${() => emit(new SelectTool(model.color, s))} 
+                            class="btn btn-sm ${s === model.tool ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
+                            ${s}
+                        </button>
+                    `)}
+                    <div class="panel-break"></div>
+                    ${WallSymbols.map(s => wecco.html`
+                        <button 
+                            @click=${() => emit(new SelectTool(model.color, s))} 
+                            class="btn btn-sm ${s === model.tool ? "btn-secondary" : "btn-outline-secondary"} symbol-selector ${s}">
+                            ${wallSymbolButtonLabel(s)}
+                        </button>
+                    `)}
+                    <div class="panel-break"></div>
+                    <button 
+                        @click=${() => emit(new SelectTool(model.color, "background"))} 
+                        class="btn btn-sm ${model.tool === "background" ? "btn-secondary" : "btn-outline-secondary"} symbol-selector background">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 10 10">
+                            <use href="#background" class="token wall-symbol"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">${m("gameGrid.colors")}</div>
+                <div class="panel-buttons">
+                    ${Colors.map(c => wecco.html`
+                        <button 
+                            @click=${() => emit(new SelectTool(c, model.tool))} 
+                            class="btn btn-sm btn-outline-secondary color-selector ${c} ${c === model.color ? "selected" : ""}"
+                            aria-label="${m("gameGrid.color." + c)}">
+                            &nbsp;x&nbsp;
+                        </button>
+                    `)}
+                </div>
+            </div>
+        </aside>
     `
 }
 
@@ -200,7 +187,7 @@ function zoomActions(emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
 
 function actionsMenu(model: Model, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
     let actions = [
-        wecco.html`<button class="btn" @click=${() => emit(new ClearGrid())} title=${m("gameGrid.actions.delete")}><span class="material-icons">add</span></button>`,
+        wecco.html`<button class="btn" @click=${() => emit(new ClearGrid())} title=${m("gameGrid.actions.delete")}><span class="material-icons">new_window</span></button>`,
         wecco.html`<button class="btn" @click=${downloadGridAsPNG} title=${m("gameGrid.actions.download")}><span class="material-icons mr-1">image</span></button>`
     ]
     
