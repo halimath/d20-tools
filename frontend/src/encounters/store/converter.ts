@@ -49,7 +49,6 @@ export function reconstructCharacter(dto: dtos.PC | dtos.NPC, kinds: Array<model
 
 export function reconstructKind(dto: dtos.Kind): models.Kind {
     return new models.Kind(dto.label, {
-        tags: dto.tags,
         ac: dto.ac,
         speed: dto.speed, 
         hitDie: Roll.parse(dto.hitDie),
@@ -70,7 +69,6 @@ export function convertKind (kind: models.Kind): dtos.Kind {
         ac: kind.ac,
         speed: kind.speed,
         hitDie: kind.hitDie.toString(),
-        tags: kind.tags.slice(),
         savingThrows: {            
             str: kind.savingThrows.str,
             dex: kind.savingThrows.dex,

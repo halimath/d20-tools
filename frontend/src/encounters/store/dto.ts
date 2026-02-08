@@ -39,6 +39,5 @@ export interface Kind {
     ac: number
     hitDie: string
     savingThrows: SavingThrows
-    tags: Array<string>
     attacks: Array<Attack>
 }

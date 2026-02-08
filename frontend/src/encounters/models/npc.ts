@@ -42,7 +42,6 @@ export interface KindOptions {
     speed: number
     savingThrows: SavingThrows<number>
     hitDie: Roll
-    tags?: Array<string>
     attacks?: Array<Attack>
 }
 
@@ -67,7 +66,6 @@ export class Kind {
     public readonly ac: number
     public readonly hitDie: Roll
     public readonly savingThrows: SavingThrows<number>
-    public readonly tags: Array<string>
     public readonly attacks: Array<Attack>
 
     constructor (    
@@ -86,7 +84,6 @@ export class Kind {
             wis: options.savingThrows.wis,
             cha: options.savingThrows.cha,
         }
-        this.tags = options.tags ?? []
         this.attacks = (options.attacks ?? []).concat(attacks)
     }
 

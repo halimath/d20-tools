@@ -41,7 +41,6 @@ function kindRow(emit: wecco.MessageEmitter<Message>, k: Kind, idx: number): wec
         <tr>
             <td>
                 <h5>${k.label}</h5>
-                ${k.tags.map(t => wecco.html`<span class="me-1 badge bg-dark">${t}</span>`)}                            
             </td>
             <td>${k.speed}</td>
             <td>${k.ac}</td>

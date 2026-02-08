@@ -43,7 +43,6 @@
     "encounters.hp": "HP",
     "encounters.label": "Label",
     "encounters.kind": "Kind",
-    "encounters.tags": "Tags",
     "encounters.savingthrows": "Saving Throws",
     "encounters.savingthrow.str": "STR",
     "encounters.savingthrow.dex": "DEX",

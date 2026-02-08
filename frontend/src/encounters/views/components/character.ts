@@ -49,7 +49,6 @@ function npc (emit: wecco.MessageEmitter<Message>, model: Model, npc: NPC, activ
                     </div>
                     <div class="col">
                         <h5 class="card-title">${npc.label} <span class="badge text-bg-secondary">${npc.kind.label}</span></h5>
-                        ${npc.kind.tags.map(t => wecco.html`<span class="me-1 badge bg-dark">${t}</span>`)}
                     </div>
                     <div class="col text-end">
                         <button class="btn btn-flat float-end" @click+stopPropagation=${() => emit(new RemoveCharacter(npc))}><i class="material-icons">close</i></button>
