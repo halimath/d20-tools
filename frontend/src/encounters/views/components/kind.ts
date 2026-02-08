@@ -15,7 +15,6 @@ export function kinds(kinds: Array<Kind>, emit: wecco.MessageEmitter<Message>): 
                 <thead>
                     <tr>
                         <th>${m("encounters.label")}</th>
-                        <th>${m("encounters.ini")}</th>
                         <th>${m("encounters.speed")}</th>
                         <th>${m("encounters.ac")}</th>
                         <th>${m("encounters.hp")}</th>
@@ -42,9 +41,7 @@ function kindRow(emit: wecco.MessageEmitter<Message>, k: Kind, idx: number): wec
         <tr>
             <td>
                 <h5>${k.label}</h5>
-                ${k.tags.map(t => wecco.html`<span class="me-1 badge bg-dark">${t}</span>`)}                            
             </td>
-            <td>${modifier(k.ini)}</td>
             <td>${k.speed}</td>
             <td>${k.ac}</td>
             <td>${k.hitDie}</td>

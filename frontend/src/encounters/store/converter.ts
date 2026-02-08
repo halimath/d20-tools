@@ -29,7 +29,7 @@ function convertNPC (npc: models.NPC): dtos.NPC {
         kind: npc.kind.label,
         hp: npc.hitpoints,
         chp: npc.currentHitpoints,
-        ini: convertIni(npc.ini.rollResult),
+        ini: convertIni(npc.iniRollResult),
     }
 }
 
@@ -49,10 +49,10 @@ export function reconstructCharacter(dto: dtos.PC | dtos.NPC, kinds: Array<model
 
 export function reconstructKind(dto: dtos.Kind): models.Kind {
     return new models.Kind(dto.label, {
-        tags: dto.tags,
         ac: dto.ac,
-        ini: dto.ini, 
         speed: dto.speed, 
+        challengeRate: dto.challengeRate ?? 1,
+        xp: dto.xp ?? 200,
         hitDie: Roll.parse(dto.hitDie),
         savingThrows: {
             str: dto.savingThrows.str,
@@ -69,10 +69,10 @@ export function convertKind (kind: models.Kind): dtos.Kind {
     return {
         label: kind.label,
         ac: kind.ac,
-        ini: kind.ini,
         speed: kind.speed,
+        challengeRate: kind.challengeRate,
+        xp: kind.xp,
         hitDie: kind.hitDie.toString(),
-        tags: kind.tags.slice(),
         savingThrows: {            
             str: kind.savingThrows.str,
             dex: kind.savingThrows.dex,

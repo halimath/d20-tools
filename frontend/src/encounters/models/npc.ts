@@ -39,11 +39,11 @@ export type SavingThrows<T> = Record<SavingThrow, T>
 
 export interface KindOptions {
     ac: number
-    ini: number
     speed: number
+    challengeRate: number
+    xp: number
     savingThrows: SavingThrows<number>
     hitDie: Roll
-    tags?: Array<string>
     attacks?: Array<Attack>
 }
 
@@ -52,7 +52,8 @@ export class Kind {
         return new Kind("", {
             speed: 6,
             ac: 10,
-            ini: 0,
+            challengeRate: 1,
+            xp: 200,
             hitDie: Roll.parse("1d4"),
             savingThrows: {
                 str: 0,
@@ -67,10 +68,10 @@ export class Kind {
 
     public readonly speed: number 
     public readonly ac: number
-    public readonly ini: number
+    public readonly challengeRate: number
+    public readonly xp: number
     public readonly hitDie: Roll
     public readonly savingThrows: SavingThrows<number>
-    public readonly tags: Array<string>
     public readonly attacks: Array<Attack>
 
     constructor (    
@@ -79,8 +80,9 @@ export class Kind {
         ...attacks: Array<Attack>
     ) {
         this.speed = options.speed
-        this.ini = options.ini
         this.ac = options.ac
+        this.challengeRate = options.challengeRate
+        this.xp = options.xp
         this.hitDie = options.hitDie
         this.savingThrows = {
             str: options.savingThrows.str,
@@ -90,12 +92,11 @@ export class Kind {
             wis: options.savingThrows.wis,
             cha: options.savingThrows.cha,
         }
-        this.tags = options.tags ?? []
         this.attacks = (options.attacks ?? []).concat(attacks)
     }
 
     rollIni(): RollResult {
-        return new Roll(new DieRoll(20), this.ini).roll()
+        return new Roll(new DieRoll(20), this.savingThrows.dex).roll()
     }
 }
 
@@ -115,7 +116,7 @@ export class NPC implements Character {
     static create (label: string, kind: Kind, hitpoints?: number, currentHitpoints?: number, ini?: RollResult): NPC {
         const hp = hitpoints ?? kind.hitDie.roll().value
 
-        return new NPC(label, kind, new IniRollResult(ini ?? kind.rollIni()), hp, currentHitpoints ?? hp, kind.attacks.map(a => [a, undefined]), 
+        return new NPC(label, kind, ini ?? kind.rollIni(), hp, currentHitpoints ?? hp, kind.attacks.map(a => [a, undefined]), 
             Object.keys(kind.savingThrows).reduce((obj: unknown, st: SavingThrow) => {
                 (obj as Record<SavingThrow, RollResult | undefined>)[st] = undefined
                 return obj
@@ -126,7 +127,7 @@ export class NPC implements Character {
     constructor(
         public readonly label: string, 
         public readonly kind: Kind, 
-        public readonly ini: IniRollResult,
+        private readonly initiativeRoll: RollResult,
         public readonly hitpoints: number, 
         public readonly currentHitpoints: number,
         public readonly attacks: Array<[Attack, Hit | undefined]>,
@@ -135,6 +136,14 @@ export class NPC implements Character {
     
     get isDead(): boolean {
         return this.currentHitpoints <= 0
+    }
+
+    get ini(): InitiativeResult {
+        return new IniRollResult(this.initiativeRoll)
+    }
+
+    get iniRollResult(): RollResult {
+        return this.initiativeRoll
     }
 
     rollSavingThrow(savingThrow: SavingThrow): NPC {
@@ -148,7 +157,7 @@ export class NPC implements Character {
         }
         savingThrows[savingThrow] = Roll.create(1, 20, this.kind.savingThrows[savingThrow]).roll()
 
-        return new NPC(this.label, this.kind, this.ini, this.hitpoints, this.currentHitpoints, this.attacks, savingThrows)
+        return new NPC(this.label, this.kind, this.initiativeRoll, this.hitpoints, this.currentHitpoints, this.attacks, savingThrows)
     }
 
     performAttack(attack: Attack): NPC {
@@ -160,11 +169,11 @@ export class NPC implements Character {
         attacks.push([attack, attack.execute()])
         attacks = attacks.concat(this.attacks.slice(idx + 1))
 
-        return new NPC(this.label, this.kind, this.ini, this.hitpoints, this.currentHitpoints, attacks, this.savingThrows)
+        return new NPC(this.label, this.kind, this.initiativeRoll, this.hitpoints, this.currentHitpoints, attacks, this.savingThrows)
     }
     
     updateCurrentHitPoints (delta: number): NPC {
-        return new NPC(this.label, this.kind, this.ini, this.hitpoints, this.currentHitpoints + delta, this.attacks, this.savingThrows)
+        return new NPC(this.label, this.kind, this.initiativeRoll, this.hitpoints, this.currentHitpoints + delta, this.attacks, this.savingThrows)
     }
 
     toUrlHash(): string {
