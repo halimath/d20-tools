@@ -51,6 +51,8 @@ export function reconstructKind(dto: dtos.Kind): models.Kind {
     return new models.Kind(dto.label, {
         ac: dto.ac,
         speed: dto.speed, 
+        challengeRate: dto.challengeRate ?? 1,
+        xp: dto.xp ?? 200,
         hitDie: Roll.parse(dto.hitDie),
         savingThrows: {
             str: dto.savingThrows.str,
@@ -68,6 +70,8 @@ export function convertKind (kind: models.Kind): dtos.Kind {
         label: kind.label,
         ac: kind.ac,
         speed: kind.speed,
+        challengeRate: kind.challengeRate,
+        xp: kind.xp,
         hitDie: kind.hitDie.toString(),
         savingThrows: {            
             str: kind.savingThrows.str,

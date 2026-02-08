@@ -31,8 +31,10 @@ function pc(emit: wecco.MessageEmitter<Message>, model: Model, pc: PC, active: b
                     <div class="col-6">
                         <h5 class="card-title">${pc.label}</h5>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col text-end">
-                        <button class="btn btn-flat float-end" @click+stopPropagation=${() => emit(new RemoveCharacter(pc))}><i class="material-icons">close</i></button>
+                        <button class="btn btn-outline-danger" @click+stopPropagation=${() => emit(new RemoveCharacter(pc))}><i class="material-icons">close</i></button>
                     </div>
                 </div>
             </div>
@@ -43,15 +45,16 @@ function npc (emit: wecco.MessageEmitter<Message>, model: Model, npc: NPC, activ
     return wecco.html`
         <div class="mt-2 mb-2 card character npc shadow-sm ${active ? "active" : ""} ${npc.isDead ? "dead": ""}">
             <div class="card-body">                
-                <div class="row">
-                    <div class="col">
+                <div class="d-flex">
+                    <div class="flex-shrink">
                         ${m("encounters.ini")}: <strong>${npc.ini.value(model.initiativeKind)}</strong>
                     </div>
-                    <div class="col">
+                    <div class="text-center flex-grow-1">
                         <h5 class="card-title">${npc.label} <span class="badge text-bg-secondary">${npc.kind.label}</span></h5>
                     </div>
-                    <div class="col text-end">
-                        <button class="btn btn-flat float-end" @click+stopPropagation=${() => emit(new RemoveCharacter(npc))}><i class="material-icons">close</i></button>
+                    <div class="text-end">
+                        <span class="me-3">${m("encounters.cr")}: <strong>${npc.kind.challengeRate}</strong></span>
+                        <span class="me-2">${m("encounters.xp")}: <strong>${npc.kind.xp}</strong></span>
                     </div>
                 </div>
                 <div class="row">
@@ -93,6 +96,11 @@ function npc (emit: wecco.MessageEmitter<Message>, model: Model, npc: NPC, activ
                         `)}
                     </div>
                 </div>                
+                <div class="row">
+                    <div class="col text-end">
+                        <button class="btn btn-outline-danger" @click+stopPropagation=${() => emit(new RemoveCharacter(npc))}><i class="material-icons">close</i></button>
+                    </div>
+                </div>
             </div>
         </div>
     `

@@ -40,6 +40,8 @@ export type SavingThrows<T> = Record<SavingThrow, T>
 export interface KindOptions {
     ac: number
     speed: number
+    challengeRate: number
+    xp: number
     savingThrows: SavingThrows<number>
     hitDie: Roll
     attacks?: Array<Attack>
@@ -50,6 +52,8 @@ export class Kind {
         return new Kind("", {
             speed: 6,
             ac: 10,
+            challengeRate: 1,
+            xp: 200,
             hitDie: Roll.parse("1d4"),
             savingThrows: {
                 str: 0,
@@ -64,6 +68,8 @@ export class Kind {
 
     public readonly speed: number 
     public readonly ac: number
+    public readonly challengeRate: number
+    public readonly xp: number
     public readonly hitDie: Roll
     public readonly savingThrows: SavingThrows<number>
     public readonly attacks: Array<Attack>
@@ -75,6 +81,8 @@ export class Kind {
     ) {
         this.speed = options.speed
         this.ac = options.ac
+        this.challengeRate = options.challengeRate
+        this.xp = options.xp
         this.hitDie = options.hitDie
         this.savingThrows = {
             str: options.savingThrows.str,

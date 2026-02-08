@@ -37,6 +37,8 @@ export interface Kind {
     label: string
     speed: number 
     ac: number
+    challengeRate?: number
+    xp?: number
     hitDie: string
     savingThrows: SavingThrows
     attacks: Array<Attack>
