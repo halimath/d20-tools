@@ -37,7 +37,6 @@ export interface Kind {
     label: string
     speed: number 
     ac: number
-    ini: number
     hitDie: string
     savingThrows: SavingThrows
     tags: Array<string>

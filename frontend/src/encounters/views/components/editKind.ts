@@ -19,7 +19,6 @@ export function showEditKindModal (kind: Kind, saveHandler: SaveHandler): void {
             tags: kind?.tags.join(", "),
             ac: kind?.ac.toString(),
             hitDie: kind?.hitDie.toString(),
-            ini: kind?.ini?.toString(),
             speed: kind?.speed.toString(),
             str: kind?.savingThrows.str.toString(),
             dex: kind?.savingThrows.dex.toString(),
@@ -53,7 +52,6 @@ interface AttackData {
 interface EditFormData {
     label?: string
     tags?: string
-    ini?: string
     ac?: string
     speed?: string
     hitDie?: string
@@ -89,7 +87,6 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
         try {
             const kind = new Kind(data.editForm!.label!, {
                 ac: parseInt(data.editForm!.ac!),
-                ini: parseInt(data.editForm!.ini!),
                 hitDie: Roll.parse(data.editForm!.hitDie!),
                 speed: parseInt(data.editForm!.speed!),
                 tags: data.editForm!.tags?.split(", "),
@@ -138,17 +135,6 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
             </div>
             
             <div class="row mb-2">
-                <div class="col">
-                    <label for="${data.idPrefix}ini">${m("encounters.ini")}</label>
-                    ${inputField({
-                        type: "number",
-                        id: `${data.idPrefix}ini`,
-                        value: data.editForm.ini,
-                        classes: "form-control",
-                        onChange: bindEditFormAttribute("ini"),
-                        validator: notEmpty,
-                    })}                                
-                </div>
                 <div class="col">
                     <label for="${data.idPrefix}ac">${m("encounters.ac")}</label>
                     ${inputField({
