@@ -1,7 +1,7 @@
 import * as wecco from "@weccoframework/core"
-import { Message, PerformAttack, RemoveCharacter, RollSavingThrow, SelectActiveCharacter, UpdateCurrentHitPoints } from "../../controller"
+import { Message, PerformAttack, RemoveCharacter, RollAttribute, SelectActiveCharacter, UpdateCurrentHitPoints } from "../../controller"
 import { m } from "d20-tools/common/i18n"
-import { Attack, Character, Hit, Model, NPC, PC, SavingThrow } from "../../models"
+import { Attack, Attribute, Character, Hit, Model, NPC, PC } from "../../models"
 
 
 export function characters(model: Model, emit: wecco.MessageEmitter<Message>): wecco.ElementUpdate {
@@ -79,11 +79,11 @@ function npc (emit: wecco.MessageEmitter<Message>, model: Model, npc: NPC, activ
                     </div>
                     <div class="col-8">
                         <div>
-                            ${Object.keys(npc.kind.savingThrows).map((savingThrow: SavingThrow) => wecco.html`
+                            ${Object.keys(npc.kind.attributes).map((attribute: Attribute) => wecco.html`
                             <div class="mt-2 me-2 w-auto text-center d-inline-block">
-                                <button class="btn ${npc.savingThrows[savingThrow] ? "btn-secondary" : "btn-outline-secondary"}" @click+stopPropagation=${() => emit(new RollSavingThrow(npc, savingThrow))}>
-                                    ${m(`encounters.savingthrow.${savingThrow}`)}
-                                    ${npc.savingThrows[savingThrow] ? ` = ${npc.savingThrows[savingThrow]?.value}` : `: ${modifier(npc.kind.savingThrows[savingThrow])}`}                                
+                                <button class="btn ${npc.attributes[attribute] ? "btn-secondary" : "btn-outline-secondary"}" @click+stopPropagation=${() => emit(new RollAttribute(npc, attribute))}>
+                                    ${m(`encounters.attribute.${attribute}`)}
+                                    ${npc.attributes[attribute] ? ` = ${npc.attributes[attribute]?.value}` : `: ${modifier(npc.kind.attributes[attribute])}`}                                
                                 </button>
                             </div>
                             `)}
