@@ -30,9 +30,25 @@ html, body
 
         .grid-wrapper
             flex: 1
-            overflow: auto
-            scrollbar-width: none
+            overflow-x: auto
+            overflow-y: auto
+            /* allow visible scrollbars in Firefox */
+            scrollbar-width: auto
+            -webkit-overflow-scrolling: touch
             min-width: 0
+
+            /* show native webkit scrollbars with simple styling */
+            &::-webkit-scrollbar
+                height: 12px
+                width: 12px
+
+            &::-webkit-scrollbar-thumb
+                background-color: rgba(0, 0, 0, 0.25)
+                border-radius: 6px
+
+            &::-webkit-scrollbar-track
+                background: rgba(0, 0, 0, 0.05)
+                border-radius: 6px
 
             canvas
                 max-width: none
