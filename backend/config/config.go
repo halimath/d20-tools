@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/sethvargo/go-envconfig"
@@ -15,7 +16,8 @@ type OAuthConfig struct {
 }
 
 type Config struct {
-	HTTPPort int `env:"HTTP_PORT, default=8080"`
+	HTTPPort        int           `env:"HTTP_PORT, default=8080"`
+	SessionDuration time.Duration `env:"SESSION_DURATION, default=30m"`
 
 	GridDBPath string `env:"GRID_DB_PATH, default=grid.db"`
 
