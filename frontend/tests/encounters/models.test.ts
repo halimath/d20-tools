@@ -84,36 +84,4 @@ describe("models", () => {
             })
         })
     })
-
-    // describe("Model", () => {
-    //     const kind = new Kind("k1", {
-    //         ac: 0,
-    //         hitDie: Roll.parse("1d10"),
-    //         savingThrows: {
-    //             fortitude: 0,
-    //             reflex: 0,
-    //             will: 0,
-    //         },
-    //         speed: 0,
-    //         ini: 0,
-    //     })
-
-    //     const model = new Model([kind], [
-    //         new Character("c1", kind, 8, 7, []),
-    //         new Character("c2", kind, 9, 1, []),
-    //     ])
-
-
-    //     describe("toUrlHash", () => {
-    //         test("should generate url hash", () => {
-    //             expect(model.toUrlHash()).toStrictEqual(encodeURIComponent("c1;k1;8;7&c2;k1;9;1"))
-    //         })
-    //     })
-
-    //     describe("fromUrlString", () => {
-    //         test("should reconstruct model", () => {
-    //             expect(Model.fromUrlHash(encodeURIComponent("c1;k1;8;7&c2;k1;9;1"), [ kind ])).toStrictEqual(model)
-    //         })
-    //     })
-    // })
 })

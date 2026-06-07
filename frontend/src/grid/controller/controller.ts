@@ -1,11 +1,17 @@
 import * as wecco from "@weccoframework/core"
 import { isAuthenticated } from "d20-tools/common/components/auth"
 import { setLastPathElement } from "../../common/browser"
-import { createGrid, loadGrid, updateGrid } from "../api/api"
+import { createGrid, deleteGrid, loadGrid, updateGrid } from "../api/api"
 import { Color, Colors, DefaultZoomLevel, Editor, GameGrid, Model, Token, TokenSymbols, Tool, Viewer, Wall, WallPosition } from "../models/models"
 
 export class LoadGrid {
     readonly command = "load-grid"
+
+    constructor(public readonly id: string) { }
+}
+
+export class DeleteGrid {
+    readonly command = "delete-grid"
 
     constructor(public readonly id: string) { }
 }
@@ -66,7 +72,7 @@ export class GridRemoteUpdate {
 
 // --
 
-export type Message = LoadGrid | ResizeGrid | UpdateLabel | PlaceToken | PlaceWall | PlaceBackground 
+export type Message = LoadGrid | DeleteGrid | ResizeGrid | UpdateLabel | PlaceToken | PlaceWall | PlaceBackground 
     | SelectTool | ClearGrid | IncZoom | DecZoom | GridRemoteUpdate
 
 export async function update({ model, message }: wecco.UpdaterContext<Model, Message>): Promise<Model> {
@@ -101,6 +107,12 @@ async function applyUpdate(model: Model, message: Message): Promise<Model> {
             return loadGrid(message.id)
                 .then(g => {
                     return new Editor(g, DefaultZoomLevel, Colors[0], TokenSymbols[0])
+                })
+
+        case "delete-grid":
+            return deleteGrid(message.id)
+                .then(() => {
+                    return model
                 })
 
         case "resize-grid":

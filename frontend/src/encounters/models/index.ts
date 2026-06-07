@@ -3,7 +3,7 @@ export * from "./npc"
 export * from "./roll"
 
 import { Character, InitiativeKind, PC } from "./character"
-import { Attack, Kind, NPC, SavingThrow } from "./npc"
+import { Attack, Attribute, Kind, NPC } from "./npc"
 
 export type Tab = "characters" | "kinds"
 
@@ -56,7 +56,7 @@ export class Model {
         return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab, this.initiativeKind)
     }
 
-    rollSavingThrow(character: Character, savingThrow: SavingThrow): Model {
+    rollAttribute(character: Character, attribute: Attribute): Model {
         if (!(character instanceof NPC)) {
             return this
         }
@@ -67,7 +67,7 @@ export class Model {
         }
 
         let characters = this.characters.slice(0, idx)
-        characters.push(character.rollSavingThrow(savingThrow))
+        characters.push(character.rollAttribute(attribute))
         characters = characters.concat(this.characters.slice(idx + 1))
 
         return new Model(this.kinds, characters, this.activeCharacterIndex, this.tab, this.initiativeKind)

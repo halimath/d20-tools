@@ -18,12 +18,12 @@ export function kinds(kinds: Array<Kind>, emit: wecco.MessageEmitter<Message>): 
                         <th>${m("encounters.speed")}</th>
                         <th>${m("encounters.ac")}</th>
                         <th>${m("encounters.hp")}</th>
-                        <th>${m("encounters.savingthrow.str")}</th>
-                        <th>${m("encounters.savingthrow.dex")}</th>
-                        <th>${m("encounters.savingthrow.con")}</th>
-                        <th>${m("encounters.savingthrow.int")}</th>
-                        <th>${m("encounters.savingthrow.wis")}</th>
-                        <th>${m("encounters.savingthrow.cha")}</th>
+                        <th>${m("encounters.attribute.str")}</th>
+                        <th>${m("encounters.attribute.dex")}</th>
+                        <th>${m("encounters.attribute.con")}</th>
+                        <th>${m("encounters.attribute.int")}</th>
+                        <th>${m("encounters.attribute.wis")}</th>
+                        <th>${m("encounters.attribute.cha")}</th>
                         <th>${m("encounters.attacks")}</th>
                         <th></th>
                     </tr>
@@ -45,12 +45,12 @@ function kindRow(emit: wecco.MessageEmitter<Message>, k: Kind, idx: number): wec
             <td>${k.speed}</td>
             <td>${k.ac}</td>
             <td>${k.hitDie}</td>
-            <td>${modifier(k.savingThrows.str)}</td>
-            <td>${modifier(k.savingThrows.dex)}</td>
-            <td>${modifier(k.savingThrows.con)}</td>
-            <td>${modifier(k.savingThrows.int)}</td>
-            <td>${modifier(k.savingThrows.wis)}</td>
-            <td>${modifier(k.savingThrows.cha)}</td>
+            <td>${modifier(k.attributes.str)}</td>
+            <td>${modifier(k.attributes.dex)}</td>
+            <td>${modifier(k.attributes.con)}</td>
+            <td>${modifier(k.attributes.int)}</td>
+            <td>${modifier(k.attributes.wis)}</td>
+            <td>${modifier(k.attributes.cha)}</td>
             <td>
                 <ul class="list-unstyled">                        
                     ${k.attacks.map(a => wecco.html`

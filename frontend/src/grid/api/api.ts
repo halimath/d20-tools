@@ -61,6 +61,15 @@ export async function loadGrid (id: string): Promise<GameGrid> {
     return GameGrid.fromDescriptor(dto.label, dto.descriptor, id, new Date(dto.lastModified))
 }
 
+export async function deleteGrid (id: string): Promise<void> {
+    const res = await fetch(`/api/grid/${id}`, {
+        method: "DELETE"
+    })
+    if (!res.ok) {
+        throw new Error(`failed to delete grid with id ${id}: ${res.statusText}`)
+    }
+}
+
 export type GridUpdateCallback = (grid: GameGrid) => void
 
 export class Subsciption {

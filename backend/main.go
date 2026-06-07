@@ -75,7 +75,7 @@ func runService(ctx context.Context) int {
 	gridRepo := grid.NewRepository(shlf)
 	gridSrv := grid.NewService(gridRepo)
 
-	sessionStore := session.NewInMemoryStore(session.WithMaxTTL(time.Hour))
+	sessionStore := session.NewInMemoryStore()
 
 	if cfg.DevMode {
 		s := session.NewInMemorySession()
@@ -87,7 +87,12 @@ func runService(ctx context.Context) int {
 		logger.Logf("DEV_MODE has been set. Adding dummy session with id %q", s.ID())
 	}
 
-	sessionMW := session.NewMiddleware(session.WithStore(sessionStore))
+	sessionMW := session.NewMiddleware(
+		session.WithStore(sessionStore),
+		session.WithCookieOptions(session.CookieOpts{
+			SameSite: http.SameSiteLaxMode,
+		}),
+		session.WithMaxAge(cfg.SessionDuration))
 
 	mux := http.NewServeMux()
 	mux.Handle("/.well-known/version-info.json", createVersionInfoHandler())

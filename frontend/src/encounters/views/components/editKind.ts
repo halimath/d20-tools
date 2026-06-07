@@ -2,7 +2,7 @@ import * as wecco from "@weccoframework/core"
 import { inputField, notEmpty } from "d20-tools/common/components/forms/input"
 import { modal } from "d20-tools/common/components/modal"
 import { m } from "d20-tools/common/i18n"
-import { Attack, Damage, Kind, Roll, SavingThrowKeys } from "../../models"
+import { Attack, AttributeKeys, Damage, Kind, Roll } from "../../models"
 
 export interface SaveHandler {
     (k: Kind): void
@@ -21,12 +21,12 @@ export function showEditKindModal (kind: Kind, saveHandler: SaveHandler): void {
             speed: kind?.speed.toString(),
             challengeRate: kind?.challengeRate?.toString() ?? "1",
             xp: kind?.xp?.toString() ?? "200",
-            str: kind?.savingThrows.str.toString(),
-            dex: kind?.savingThrows.dex.toString(),
-            con: kind?.savingThrows.con.toString(),
-            int: kind?.savingThrows.int.toString(),
-            wis: kind?.savingThrows.wis.toString(),
-            cha: kind?.savingThrows.cha.toString(),
+            str: kind?.attributes.str.toString(),
+            dex: kind?.attributes.dex.toString(),
+            con: kind?.attributes.con.toString(),
+            int: kind?.attributes.int.toString(),
+            wis: kind?.attributes.wis.toString(),
+            cha: kind?.attributes.cha.toString(),
         },
         attacks: kind?.attacks.map(a => {
             return {
@@ -93,7 +93,7 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
                 speed: parseInt(data.editForm!.speed!),
                 challengeRate: parseFloat(data.editForm!.challengeRate!),
                 xp: parseInt(data.editForm!.xp!),
-                savingThrows: {
+                attributes: {
                     str: parseInt(data.editForm!.str!),
                     dex: parseInt(data.editForm!.dex!),
                     con: parseInt(data.editForm!.con!),
@@ -188,12 +188,12 @@ const kindEditor = wecco.define("kind-editor", ({data, requestUpdate}: wecco.Ren
                     </div>        
                 </div>
 
-                <h5>${m("encounters.savingthrows")}</h5>
+                <h5>${m("encounters.attributes")}</h5>
                 <div class="row mb-2">
                     ${
-                        SavingThrowKeys.map(st => wecco.html`
+                        AttributeKeys.map(st => wecco.html`
                             <div class="col">
-                                <label for="${data.idPrefix}${st}">${m(`encounters.savingthrow.${st}`)}</label>
+                                <label for="${data.idPrefix}${st}">${m(`encounters.attribute.${st}`)}</label>
                                 ${inputField({
                                     type: "number",
                                     id: `${data.idPrefix}${st}`,

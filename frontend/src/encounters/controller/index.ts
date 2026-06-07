@@ -1,5 +1,5 @@
 import * as wecco from "@weccoframework/core"
-import { Attack, Character, InitiativeKind, Kind, Model, SavingThrow, Tab } from "../models"
+import { Attack, Attribute, Character, InitiativeKind, Kind, Model, Tab } from "../models"
 import { saveCharacters, saveKinds } from "../store"
 
 export class Nop {
@@ -40,10 +40,10 @@ export class PerformAttack {
     constructor(public readonly character: Character, public readonly attack: Attack) { }
 }
 
-export class RollSavingThrow {
-    readonly command = "roll-saving-throw"
+export class RollAttribute {
+    readonly command = "roll-attribute"
 
-    constructor(public readonly character: Character, public readonly savingThrow: SavingThrow) { }
+    constructor(public readonly character: Character, public readonly attribute: Attribute) { }
 }
 
 export class UpdateCurrentHitPoints {
@@ -77,7 +77,7 @@ export class SwitchInitiativeKind {
 }
 
 export type Message = Nop | Clear | SelectTab | CreateNPC | CreatePC | RemoveCharacter | PerformAttack 
-    | RollSavingThrow | UpdateCurrentHitPoints | SelectActiveCharacter 
+    | RollAttribute | UpdateCurrentHitPoints | SelectActiveCharacter 
     | SaveKind | RemoveKind | SwitchInitiativeKind
 
 export function update({model, message}: wecco.UpdaterContext<Model, Message>): Model | Promise<Model> {
@@ -103,8 +103,8 @@ export function update({model, message}: wecco.UpdaterContext<Model, Message>): 
         case "perform-attack":
             return model.performAttach(message.character, message.attack)
 
-        case "roll-saving-throw":
-            return model.rollSavingThrow(message.character, message.savingThrow)
+        case "roll-attribute":
+            return model.rollAttribute(message.character, message.attribute)
 
         case "update-current-hitpoints":
             return model.updateCurrentHitPoints(message.character, message.delta)

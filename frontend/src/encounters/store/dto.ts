@@ -1,4 +1,4 @@
-import { SavingThrow } from "../models"
+import { Attribute } from "../models"
 
 export interface PC {
     type: "pc"
@@ -20,7 +20,7 @@ export interface NPC {
     chp: number
 }
 
-export type SavingThrows = Record<SavingThrow, number>
+export type Attributes = Record<Attribute, number>
 
 export interface Damage {
     label: string
@@ -40,6 +40,7 @@ export interface Kind {
     challengeRate?: number
     xp?: number
     hitDie: string
-    savingThrows: SavingThrows
+    attributes?: Attributes
+    savingThrows?: Attributes
     attacks: Array<Attack>
 }

@@ -1,12 +1,13 @@
 import * as wecco from "@weccoframework/core"
 import { modal } from "src/common/components/modal"
 import { m } from "../../../common/i18n"
-import { LoadGrid, Message } from "../../controller/controller"
+import { DeleteGrid, LoadGrid, Message } from "../../controller/controller"
 import { GameGrid } from "d20-tools/grid/models/models"
 import { loadGridIndex } from "d20-tools/grid/api/api"
 
 interface LoadDialogModel {
     onLoad: (id: string) => void
+    onDelete: (id: string) => void
     infos?: Array<GameGrid>
 }
 
@@ -38,18 +39,14 @@ const LoadDialog = wecco.define("load-dialog", ({data, requestUpdate, once}: wec
                     </tr>
                 </thead>
                 <tbody>
-                    ${data.infos.map((i, idx) => wecco.html`
+                    ${data.infos.map(i => wecco.html`
                         <tr>
                             <td>${i.label}</td>
                             <td>${i.cols} x ${i.rows}</td>
                             <td>${m("$relativeTime", i.lastModified!.getTime() - new Date().getTime())}</td>
                             <td>
                                 <button class="btn btn-outline-primary btn-small" data-bs-dismiss="modal" @click=${() => data.onLoad(i.id!)}><i class="material-icons">edit</i></button>
-                                <button class="btn btn-outline-danger btn-small"><i class="material-icons" @click=${() => {
-                                    data.infos?.splice(idx, 1)
-                                    // deleteGameGrid(i.id)
-                                    requestUpdate()
-                                }}>delete</i></button>
+                                <button class="btn btn-outline-danger btn-small" data-bs-dismiss="modal" @click=${() => data.onDelete(i.id!)}><i class="material-icons">delete</i></button>
                             </td>
                         </tr>`)}
                 </tbody>
@@ -61,6 +58,9 @@ export function showLoadDialog(emit: wecco.MessageEmitter<Message>): void {
     modal(LoadDialog({
         onLoad(id: string) {
             emit(new LoadGrid(id))
+        },
+        onDelete(id: string) {
+            emit(new DeleteGrid(id))
         }
     }), {
         show: true,

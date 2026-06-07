@@ -48,19 +48,24 @@ export function reconstructCharacter(dto: dtos.PC | dtos.NPC, kinds: Array<model
 }
 
 export function reconstructKind(dto: dtos.Kind): models.Kind {
+    const attributes = dto.attributes ?? dto.savingThrows
+    if (!attributes) {
+        throw "kind attributes not found"
+    }
+
     return new models.Kind(dto.label, {
         ac: dto.ac,
         speed: dto.speed, 
         challengeRate: dto.challengeRate ?? 1,
         xp: dto.xp ?? 200,
         hitDie: Roll.parse(dto.hitDie),
-        savingThrows: {
-            str: dto.savingThrows.str,
-            dex: dto.savingThrows.dex,
-            con: dto.savingThrows.con,
-            int: dto.savingThrows.int,
-            wis: dto.savingThrows.wis,
-            cha: dto.savingThrows.cha,
+        attributes: {
+            str: attributes.str,
+            dex: attributes.dex,
+            con: attributes.con,
+            int: attributes.int,
+            wis: attributes.wis,
+            cha: attributes.cha,
         }
     }, ...dto.attacks.map(a => new models.Attack(a.label, a.mod, ...a.damage.map(d => new models.Damage(d.label, Roll.parse(d.damage))))))
 }
@@ -73,13 +78,13 @@ export function convertKind (kind: models.Kind): dtos.Kind {
         challengeRate: kind.challengeRate,
         xp: kind.xp,
         hitDie: kind.hitDie.toString(),
-        savingThrows: {            
-            str: kind.savingThrows.str,
-            dex: kind.savingThrows.dex,
-            con: kind.savingThrows.con,
-            int: kind.savingThrows.int,
-            wis: kind.savingThrows.wis,
-            cha: kind.savingThrows.cha,
+        attributes: {            
+            str: kind.attributes.str,
+            dex: kind.attributes.dex,
+            con: kind.attributes.con,
+            int: kind.attributes.int,
+            wis: kind.attributes.wis,
+            cha: kind.attributes.cha,
         },
         attacks: kind.attacks.map(a => {
             return {
